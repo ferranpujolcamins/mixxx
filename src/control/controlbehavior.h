@@ -29,6 +29,10 @@ class ControlNumericBehavior {
     virtual void setValueFromMidi(
             MidiOpCode o, double dParam, ControlDoublePrivate* pControl);
     
+    // Parameter value where the control has a neutral effect
+    // or no effect. For example, for ControlAudioTaperPotBehavior this
+    // represents a knob position between 0 and 1 where
+    // the gain is 1 (0dB).
     virtual double neutralParameter();
 };
 
