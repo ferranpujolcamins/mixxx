@@ -62,9 +62,14 @@ class ControlProxy : public QObject {
         return m_pControl ? m_pControl->getParameterForValue(value) : 0.0;
     }
 
+
     // Returns the normalized parameter of the object. Thread safe, non-blocking.
     inline double getDefault() const {
         return m_pControl ? m_pControl->defaultValue() : 0.0;
+    }
+
+    inline double neutralParameter() const {
+        return m_pControl ? m_pControl->neutralParameter() : 0.0;
     }
 
   public slots:
