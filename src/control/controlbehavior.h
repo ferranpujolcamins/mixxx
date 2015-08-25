@@ -28,6 +28,8 @@ class ControlNumericBehavior {
 
     virtual void setValueFromMidi(
             MidiOpCode o, double dParam, ControlDoublePrivate* pControl);
+    
+    virtual double neutralParameter();
 };
 
 class ControlPotmeterBehavior : public ControlNumericBehavior {
