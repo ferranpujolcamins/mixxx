@@ -100,6 +100,8 @@ class ControlAudioTaperPotBehavior : public ControlPotmeterBehavior {
     void setValueFromMidi(
             MidiOpCode o, double dParam, ControlDoublePrivate* pControl)
                     override;
+    virtual double neutralParameter() override;
+
 
   protected:
     // a knob position between 0 and 1 where the gain is 1 (0dB)
