@@ -103,12 +103,9 @@ class ControlAudioTaperPotBehavior : public ControlPotmeterBehavior {
     void setValueFromMidi(
             MidiOpCode o, double dParam, ControlDoublePrivate* pControl)
                     override;
-    double neutralParameter() override;
 
 
   protected:
-    // a knob position between 0 and 1 where the gain is 1 (0dB)
-    double m_neutralParameter;
     // the Start value of the pure db scale it cranked to -Infinity by the
     // linear part of the AudioTaperPot
     double m_minDB;
