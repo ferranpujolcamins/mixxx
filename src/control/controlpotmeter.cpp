@@ -20,6 +20,7 @@
 #include "control/controlproxy.h"
 
 ControlPotmeter::ControlPotmeter(ConfigKey key, double dMinValue, double dMaxValue,
+                                 double dNeutralValue,
                                  bool allowOutOfBounds,
                                  bool bIgnoreNops,
                                  bool bTrack,
@@ -27,7 +28,7 @@ ControlPotmeter::ControlPotmeter(ConfigKey key, double dMinValue, double dMaxVal
                                  double defaultValue)
         : ControlObject(key, bIgnoreNops, bTrack, bPersist, defaultValue),
           m_controls(key) {
-    setRange(dMinValue, dMaxValue, allowOutOfBounds);
+    setRange(dMinValue, dMaxValue, dNeutralValue, allowOutOfBounds);
     double default_value = dMinValue + 0.5 * (dMaxValue - dMinValue);
     setDefaultValue(default_value);
     if (!bPersist) {
@@ -48,12 +49,13 @@ void ControlPotmeter::setSmallStepCount(int count) {
 }
 
 void ControlPotmeter::setRange(double dMinValue, double dMaxValue,
+                               double dNeutralValue,
                                bool allowOutOfBounds) {
     m_bAllowOutOfBounds = allowOutOfBounds;
 
     if (m_pControl) {
         m_pControl->setBehavior(
-                new ControlPotmeterBehavior(dMinValue, dMaxValue, allowOutOfBounds));
+                new ControlPotmeterBehavior(dMinValue, dMaxValue, dNeutralValue, allowOutOfBounds));
     }
 }
 
