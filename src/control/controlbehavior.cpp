@@ -36,10 +36,12 @@ double ControlNumericBehavior::neutralParameter() {
 }
 
 ControlPotmeterBehavior::ControlPotmeterBehavior(double dMinValue, double dMaxValue,
+                                                 double dNeutralParameter,
                                                  bool allowOutOfBounds)
         : m_dMinValue(dMinValue),
           m_dMaxValue(dMaxValue),
           m_dValueRange(m_dMaxValue - m_dMinValue),
+          m_dNeutralParameter(dNeutralParameter),
           m_bAllowOutOfBounds(allowOutOfBounds) {
 }
 
@@ -95,14 +97,18 @@ double ControlPotmeterBehavior::valueToMidiParameter(double dValue) {
     }
 }
 
+double ControlPotmeterBehavior::neutralParameter() {
+    return m_dNeutralParameter;
+}
+
 #define maxPosition 1.0
 #define minPosition 0.0
 #define middlePosition ((maxPosition - minPosition) / 2.0)
 #define positionrange (maxPosition - minPosition)
 
-ControlLogPotmeterBehavior::ControlLogPotmeterBehavior(double dMinValue,
-        double dMaxValue, double minDB)
-        : ControlPotmeterBehavior(dMinValue, dMaxValue, false) {
+ControlLogPotmeterBehavior::ControlLogPotmeterBehavior(double dMinValue, double dMaxValue,
+                                                       double dNeutralParameter, double minDB)
+        : ControlPotmeterBehavior(dMinValue, dMaxValue, dNeutralParameter, false) {
     if (minDB >= 0) {
         qWarning() << "ControlLogPotmeterBehavior::ControlLogPotmeterBehavior() minDB must be negative";
         m_minDB = -1;
@@ -146,8 +152,7 @@ double ControlLogInvPotmeterBehavior::parameterToValue(double dParam) {
 }
 
 ControlLinPotmeterBehavior::ControlLinPotmeterBehavior(
-        double dMinValue, double dMaxValue, bool allowOutOfBounds)
-        : ControlPotmeterBehavior(dMinValue, dMaxValue, allowOutOfBounds) {
+        double dMinValue, double dMaxValue, double dNeutralParameter, bool allowOutOfBounds)
 }
 
 ControlLinInvPotmeterBehavior::ControlLinInvPotmeterBehavior(
