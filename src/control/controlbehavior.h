@@ -39,24 +39,27 @@ class ControlNumericBehavior {
 class ControlPotmeterBehavior : public ControlNumericBehavior {
   public:
     ControlPotmeterBehavior(double dMinValue, double dMaxValue,
-                            bool allowOutOfBounds);
+                            double dNeutralParameter, bool allowOutOfBounds);
 
     bool setFilter(double* dValue) override;
     double valueToParameter(double dValue) override;
     double midiToParameter(double midiValue) override;
     double parameterToValue(double dParam) override;
     double valueToMidiParameter(double dValue) override;
+    double neutralParameter() override;
 
   protected:
     double m_dMinValue;
     double m_dMaxValue;
     double m_dValueRange;
+    double m_dNeutralParameter;
     bool m_bAllowOutOfBounds;
 };
 
 class ControlLogPotmeterBehavior : public ControlPotmeterBehavior {
   public:
-    ControlLogPotmeterBehavior(double dMinValue, double dMaxValue, double minDB);
+    ControlLogPotmeterBehavior(double dMinValue, double dMaxValue,
+                               double dNeutralParameter, double minDB);
 
     double valueToParameter(double dValue) override;
     double parameterToValue(double dParam) override;
@@ -77,7 +80,7 @@ class ControlLogInvPotmeterBehavior : public ControlLogPotmeterBehavior {
 class ControlLinPotmeterBehavior : public ControlPotmeterBehavior {
   public:
     ControlLinPotmeterBehavior(
-            double dMinValue, double dMaxValue, bool allowOutOfBounds);
+            double dMinValue, double dMaxValue, double dNeutralParameter, bool allowOutOfBounds);
 };
 
 class ControlLinInvPotmeterBehavior : public ControlPotmeterBehavior {
@@ -100,7 +103,7 @@ class ControlAudioTaperPotBehavior : public ControlPotmeterBehavior {
     void setValueFromMidi(
             MidiOpCode o, double dParam, ControlDoublePrivate* pControl)
                     override;
-    virtual double neutralParameter() override;
+    double neutralParameter() override;
 
 
   protected:
