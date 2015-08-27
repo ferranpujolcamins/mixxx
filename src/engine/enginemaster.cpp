@@ -86,10 +86,10 @@ EngineMaster::EngineMaster(UserSettingsPointer pConfig,
     ControlObject::getControl(ConfigKey("[InternalClock]","bpm"))->set(default_bpm);
 
     // Crossfader
-    m_pCrossfader = new ControlPotmeter(ConfigKey(group, "crossfader"), -1., 1.);
+    m_pCrossfader = new ControlPotmeter(ConfigKey(group, "crossfader"), -1., 1., 0.5);
 
     // Balance
-    m_pBalance = new ControlPotmeter(ConfigKey(group, "balance"), -1., 1.);
+    m_pBalance = new ControlPotmeter(ConfigKey(group, "balance"), -1., 1., 0.5);
 
     // Master gain
     m_pMasterGain = new ControlAudioTaperPot(ConfigKey(group, "gain"), -14, 14, 0.5);
@@ -121,7 +121,7 @@ EngineMaster::EngineMaster(UserSettingsPointer pConfig,
                                       ConfigKey(group, "headGain"));
 
     // Headphone mix (left/right)
-    m_pHeadMix = new ControlPotmeter(ConfigKey(group, "headMix"),-1.,1.);
+    m_pHeadMix = new ControlPotmeter(ConfigKey(group, "headMix"),-1.,1., 0.5);
     m_pHeadMix->setDefaultValue(-1.);
     m_pHeadMix->set(-1.);
 
@@ -165,7 +165,7 @@ EngineMaster::EngineMaster(UserSettingsPointer pConfig,
             EngineXfader::kTransformMin, EngineXfader::kTransformMax);
     m_pXFaderCalibration = new ControlPotmeter(
             ConfigKey(EngineXfader::kXfaderConfigKey, "xFaderCalibration"),
-            0.3, 1., true);
+            0.3, 1., 0.3, true);
     m_pXFaderReverse = new ControlPushButton(
             ConfigKey(EngineXfader::kXfaderConfigKey, "xFaderReverse"));
     m_pXFaderReverse->setButtonMode(ControlPushButton::TOGGLE);
