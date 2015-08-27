@@ -8,14 +8,15 @@ ControlEffectKnob::ControlEffectKnob(ConfigKey key, double dMinValue, double dMa
 }
 
 void ControlEffectKnob::setBehavior(EffectManifestParameter::ControlHint type,
-                                     double dMinValue, double dMaxValue) {
+                                     double dMinValue, double dMaxValue,
+                                     double dNeutralParameter) {
     if (m_pControl == NULL) {
         return;
     }
 
     if (type == EffectManifestParameter::ControlHint::KNOB_LINEAR) {
             m_pControl->setBehavior(new ControlLinPotmeterBehavior(
-                    dMinValue, dMaxValue, false));
+                    dMinValue, dMaxValue, dNeutralParameter, false));
     } else if (type == EffectManifestParameter::ControlHint::KNOB_LINEAR_INVERSE) {
             m_pControl->setBehavior(new ControlLinInvPotmeterBehavior(
                     dMinValue, dMaxValue, false));
@@ -24,18 +25,18 @@ void ControlEffectKnob::setBehavior(EffectManifestParameter::ControlHint type,
             if (dMaxValue == 1.0) {
                 // Volume like control
                 m_pControl->setBehavior(
-                        new ControlAudioTaperPotBehavior(-20, 0, 1));
+                        new ControlAudioTaperPotBehavior(-20, 0, dNeutralParameter));
             } else if (dMaxValue > 1.0) {
                 // Gain like control
                 m_pControl->setBehavior(
-                        new ControlAudioTaperPotBehavior(-12, ratio2db(dMaxValue), 0.5));
+                        new ControlAudioTaperPotBehavior(-12, ratio2db(dMaxValue), dNeutralParameter));
             } else {
                 m_pControl->setBehavior(
-                        new ControlLogPotmeterBehavior(dMinValue, dMaxValue, -40));
+                        new ControlLogPotmeterBehavior(dMinValue, dMaxValue, dNeutralParameter, -40));
             }
         } else {
             m_pControl->setBehavior(
-                    new ControlLogPotmeterBehavior(dMinValue, dMaxValue, -40));
+                    new ControlLogPotmeterBehavior(dMinValue, dMaxValue, dNeutralParameter, -40));
         }
     } else if (type == EffectManifestParameter::ControlHint::KNOB_LOGARITHMIC_INVERSE) {
         m_pControl->setBehavior(
