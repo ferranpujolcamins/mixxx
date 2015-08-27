@@ -37,7 +37,7 @@ EffectChainSlot::EffectChainSlot(EffectRack* pRack, const QString& group,
             this, SLOT(slotControlChainEnabled(double)));
 
     m_pControlChainMix = new ControlPotmeter(ConfigKey(m_group, "mix"), 0.0, 1.0,
-                                             false, true, false, true, 1.0);
+                                             0.5, false, true, false, true, 1.0);
     connect(m_pControlChainMix, SIGNAL(valueChanged(double)),
             this, SLOT(slotControlChainMix(double)));
 
