@@ -153,6 +153,7 @@ double ControlLogInvPotmeterBehavior::parameterToValue(double dParam) {
 
 ControlLinPotmeterBehavior::ControlLinPotmeterBehavior(
         double dMinValue, double dMaxValue, double dNeutralParameter, bool allowOutOfBounds)
+	: ControlPotmeterBehavior(dMinValue, dMaxValue, dNeutralParameter, allowOutOfBounds) {
 }
 
 ControlLinInvPotmeterBehavior::ControlLinInvPotmeterBehavior(
@@ -222,7 +223,7 @@ double ControlAudioTaperPotBehavior::parameterToValue(double dParam) {
     } else if (dParam < 1.0) {
         // m_maxDB = 1
         // 0 dB = m_neutralParame;
-        dValue = db2ratio((dParam - m_dneutralParameter) * m_maxDB / (1 - m_neutralParameter));
+        dValue = db2ratio((dParam - m_dNeutralParameter) * m_maxDB / (1 - m_dNeutralParameter));
     } else {
         dValue = db2ratio(m_maxDB);
     }

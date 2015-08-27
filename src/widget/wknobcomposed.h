@@ -24,6 +24,8 @@ class WKnobComposed : public WWidget {
 
     void setup(const QDomNode& node, const SkinContext& context);
 
+    void addConnection(ControlParameterWidgetConnection* pConnection);
+
     void onConnectedControlChanged(double dParameter, double dValue) override;
 
   protected:
@@ -50,6 +52,7 @@ class WKnobComposed : public WWidget {
             double scaleFactor);
 
     double m_dCurrentAngle;
+    double m_dNeutralParameter;
     PaintablePointer m_pKnob;
     PaintablePointer m_pPixmapBack;
     PaintablePointer m_pRing;
