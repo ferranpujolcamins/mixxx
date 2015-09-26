@@ -381,7 +381,10 @@ TEST_F(MidiControllerTest, ReceiveMessage_PotMeterCO_7BitCC) {
     const double kMinValue = -1234.5;
     const double kMaxValue = 678.9;
     const double kMiddleValue = (kMinValue + kMaxValue) * 0.5;
-    ControlPotmeter potmeter(key, kMinValue, kMaxValue);
+    PotmeterParameters potmeterParameters;
+    potmeterParameters.setMinValue(kMinValue);
+    potmeterParameters.setMaxValue(kMaxValue);
+    ControlPotmeter potmeter(key, potmeterParameters);
 
     unsigned char channel = 0x01;
     unsigned char control = 0x10;
@@ -409,7 +412,10 @@ TEST_F(MidiControllerTest, ReceiveMessage_PotMeterCO_14BitCC) {
     const double kMinValue = -1234.5;
     const double kMaxValue = 678.9;
     const double kMiddleValue = (kMinValue + kMaxValue) * 0.5;
-    ControlPotmeter potmeter(key, kMinValue, kMaxValue);
+    PotmeterParameters potmeterParameters;
+    potmeterParameters.setMinValue(kMinValue);
+    potmeterParameters.setMaxValue(kMaxValue);
+    ControlPotmeter potmeter(key, potmeterParameters);
     potmeter.set(0);
 
     unsigned char channel = 0x01;
@@ -495,7 +501,10 @@ TEST_F(MidiControllerTest, ReceiveMessage_PotMeterCO_14BitPitchBend) {
     const double kMinValue = -1234.5;
     const double kMaxValue = 678.9;
     const double kMiddleValue = (kMinValue + kMaxValue) * 0.5;
-    ControlPotmeter potmeter(key, kMinValue, kMaxValue);
+    PotmeterParameters potmeterParameters;
+    potmeterParameters.setMinValue(kMinValue);
+    potmeterParameters.setMaxValue(kMaxValue);
+    ControlPotmeter potmeter(key, potmeterParameters);
     unsigned char channel = 0x01;
 
     // The control is ignored in mappings for messages where the control is part
