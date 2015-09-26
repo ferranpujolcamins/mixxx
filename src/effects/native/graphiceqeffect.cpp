@@ -70,7 +70,7 @@ EffectManifest GraphicEQEffect::getManifest() {
     high->setControlHint(EffectManifestParameter::ControlHint::KNOB_LINEAR);
     high->setSemanticHint(EffectManifestParameter::SemanticHint::UNKNOWN);
     high->setUnitsHint(EffectManifestParameter::UnitsHint::UNKNOWN);
-  high->setNeutralPointOnScale(0.5);
+    high->setNeutralPointOnScale(0.5);
     high->setDefault(0);
     high->setMinimum(-12);
     high->setMaximum(12);
