@@ -659,6 +659,7 @@ class MixxxCore(Feature):
                    "control/controlobject.cpp",
                    "control/controlobjectscript.cpp",
                    "control/controlpotmeter.cpp",
+                   "potmeterparameters.cpp",
                    "control/controlproxy.cpp",
                    "control/controlpushbutton.cpp",
                    "control/controlttrotary.cpp",
