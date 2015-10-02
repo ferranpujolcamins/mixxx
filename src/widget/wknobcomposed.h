@@ -52,7 +52,7 @@ class WKnobComposed : public WWidget {
             double scaleFactor);
 
     double m_dCurrentAngle;
-    double m_dNeutralParameter;
+    double m_dScaleStartParameter;
     PaintablePointer m_pKnob;
     PaintablePointer m_pPixmapBack;
     PaintablePointer m_pRing;

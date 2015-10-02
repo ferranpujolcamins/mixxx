@@ -91,13 +91,13 @@ EngineMaster::EngineMaster(UserSettingsPointer pConfig,
     // Crossfader
     PotmeterParameters crossfaderParameters;
     crossfaderParameters.setMinValue(-1.);
-    crossfaderParameters.setNeutralValue(0.5);
+    crossfaderParameters.setScaleStartValue(0.5);
     m_pCrossfader = new ControlPotmeter(ConfigKey(group, "crossfader"), crossfaderParameters);
 
     // Balance
     PotmeterParameters balanceParameters;
     balanceParameters.setMinValue(-1.);
-    balanceParameters.setNeutralValue(0.5);
+    balanceParameters.setScaleStartValue(0.5);
     m_pBalance = new ControlPotmeter(ConfigKey(group, "balance"), balanceParameters);
 
     // Master gain
@@ -132,7 +132,7 @@ EngineMaster::EngineMaster(UserSettingsPointer pConfig,
     // Headphone mix (left/right)
     PotmeterParameters headMixParameters;
     headMixParameters.setMinValue(-1.);
-    headMixParameters.setNeutralValue(0.5);
+    headMixParameters.setScaleStartValue(0.5);
     m_pHeadMix = new ControlPotmeter(ConfigKey(group, "headMix"), headMixParameters);
     m_pHeadMix->setDefaultValue(-1.);
     m_pHeadMix->set(-1.);
@@ -175,13 +175,13 @@ EngineMaster::EngineMaster(UserSettingsPointer pConfig,
     PotmeterParameters xFaderCurveParameters;
     xFaderCurveParameters.setMinValue(EngineXfader::kTransformMin);
     xFaderCurveParameters.setMaxValue(EngineXfader::kTransformMax);
-    xFaderCalibrationParameters.setNeutralValue(EngineXfader::kTransformMin);
+    xFaderCurveParameters.setScaleStartValue(EngineXfader::kTransformMin);
     m_pXFaderCurve = new ControlPotmeter(
         ConfigKey(EngineXfader::kXfaderConfigKey, "xFaderCurve"), xFaderCurveParameters);
     PotmeterParameters xFaderCalibrationParameters;
     xFaderCalibrationParameters.setMinValue(0.3);
     xFaderCalibrationParameters.setMaxValue(1);
-    xFaderCalibrationParameters.setNeutralValue(0.3);
+    xFaderCalibrationParameters.setScaleStartValue(0.3);
     m_pXFaderCalibration = new ControlPotmeter(
         ConfigKey(EngineXfader::kXfaderConfigKey, "xFaderCalibration"), xFaderCalibrationParameters);
     m_pXFaderReverse = new ControlPushButton(
