@@ -29,37 +29,35 @@ class ControlNumericBehavior {
     virtual void setValueFromMidi(
             MidiOpCode o, double dParam, ControlDoublePrivate* pControl);
     
-    // Parameter value where the control has a neutral effect
-    // or no effect. For example, for ControlAudioTaperPotBehavior this
-    // represents a knob position between 0 and 1 where
-    // the gain is 1 (0dB).
-    virtual double neutralParameter();
+    // This value is used for the skin system to determine a position
+    // of the control where its visual feedback should be off.
+    virtual double scaleStartParameter();
 };
 
 class ControlPotmeterBehavior : public ControlNumericBehavior {
   public:
     ControlPotmeterBehavior(double dMinValue, double dMaxValue,
-                            double dNeutralParameter, bool allowOutOfBounds);
+                            double dScaleStartParameter, bool allowOutOfBounds);
 
     bool setFilter(double* dValue) override;
     double valueToParameter(double dValue) override;
     double midiToParameter(double midiValue) override;
     double parameterToValue(double dParam) override;
     double valueToMidiParameter(double dValue) override;
-    double neutralParameter() override;
+    double scaleStartParameter() override;
 
   protected:
     double m_dMinValue;
     double m_dMaxValue;
     double m_dValueRange;
-    double m_dNeutralParameter;
+    double m_dScaleStartParameter;
     bool m_bAllowOutOfBounds;
 };
 
 class ControlLogPotmeterBehavior : public ControlPotmeterBehavior {
   public:
     ControlLogPotmeterBehavior(double dMinValue, double dMaxValue,
-                               double dNeutralParameter, double minDB);
+                               double dScaleStartParameter, double minDB);
 
     double valueToParameter(double dValue) override;
     double parameterToValue(double dParam) override;
@@ -71,7 +69,7 @@ class ControlLogPotmeterBehavior : public ControlPotmeterBehavior {
 
 class ControlLogInvPotmeterBehavior : public ControlLogPotmeterBehavior {
   public:
-    ControlLogInvPotmeterBehavior(double dMinValue, double dMaxValue, double minDB);
+    ControlLogInvPotmeterBehavior(double dMinValue, double dMaxValue, double dScaleStartParameter, double minDB);
 
     double valueToParameter(double dValue) override;
     double parameterToValue(double dParam) override;
@@ -80,13 +78,13 @@ class ControlLogInvPotmeterBehavior : public ControlLogPotmeterBehavior {
 class ControlLinPotmeterBehavior : public ControlPotmeterBehavior {
   public:
     ControlLinPotmeterBehavior(
-            double dMinValue, double dMaxValue, double dNeutralParameter, bool allowOutOfBounds);
+            double dMinValue, double dMaxValue, double dScaleStartParameter, bool allowOutOfBounds);
 };
 
 class ControlLinInvPotmeterBehavior : public ControlPotmeterBehavior {
   public:
     ControlLinInvPotmeterBehavior(
-            double dMinValue, double dMaxValue, bool allowOutOfBounds);
+            double dMinValue, double dMaxValue, double dScaleStartParameter, bool allowOutOfBounds);
     double valueToParameter(double dValue) override;
     double parameterToValue(double dParam) override;
 };
@@ -94,7 +92,7 @@ class ControlLinInvPotmeterBehavior : public ControlPotmeterBehavior {
 class ControlAudioTaperPotBehavior : public ControlPotmeterBehavior {
   public:
     ControlAudioTaperPotBehavior(double minDB, double maxDB,
-                                 double neutralParameter);
+                                 double scaleStartParameter);
 
     double valueToParameter(double dValue) override;
     double parameterToValue(double dParam) override;

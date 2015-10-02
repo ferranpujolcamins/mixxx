@@ -260,9 +260,9 @@ double ControlDoublePrivate::getMidiParameter() const {
     return pBehavior->valueToMidiParameter(get());
 }
 
-double ControlDoublePrivate::neutralParameter() {
+double ControlDoublePrivate::scaleStartParameter() {
     if (!m_pBehavior.isNull()) {
-        return m_pBehavior->neutralParameter();
+        return m_pBehavior->scaleStartParameter();
     }
     return 0.0;
 }
