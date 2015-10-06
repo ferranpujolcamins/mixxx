@@ -32,6 +32,7 @@ class ControlNumericBehavior {
     // This value is used for the skin system to determine a position
     // of the control where its visual feedback should be off.
     virtual double scaleStartParameter();
+    virtual void setScaleStartParameter(double value);
 };
 
 class ControlPotmeterBehavior : public ControlNumericBehavior {
@@ -45,6 +46,7 @@ class ControlPotmeterBehavior : public ControlNumericBehavior {
     double parameterToValue(double dParam) override;
     double valueToMidiParameter(double dValue) override;
     double scaleStartParameter() override;
+    virtual void setScaleStartParameter(double value);
 
   protected:
     double m_dMinValue;
