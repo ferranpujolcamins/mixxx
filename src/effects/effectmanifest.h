@@ -24,6 +24,7 @@ class EffectManifest final {
     EffectManifest()
         : m_isMixingEQ(false),
           m_isMasterEQ(false),
+          m_dSuperKnobScaleStart(0.0),
           m_effectRampsFromDry(false) {
     }
 
@@ -90,6 +91,14 @@ class EffectManifest final {
         m_isMasterEQ = value;
     }
 
+    virtual const double& superKnobScaleStart() const {
+        return m_dSuperKnobScaleStart;
+    }
+
+    virtual void setSuperKnobScaleStart(const double value) {
+        m_dSuperKnobScaleStart = value;
+    }
+
     virtual void setDescription(const QString& description) {
         m_description = description;
     }
@@ -128,6 +137,8 @@ class EffectManifest final {
     // This helps us at DlgPrefEQ's basic selection of Equalizers
     bool m_isMixingEQ;
     bool m_isMasterEQ;
+    // This helps the skin draw knob rings correctly.
+    double m_dSuperKnobScaleStart;
     QList<EffectManifestParameter> m_parameters;
     bool m_effectRampsFromDry;
 };
