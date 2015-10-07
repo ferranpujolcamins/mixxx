@@ -1,3 +1,5 @@
+#include <algorithm> // std::swap
+
 #include <QStylePainter>
 #include <QStyleOption>
 #include <QTransform>
@@ -57,6 +59,13 @@ void WKnobComposed::setup(const QDomNode& node, const SkinContext& context) {
     context.hasNodeSelectDouble(node, "RingMaskXOffset", &m_dMaskXOffset);
     context.hasNodeSelectDouble(node, "RingMaskYOffset", &m_dMaskYOffset);
     context.hasNodeSelectDouble(node, "RingMinSpan", &m_dRingMinSpan);
+    
+    m_dMinAngle = math_clamp<double>(m_dMinAngle, 0, 360);
+    m_dMaxAngle = math_clamp<double>(m_dMaxAngle, 0, 360);
+    if (m_dMinAngle > m_dMaxAngle) {
+        std::swap(m_dMinAngle, m_dMaxAngle);
+    }
+    m_dRingMinSpan = math_clamp<double>(m_dRingMinSpan, 0, 360);
 
     m_dKnobCenterXOffset *= scaleFactor;
     m_dKnobCenterYOffset *= scaleFactor;
