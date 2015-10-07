@@ -60,8 +60,8 @@ void WKnobComposed::setup(const QDomNode& node, const SkinContext& context) {
     context.hasNodeSelectDouble(node, "RingMaskYOffset", &m_dMaskYOffset);
     context.hasNodeSelectDouble(node, "RingMinSpan", &m_dRingMinSpan);
     
-    m_dMinAngle = math_clamp<double>(m_dMinAngle, 0, 360);
-    m_dMaxAngle = math_clamp<double>(m_dMaxAngle, 0, 360);
+    m_dMinAngle = math_clamp<double>(m_dMinAngle, -180, 180);
+    m_dMaxAngle = math_clamp<double>(m_dMaxAngle, -180, 180);
     if (m_dMinAngle > m_dMaxAngle) {
         std::swap(m_dMinAngle, m_dMaxAngle);
     }
