@@ -24,7 +24,6 @@ class EffectManifest final {
     EffectManifest()
         : m_isMixingEQ(false),
           m_isMasterEQ(false),
-          m_dSuperKnobScaleStart(0.0),
           m_effectRampsFromDry(false) {
     }
 
