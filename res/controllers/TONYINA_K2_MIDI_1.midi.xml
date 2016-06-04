@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <MixxxControllerPreset mixxxVersion="" schemaVersion="1">
     <info>
-        <name>Dj Tonyina 2x Xone:K2</name>
-        <author>Ferran</author>
+        <name>TONYINA_K2</name>
+        <author>Ferran Pujol Camins</author>
         <description></description>
     </info>
     <controller id="Allen &amp; Heath XONE:K2">

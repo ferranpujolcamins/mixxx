@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <MixxxControllerPreset mixxxVersion="" schemaVersion="1">
     <info>
-        <name>Dj Tonyina Midi Fighter Twister</name>
-        <author>Ferran</author>
+        <name>TONYINA_TWISTER</name>
+        <author>Ferran Pujol Camins</author>
         <description></description>
     </info>
     <controller id="Dj Tech Tools Midi Fighter Twister">
