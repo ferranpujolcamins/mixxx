@@ -68,12 +68,6 @@ XoneK2.customInit = function () {
     engine.setValue('[Channel3]','sync_mode',1);
     engine.setValue('[Channel4]','sync_mode',1);
 
-    engine.setValue('[Channel1]','bpm_change_time',30);
-
-    if (engine.beginTimer(1000,"XoneK2.bpmChanger()",false) == 0) {
-        print("bpm changer timer setup failed");
-    }
-
 }
 
 XoneK2.magicButtonTable = {}
@@ -351,19 +345,6 @@ XoneK2.blinkOff = function() {
 
 
 
-
-
-
-/**********************************************************************/
-/*                         B p m  c h a n g e r                       */
-/**********************************************************************/
-
-XoneK2.bpmChanger() = function() {
-    var count = engine.getValue("[Channel1]", "bpm_change_countdown");
-    if (count > 0) {
-        engine.setValue("[Channel1]", "bpm_change_countdown", count-1)
-    }
-}
 
 
 
