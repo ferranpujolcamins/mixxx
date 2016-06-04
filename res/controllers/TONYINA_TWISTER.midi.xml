@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<MixxxControllerPreset mixxxVersion="" schemaVersion="1">
+    <info>
+        <name>Dj Tonyina Midi Fighter Twister</name>
+        <author>Ferran</author>
+        <description></description>
+    </info>
+    <controller id="Dj Tech Tools Midi Fighter Twister">
+        <scriptfiles>
+            <file filename="TONYINA_TWISTER-scripts.js" functionprefix="Twister"/>
+            </scriptfiles>
+        <controls>
+            <!-- setBPMChangeTime -->
+            <control><key>Twister.execMidi</key><status>0xB0</status><midino>0x0E</midino><options><Script-Binding/></options></control>
+
+            <!-- setTargetBPM -->
+            <control><key>Twister.execMidi</key><status>0xB0</status><midino>0x0F</midino><options><Script-Binding/></options></control>
+
+            <!-- changeBPMButton -->
+            <control><key>Twister.execMidi</key><status>0x91</status><midino>0x0F</midino><options><Script-Binding/></options></control>
+            <control><key>Twister.execMidi</key><status>0x81</status><midino>0x0F</midino><options><Script-Binding/></options></control>
+
+        </controls>
+    </controller>
+</MixxxControllerPreset>

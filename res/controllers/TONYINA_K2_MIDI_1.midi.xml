@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='utf-8'?>
+<MixxxControllerPreset mixxxVersion="" schemaVersion="1">
+    <info>
+        <name>Dj Tonyina 2x Xone:K2</name>
+        <author>Ferran</author>
+        <description></description>
+    </info>
+    <controller id="Allen &amp; Heath XONE:K2">
+        <scriptfiles>
+            <file filename="TONYINA_K2_MIDI_1-scripts.js" functionprefix="XoneK2"/>
+            </scriptfiles>
+        <controls>
+            <!-- magicButton -->
+            <control><key>XoneK2.execMidi</key><status>0x90</status><midino>0x0C</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x80</status><midino>0x0C</midino><options><Script-Binding/></options></control>
+
+            <!-- magicShift -->
+            <control><key>XoneK2.execMidi</key><status>0x90</status><midino>0x0F</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x80</status><midino>0x0F</midino><options><Script-Binding/></options></control>
+
+            <!-- kickFilter -->
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x11</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x13</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x11</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x13</midino><options><Script-Binding/></options></control>
+
+            <!-- fader -->
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x10</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x12</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x10</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x12</midino><options><Script-Binding/></options></control>
+
+            <!-- highPassFilter -->
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x0D</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x0F</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x0D</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x0F</midino><options><Script-Binding/></options></control>
+
+            <!-- highPassFilterButton -->
+            <control><key>XoneK2.execMidi</key><status>0x90</status><midino>0x29</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x80</status><midino>0x29</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x90</status><midino>0x2B</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x80</status><midino>0x2B</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x91</status><midino>0x29</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x81</status><midino>0x29</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x91</status><midino>0x2B</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x81</status><midino>0x2B</midino><options><Script-Binding/></options></control>
+
+            <!-- lowPassFilter -->
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x09</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x0B</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x09</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x0B</midino><options><Script-Binding/></options></control>
+
+            <!-- lowPassFilterButton -->
+            <control><key>XoneK2.execMidi</key><status>0x90</status><midino>0x2D</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x80</status><midino>0x2D</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x90</status><midino>0x2F</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x80</status><midino>0x2F</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x91</status><midino>0x2D</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x81</status><midino>0x2D</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x91</status><midino>0x2F</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x81</status><midino>0x2F</midino><options><Script-Binding/></options></control>
+
+            <!-- resonance -->
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x05</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x07</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x05</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x07</midino><options><Script-Binding/></options></control>
+
+            <!-- Low Eq -->
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x0C</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x0E</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x0C</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x0E</midino><options><Script-Binding/></options></control>
+
+            <!-- Mid Eq -->
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x08</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x0A</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x08</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x0A</midino><options><Script-Binding/></options></control>
+
+            <!-- High Eq -->
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x04</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x06</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x04</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x06</midino><options><Script-Binding/></options></control>
+
+            <!-- Gain -->
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x00</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB0</status><midino>0x02</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x00</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0xB1</status><midino>0x02</midino><options><Script-Binding/></options></control>
+
+            <!-- Gain -->
+            <control><key>XoneK2.execMidi</key><status>0x90</status><midino>0x34</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x90</status><midino>0x36</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x91</status><midino>0x34</midino><options><Script-Binding/></options></control>
+            <control><key>XoneK2.execMidi</key><status>0x91</status><midino>0x36</midino><options><Script-Binding/></options></control>
+        </controls>
+    </controller>
+</MixxxControllerPreset>
