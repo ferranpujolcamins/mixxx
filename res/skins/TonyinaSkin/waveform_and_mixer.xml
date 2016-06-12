@@ -92,9 +92,10 @@
                 <Children></Children>
             </WidgetGroup>
             <WidgetGroup>
-                <Layout>horizontal</Layout>
+                <Layout>vertical</Layout>
                 <Children>
                     <Template src="skin:mixer.xml"/>
+                    <Template src="skin:bpm_bar.xml"/>
                 </Children>
                 <Connection>
                     <ConfigKey>[Master],show_mixer</ConfigKey>

@@ -1,0 +1,22 @@
+<Template>
+    <WidgetGroup>
+        <ObjectName>XXXX</ObjectName>
+        <Layout>vertical</Layout>
+        <SizePolicy>me,me</SizePolicy>
+        <Children>
+            <NumberPos>
+                <ObjectName>BPMTarget</ObjectName>
+                <Alignment>right</Alignment>
+                <Style>QLabel { font: bold 18px/21px Lucida Grande, Lucida Sans
+                    Unicode, Arial, Verdana, sans-serif;}
+                </Style>
+                <Channel>
+                    1
+                </Channel>
+                <Connection>
+                    <ConfigKey>[Channel1],bpm_target</ConfigKey>
+                </Connection>
+            </NumberPos>
+        </Children>
+    </WidgetGroup>
+</Template>

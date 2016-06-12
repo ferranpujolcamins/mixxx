@@ -13,7 +13,6 @@
                         <SizePolicy>me,me</SizePolicy>
                         <Children/>
                     </WidgetGroup>
-                    <Template src="skin:toolbar.xml"/>
                 </Children>
             </WidgetGroup>
             <WidgetGroup>
@@ -27,7 +26,6 @@
                     <SingletonContainer>
                         <ObjectName>LibrarySingleton</ObjectName>
                     </SingletonContainer>
-                    <Template src="skin:toolbar_no_library_button.xml"/>
                 </Children>
             </WidgetGroup>
             <WidgetGroup>
@@ -40,7 +38,6 @@
                     <SingletonContainer>
                         <ObjectName>LibrarySingleton</ObjectName>
                     </SingletonContainer>
-                    <Template src="skin:toolbar_no_library_button.xml"/>
                 </Children>
             </WidgetGroup>
         </Children>
