@@ -11,7 +11,7 @@
     </info>
     <controller id="XONE:K2">
         <scriptfiles>
-            <file filename="Xone K2 4 Decks-scripts.js" functionprefix="XoneK2"/>
+            <file filename="Xone-K2-4Decks-scripts.js" functionprefix="XoneK2"/>
         </scriptfiles>
         <controls>
 <!-- CC Controls (knobs and sliders) -->
