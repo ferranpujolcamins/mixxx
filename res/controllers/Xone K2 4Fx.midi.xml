@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='utf-8'?>
+<MixxxControllerPreset mixxxVersion="2.1.0+" schemaVersion="1">
+    <info>
+        <name>Allen&amp;Heath Xone K2 4 Fx</name>
+        <author>Ferran Pujol Camins</author>
+        <description>For this mapping to work:
+- Set Xone:K2 midi channel to 16;
+- Set Xone:K2 Latching Layers state to "Latching Layer Off" (state 1).
+(See product manual for details.)</description>
+    </info>
+    <controller id="XONE:K2">
+        <scriptfiles>
+            <file functionprefix="" filename="lodash.mixxx.js"/>
+            <file filename="Xone-K2-4Fx-scripts.js" functionprefix="XoneK2_4Fx"/>
+        </scriptfiles>
+        <controls>
+            <control>
+                <group>[EffectRack1_EffectUnit1]</group>
+                <key>XoneK2_4Fx.effectUnit1.enableButtons[1].input</key>
+                <status>0x9F</status>
+                <midino>0x30</midino>
+                <options>
+                    <Script-Binding/>
+                </options>
+            </control>
+            <control>
+                <group>[EffectRack1_EffectUnit1]</group>
+                <key>XoneK2_4Fx.effectUnit1.enableButtons[2].input</key>
+                <status>0x9F</status>
+                <midino>0x2C</midino>
+                <options>
+                    <Script-Binding/>
+                </options>
+            </control>
+            <control>
+                <group>[EffectRack1_EffectUnit1]</group>
+                <key>XoneK2_4Fx.effectUnit1.enableButtons[3].input</key>
+                <status>0x9F</status>
+                <midino>0x28</midino>
+                <options>
+                    <Script-Binding/>
+                </options>
+            </control>
+            <control>
+                <group>[EffectRack1_EffectUnit1]</group>
+                <key>XoneK2_4Fx.effectUnit1.showParametersButton.input</key>
+                <status>0x9F</status>
+                <midino>0x34</midino>
+                <options>
+                    <Script-Binding/>
+                </options>
+            </control>
+            <control>
+                <group>[EffectRack1_EffectUnit1]</group>
+                <key>XoneK2_4Fx.effectUnit1.knobs[1].input</key>
+                <status>0xBF</status>
+                <midino>0x04</midino>
+                <options>
+                    <Script-Binding/>
+                </options>
+            </control>
+            <control>
+                <group>[EffectRack1_EffectUnit1]</group>
+                <key>XoneK2_4Fx.effectUnit1.knobs[2].input</key>
+                <status>0xBF</status>
+                <midino>0x08</midino>
+                <options>
+                    <Script-Binding/>
+                </options>
+            </control>
+            <control>
+                <group>[EffectRack1_EffectUnit1]</group>
+                <key>XoneK2_4Fx.effectUnit1.knobs[3].input</key>
+                <status>0xBF</status>
+                <midino>0x0C</midino>
+                <options>
+                    <Script-Binding/>
+                </options>
+            </control>
+        </controls>
+    </controller>
+</MixxxControllerPreset>
