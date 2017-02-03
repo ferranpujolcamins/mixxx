@@ -1,9 +1,8 @@
 /**
- * Hercules P32 DJ controller script for Mixxx 2.1
- * Thanks to Hercules for supporting the development of this mapping by providing a controller
- * See http://mixxx.org/wiki/doku.php/hercules_p32_dj for instructions on how to use this mapping
+ * Xone K2 DJ controller script for Mixxx 2.1
+ * Thanks to Be for writing such an amazing mapping library.
  *
- * Copyright (C) 2017 Be <be.0@gmx.com>
+ * Copyright (C) 2017 Ferran Pujol Camins <ferranpujolcamins@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,7 +20,6 @@
 **/
 
 
-//function XoneK2_4Fx() {}
 var XoneK2_4Fx = {};
 
 XoneK2_4Fx.leds =  [0x34,   0x35,   0x36,   0x37,
