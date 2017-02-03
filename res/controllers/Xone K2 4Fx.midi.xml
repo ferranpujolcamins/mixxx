@@ -10,7 +10,8 @@
     </info>
     <controller id="XONE:K2">
         <scriptfiles>
-            <file functionprefix="" filename="lodash.mixxx.js"/>
+            <file filename="lodash.mixxx.js"/>
+            <file filename="midi-components-0.0.js"/>
             <file filename="Xone-K2-4Fx-scripts.js" functionprefix="XoneK2_4Fx"/>
         </scriptfiles>
         <controls>
