@@ -77,6 +77,25 @@
                     <Script-Binding/>
                 </options>
             </control>
+
+            <control>
+                <group>[EffectRack1_EffectUnit1]</group>
+                <key>XoneK2_4Fx.effectUnit1.shift</key>
+                <status>0x9F</status>
+                <midino>0x0F</midino>
+                <options>
+                    <Script-Binding/>
+                </options>
+            </control>
+            <control>
+                <group>[EffectRack1_EffectUnit1]</group>
+                <key>XoneK2_4Fx.effectUnit1.unshift</key>
+                <status>0x8F</status>
+                <midino>0x0F</midino>
+                <options>
+                    <Script-Binding/>
+                </options>
+            </control>
         </controls>
     </controller>
 </MixxxControllerPreset>
