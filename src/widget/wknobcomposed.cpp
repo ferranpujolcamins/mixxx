@@ -10,7 +10,10 @@ WKnobComposed::WKnobComposed(QWidget* pParent)
           m_dMinAngle(-230.0),
           m_dMaxAngle(50.0),
           m_dKnobCenterXOffset(0),
-          m_dKnobCenterYOffset(0) {
+          m_dKnobCenterYOffset(0),
+          m_dMaskCenterXOffset(0),
+          m_dMaskCenterYOffset(0),
+          m_bCentered(false) {
 }
 
 void WKnobComposed::setup(const QDomNode& node, const SkinContext& context) {
@@ -36,13 +39,27 @@ void WKnobComposed::setup(const QDomNode& node, const SkinContext& context) {
                 scaleFactor);
     }
 
+    // Set ring pixmap if available
+    QDomElement ringNode = context.selectElement(node, "Ring");
+    if (!ringNode.isNull()) {
+        setPixmapRing(
+                context.getPixmapSource(ringNode),
+                context.selectScaleMode(ringNode, Paintable::STRETCH),
+                scaleFactor);
+    }
+
     context.hasNodeSelectDouble(node, "MinAngle", &m_dMinAngle);
     context.hasNodeSelectDouble(node, "MaxAngle", &m_dMaxAngle);
     context.hasNodeSelectDouble(node, "KnobCenterXOffset", &m_dKnobCenterXOffset);
     context.hasNodeSelectDouble(node, "KnobCenterYOffset", &m_dKnobCenterYOffset);
+    context.hasNodeSelectDouble(node, "RingMaskXOffset", &m_dMaskCenterXOffset);
+    context.hasNodeSelectDouble(node, "RingMaskYOffset", &m_dMaskCenterYOffset);
+    context.hasNodeSelectBool(node, "Centered", &m_bCentered);
 
     m_dKnobCenterXOffset *= scaleFactor;
     m_dKnobCenterYOffset *= scaleFactor;
+    m_dMaskCenterXOffset *= scaleFactor;
+    m_dMaskCenterYOffset *= scaleFactor;
 }
 
 void WKnobComposed::clear() {
@@ -70,6 +87,16 @@ void WKnobComposed::setPixmapKnob(PixmapSource source,
     }
 }
 
+void WKnobComposed::setPixmapRing(PixmapSource source,
+                                  Paintable::DrawMode mode,
+                                  double scaleFactor) {
+    m_pRing = WPixmapStore::getPaintable(source, mode, scaleFactor);
+    if (m_pRing.isNull() || m_pRing->isNull()) {
+        qDebug() << metaObject()->className()
+                 << "Error loading ring pixmap:" << source.getPath();
+    }
+}
+
 void WKnobComposed::onConnectedControlChanged(double dParameter, double dValue) {
     Q_UNUSED(dValue);
     // dParameter is in the range [0, 1].
@@ -92,6 +119,28 @@ void WKnobComposed::paintEvent(QPaintEvent* e) {
     p.setRenderHint(QPainter::SmoothPixmapTransform);
     p.drawPrimitive(QStyle::PE_Widget, option);
 
+    // We update m_dCurrentAngle since onConnectedControlChanged uses it for
+    // no-op detection.
+    m_dCurrentAngle = m_dMinAngle + (m_dMaxAngle - m_dMinAngle) * getControlParameterDisplay();
+
+    if (m_pRing) {
+        QPainterPath path;
+        int w = width();
+        int h = height();
+        path.moveTo(w/2.0 + m_dMaskCenterXOffset, h/2.0 + m_dMaskCenterYOffset);
+        double d = sqrt(pow(w+std::abs(m_dMaskCenterXOffset),2) + pow(h+std::abs(m_dMaskCenterYOffset),2));
+        if (m_bCentered) {
+            path.arcTo(QRectF((w-d)/2.0,(h-d)/2.0,d,d), 90, -m_dCurrentAngle);
+        } else {
+            path.arcTo(QRectF((w-d)/2.0,(h-d)/2.0,d,d), m_dMinAngle, m_dMinAngle-m_dCurrentAngle);
+        }
+        path.closeSubpath();
+        p.save();
+        p.setClipPath(path);
+        m_pRing->draw(rect(), &p, m_pRing->rect());
+        p.restore();
+    }
+
     if (m_pPixmapBack) {
         m_pPixmapBack->draw(rect(), &p, m_pPixmapBack->rect());
     }
@@ -103,9 +152,6 @@ void WKnobComposed::paintEvent(QPaintEvent* e) {
         transform.translate(-tx, -ty);
         p.translate(tx, ty);
 
-        // We update m_dCurrentAngle since onConnectedControlChanged uses it for
-        // no-op detection.
-        m_dCurrentAngle = m_dMinAngle + (m_dMaxAngle - m_dMinAngle) * getControlParameterDisplay();
         p.rotate(m_dCurrentAngle);
 
         // Need to convert from QRect to a QRectF to avoid losing precison.

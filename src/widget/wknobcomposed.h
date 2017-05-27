@@ -38,15 +38,23 @@ class WKnobComposed : public WWidget {
             PixmapSource source,
             Paintable::DrawMode mode,
             double scaleFactor);
+    void setPixmapRing(
+            PixmapSource source,
+            Paintable::DrawMode mode,
+            double scaleFactor);
 
     double m_dCurrentAngle;
     PaintablePointer m_pKnob;
     PaintablePointer m_pPixmapBack;
+    PaintablePointer m_pRing;
     KnobEventHandler<WKnobComposed> m_handler;
     double m_dMinAngle;
     double m_dMaxAngle;
     double m_dKnobCenterXOffset;
     double m_dKnobCenterYOffset;
+    double m_dMaskCenterXOffset;
+    double m_dMaskCenterYOffset;
+    bool m_bCentered;
     friend class KnobEventHandler<WKnobComposed>;
 };
 
