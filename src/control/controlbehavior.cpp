@@ -256,6 +256,10 @@ void ControlAudioTaperPotBehavior::setValueFromMidiParameter(MidiOpCode o, doubl
     pControl->set(parameterToValue(dParam), NULL);
 }
 
+double ControlAudioTaperPotBehavior::getNeutralParameter() {
+    return m_neutralParameter;
+}
+
 
 double ControlTTRotaryBehavior::valueToParameter(double dValue) {
     return (dValue * 200.0 + 64) / 127.0;
