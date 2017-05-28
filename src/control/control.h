@@ -97,7 +97,7 @@ class ControlDoublePrivate : public QObject {
         return m_defaultValue.getValue();
     }
 
-    double neutralParameter();
+    double getNeutralParameter();
 
     inline ControlObject* getCreatorCO() const {
         return m_pCreatorCO;

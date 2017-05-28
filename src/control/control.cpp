@@ -259,11 +259,12 @@ double ControlDoublePrivate::getMidiParameter() const {
     return value;
 }
 
-double ControlDoublePrivate::neutralParameter() {
+double ControlDoublePrivate::getNeutralParameter() {
+    double neutralParameter = 0.0;
     if (!m_pBehavior.isNull()) {
-        return m_pBehavior->neutralParameter();
+        neutralParameter = m_pBehavior->neutralParameter();
     }
-    return 0.0;
+    return neutralParameter;
 }
 
 bool ControlDoublePrivate::connectValueChangeRequest(const QObject* receiver,
