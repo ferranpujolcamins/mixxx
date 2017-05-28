@@ -67,6 +67,10 @@ class ControlProxy : public QObject {
         return m_pControl ? m_pControl->defaultValue() : 0.0;
     }
 
+    inline double getNeutralParameter() const {
+        return m_pControl ? m_pControl->getNeutralParameter() : 0.0;
+    }
+
   public slots:
     // Set the control to a new value. Non-blocking.
     inline void slotSet(double v) {

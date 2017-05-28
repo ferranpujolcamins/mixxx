@@ -39,6 +39,10 @@ double ControlWidgetConnection::getControlParameterForValue(double value) const 
     return parameter;
 }
 
+double ControlWidgetConnection::getNeutralParameter() const {
+    return m_pControl ? m_pControl->getNeutralParameter() : 0.0;
+}
+
 ControlParameterWidgetConnection::ControlParameterWidgetConnection(
         WBaseWidget* pBaseWidget, const ConfigKey& key,
         ValueTransformer* pTransformer, DirectionOption directionOption,
