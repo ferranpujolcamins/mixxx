@@ -52,8 +52,8 @@ void WKnobComposed::setup(const QDomNode& node, const SkinContext& context) {
     context.hasNodeSelectDouble(node, "MaxAngle", &m_dMaxAngle);
     context.hasNodeSelectDouble(node, "KnobCenterXOffset", &m_dKnobCenterXOffset);
     context.hasNodeSelectDouble(node, "KnobCenterYOffset", &m_dKnobCenterYOffset);
-    context.hasNodeSelectDouble(node, "RingMaskXOffset", &m_dMaskCenterXOffset);
-    context.hasNodeSelectDouble(node, "RingMaskYOffset", &m_dMaskCenterYOffset);
+    context.hasNodeSelectDouble(node, "RingCenterXOffset", &m_dMaskCenterXOffset);
+    context.hasNodeSelectDouble(node, "RingCenterYOffset", &m_dMaskCenterYOffset);
     context.hasNodeSelectBool(node, "Centered", &m_bCentered);
 
     m_dKnobCenterXOffset *= scaleFactor;
