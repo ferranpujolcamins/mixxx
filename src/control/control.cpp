@@ -262,7 +262,7 @@ double ControlDoublePrivate::getMidiParameter() const {
 double ControlDoublePrivate::getNeutralParameter() {
     double neutralParameter = 0.0;
     if (!m_pBehavior.isNull()) {
-        neutralParameter = m_pBehavior->neutralParameter();
+        neutralParameter = m_pBehavior->getNeutralParameter();
     }
     return neutralParameter;
 }

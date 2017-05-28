@@ -30,7 +30,7 @@ void ControlNumericBehavior::setValueFromMidiParameter(MidiOpCode o, double dPar
     pControl->set(parameterToValue(dNorm), NULL);
 }
 
-double ControlNumericBehavior::neutralParameter() {
+double ControlNumericBehavior::getNeutralParameter() {
     return 0.0;
 }
 
