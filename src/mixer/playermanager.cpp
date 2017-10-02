@@ -5,13 +5,12 @@
 #include <QMutexLocker>
 
 #include "analyzer/analyzerqueue.h"
-#include "controlobject.h"
-#include "controlobject.h"
+#include "control/controlobject.h"
+#include "control/controlobject.h"
 #include "effects/effectsmanager.h"
 #include "engine/enginedeck.h"
 #include "engine/enginemaster.h"
 #include "library/library.h"
-#include "library/trackcollection.h"
 #include "mixer/auxiliary.h"
 #include "mixer/deck.h"
 #include "mixer/microphone.h"
@@ -19,7 +18,7 @@
 #include "mixer/sampler.h"
 #include "mixer/samplerbank.h"
 #include "soundio/soundmanager.h"
-#include "trackinfoobject.h"
+#include "track/track.h"
 #include "util/assert.h"
 #include "util/stat.h"
 #include "util/sleepableqthread.h"
@@ -33,9 +32,9 @@ PlayerManager::PlayerManager(UserSettingsPointer pConfig,
         m_pSoundManager(pSoundManager),
         m_pEffectsManager(pEffectsManager),
         m_pEngine(pEngine),
-        // NOTE(XXX) LegacySkinParser relies on these controls being COs and
-        // not COTMs listening to a CO.
-        m_pAnalyzerQueue(NULL),
+        // NOTE(XXX) LegacySkinParser relies on these controls being Controls
+        // and not ControlProxies.
+        m_pAnalyzerQueue(nullptr),
         m_pCONumDecks(new ControlObject(
             ConfigKey("[Master]", "num_decks"), true, true)),
         m_pCONumSamplers(new ControlObject(
@@ -78,24 +77,14 @@ PlayerManager::PlayerManager(UserSettingsPointer pConfig,
             Qt::DirectConnection);
 
     // This is parented to the PlayerManager so does not need to be deleted
-    SamplerBank* pSamplerBank = new SamplerBank(this);
-    Q_UNUSED(pSamplerBank);
-
-    // register the engine's outputs
-    m_pSoundManager->registerOutput(AudioOutput(AudioOutput::MASTER, 0, 2),
-                                    m_pEngine);
-    m_pSoundManager->registerOutput(AudioOutput(AudioOutput::HEADPHONES, 0, 2),
-                                    m_pEngine);
-    for (int o = EngineChannel::LEFT; o <= EngineChannel::RIGHT; o++) {
-        m_pSoundManager->registerOutput(AudioOutput(AudioOutput::BUS, 0, 2, o),
-                                        m_pEngine);
-    }
-    m_pSoundManager->registerOutput(AudioOutput(AudioOutput::SIDECHAIN, 0, 2),
-                                    m_pEngine);
+    m_pSamplerBank = new SamplerBank(this);
 }
 
 PlayerManager::~PlayerManager() {
     QMutexLocker locker(&m_mutex);
+
+    m_pSamplerBank->saveSamplerBankToPath(
+        m_pConfig->getSettingsPath() + "/samplers.xml");
     // No need to delete anything because they are all parented to us and will
     // be destroyed when we are destroyed.
     m_players.clear();
@@ -123,8 +112,7 @@ void PlayerManager::bindToLibrary(Library* pLibrary) {
     connect(this, SIGNAL(loadLocationToPlayer(QString, QString)),
             pLibrary, SLOT(slotLoadLocationToPlayer(QString, QString)));
 
-    m_pAnalyzerQueue = AnalyzerQueue::createDefaultAnalyzerQueue(m_pConfig,
-            pLibrary->getTrackCollection());
+    m_pAnalyzerQueue = new AnalyzerQueue(pLibrary->dbConnectionPool(), m_pConfig);
 
     // Connect the player to the analyzer queue so that loaded tracks are
     // analysed.
@@ -152,9 +140,9 @@ void PlayerManager::bindToLibrary(Library* pLibrary) {
 unsigned int PlayerManager::numDecks() {
     // We do this to cache the control once it is created so callers don't incur
     // a hashtable lookup every time they call this.
-    static ControlObjectSlave* pNumCO = NULL;
+    static ControlProxy* pNumCO = NULL;
     if (pNumCO == NULL) {
-        pNumCO = new ControlObjectSlave(ConfigKey("[Master]", "num_decks"));
+        pNumCO = new ControlProxy(ConfigKey("[Master]", "num_decks"));
         if (!pNumCO->valid()) {
             delete pNumCO;
             pNumCO = NULL;
@@ -181,6 +169,23 @@ bool PlayerManager::isDeckGroup(const QString& group, int* number) {
 }
 
 // static
+bool PlayerManager::isSamplerGroup(const QString& group, int* number) {
+    if (!group.startsWith("[Sampler")) {
+        return false;
+    }
+
+    bool ok = false;
+    int deckNum = group.mid(8,group.lastIndexOf("]")-8).toInt(&ok);
+    if (!ok || deckNum <= 0) {
+        return false;
+    }
+    if (number != nullptr) {
+        *number = deckNum;
+    }
+    return true;
+}
+
+// static
 bool PlayerManager::isPreviewDeckGroup(const QString& group, int* number) {
     if (!group.startsWith("[PreviewDeck")) {
         return false;
@@ -201,9 +206,9 @@ bool PlayerManager::isPreviewDeckGroup(const QString& group, int* number) {
 unsigned int PlayerManager::numSamplers() {
     // We do this to cache the control once it is created so callers don't incur
     // a hashtable lookup every time they call this.
-    static ControlObjectSlave* pNumCO = NULL;
+    static ControlProxy* pNumCO = NULL;
     if (pNumCO == NULL) {
-        pNumCO = new ControlObjectSlave(ConfigKey("[Master]", "num_samplers"));
+        pNumCO = new ControlProxy(ConfigKey("[Master]", "num_samplers"));
         if (!pNumCO->valid()) {
             delete pNumCO;
             pNumCO = NULL;
@@ -216,9 +221,9 @@ unsigned int PlayerManager::numSamplers() {
 unsigned int PlayerManager::numPreviewDecks() {
     // We do this to cache the control once it is created so callers don't incur
     // a hashtable lookup every time they call this.
-    static ControlObjectSlave* pNumCO = NULL;
+    static ControlProxy* pNumCO = NULL;
     if (pNumCO == NULL) {
-        pNumCO = new ControlObjectSlave(
+        pNumCO = new ControlProxy(
                 ConfigKey("[Master]", "num_preview_decks"));
         if (!pNumCO->valid()) {
             delete pNumCO;
@@ -326,7 +331,7 @@ void PlayerManager::addConfiguredDecks() {
 void PlayerManager::addDeckInner() {
     // Do not lock m_mutex here.
     QString group = groupForDeck(m_decks.count());
-    DEBUG_ASSERT_AND_HANDLE(!m_players.contains(group)) {
+    VERIFY_OR_DEBUG_ASSERT(!m_players.contains(group)) {
         return;
     }
 
@@ -379,6 +384,11 @@ void PlayerManager::addDeckInner() {
     }
 }
 
+void PlayerManager::loadSamplers() {
+    m_pSamplerBank->loadSamplerBankFromPath(
+        m_pConfig->getSettingsPath() + "/samplers.xml");
+}
+
 void PlayerManager::addSampler() {
     QMutexLocker locker(&m_mutex);
     addSamplerInner();
@@ -389,7 +399,7 @@ void PlayerManager::addSamplerInner() {
     // Do not lock m_mutex here.
     QString group = groupForSampler(m_samplers.count());
 
-    DEBUG_ASSERT_AND_HANDLE(!m_players.contains(group)) {
+    VERIFY_OR_DEBUG_ASSERT(!m_players.contains(group)) {
         return;
     }
 
@@ -416,7 +426,7 @@ void PlayerManager::addPreviewDeck() {
 void PlayerManager::addPreviewDeckInner() {
     // Do not lock m_mutex here.
     QString group = groupForPreviewDeck(m_preview_decks.count());
-    DEBUG_ASSERT_AND_HANDLE(!m_players.contains(group)) {
+    VERIFY_OR_DEBUG_ASSERT(!m_players.contains(group)) {
         return;
     }
 

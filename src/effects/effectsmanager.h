@@ -9,8 +9,8 @@
 #include <QPair>
 
 #include "preferences/usersettings.h"
-#include "controlpotmeter.h"
-#include "controlpushbutton.h"
+#include "control/controlpotmeter.h"
+#include "control/controlpushbutton.h"
 #include "effects/effect.h"
 #include "effects/effectchain.h"
 #include "effects/effectchainmanager.h"
@@ -27,7 +27,7 @@ class EngineEffectsManager;
 class EffectsManager : public QObject {
     Q_OBJECT
   public:
-    typedef bool (*EffectManifestFilterFnc)(EffectManifest* pManifest);
+    typedef bool (*EffectManifestFilterFnc)(const EffectManifest& pManifest);
 
     EffectsManager(QObject* pParent, UserSettingsPointer pConfig);
     virtual ~EffectsManager();
@@ -57,13 +57,21 @@ class EffectsManager : public QObject {
     QuickEffectRackPointer getQuickEffectRack(int rack);
 
     EffectRackPointer getEffectRack(const QString& group);
+    EffectSlotPointer getEffectSlot(const QString& group);
+
+    EffectParameterSlotPointer getEffectParameterSlot(
+            const ConfigKey& configKey);
+    EffectButtonParameterSlotPointer getEffectButtonParameterSlot(
+            const ConfigKey& configKey);
 
     QString getNextEffectId(const QString& effectId);
     QString getPrevEffectId(const QString& effectId);
 
-    const QList<QString> getAvailableEffects() const;
-    // Each entry of the set is a pair containing the effect id and its name
-    const QList<QPair<QString, QString> > getEffectNamesFiltered(EffectManifestFilterFnc filter) const;
+    inline const QList<EffectManifest>& getAvailableEffectManifests() const {
+        return m_availableEffectManifests;
+    };
+    const QList<EffectManifest> getAvailableEffectManifestsFiltered(
+        EffectManifestFilterFnc filter) const;
     bool isEQ(const QString& effectId) const;
     QPair<EffectManifest, EffectsBackend*> getEffectManifestAndBackend(
             const QString& effectId) const;
@@ -71,14 +79,17 @@ class EffectsManager : public QObject {
     EffectPointer instantiateEffect(const QString& effectId);
 
     // Temporary, but for setting up all the default EffectChains and EffectRacks
-    void setupDefaults();
+    void setup();
 
     // Write an EffectsRequest to the EngineEffectsManager. EffectsManager takes
     // ownership of request and deletes it once a response is received.
     bool writeRequest(EffectsRequest* request);
 
   signals:
-    void availableEffectsUpdated();
+    void availableEffectsUpdated(EffectManifest);
+
+  private slots:
+    void slotBackendRegisteredEffect(EffectManifest manifest);
 
   private:
     QString debugString() const {
@@ -89,6 +100,7 @@ class EffectsManager : public QObject {
 
     EffectChainManager* m_pEffectChainManager;
     QList<EffectsBackend*> m_effectsBackends;
+    QList<EffectManifest> m_availableEffectManifests;
 
     EngineEffectsManager* m_pEngineEffectsManager;
 
@@ -96,6 +108,7 @@ class EffectsManager : public QObject {
     qint64 m_nextRequestId;
     QHash<qint64, EffectsRequest*> m_activeRequests;
 
+    ControlObject* m_pNumEffectsAvailable;
     // We need to create Control Objects for Equalizers' frequencies
     ControlPotmeter* m_pLoEqFreq;
     ControlPotmeter* m_pHiEqFreq;

@@ -25,7 +25,7 @@
 
 #include "preferences/dialog/ui_dlgpreferencesdlg.h"
 #include "preferences/usersettings.h"
-#include "controlpushbutton.h"
+#include "control/controlpushbutton.h"
 #include "preferences/dlgpreferencepage.h"
 
 class MixxxMainWindow;
@@ -45,7 +45,7 @@ class DlgPrefKey;
 class DlgPrefBeats;
 class DlgPrefVinyl;
 class DlgPrefNoVinyl;
-class DlgPrefShoutcast;
+class DlgPrefBroadcast;
 class DlgPrefReplayGain;
 class ControllerManager;
 class EffectsManager;
@@ -107,14 +107,15 @@ class DlgPreferences : public QDialog, public Ui::DlgPreferencesDlg {
     DlgPrefWaveform* m_wwaveform;
     DlgPrefAutoDJ* m_wautodj;
     DlgPrefEQ* m_weq;
-    DlgPrefEffects* m_weffects;
+    //TODO: Re-enable the effects pane when it does something useful.
+    //DlgPrefEffects* m_weffects;
     DlgPrefCrossfader* m_wcrossfader;
     DlgPrefRecord* m_wrecord;
     DlgPrefKey* m_wkey;
     DlgPrefBeats* m_wbeats;
     DlgPrefVinyl* m_wvinylcontrol;
     DlgPrefNoVinyl* m_wnovinylcontrol;
-    DlgPrefShoutcast* m_wshoutcast;
+    DlgPrefBroadcast* m_wbroadcast;
     DlgPrefReplayGain* m_wreplaygain;
 #ifdef __MODPLUG__
     DlgPrefModplug* m_wmodplug;
@@ -126,13 +127,13 @@ class DlgPreferences : public QDialog, public Ui::DlgPreferencesDlg {
     QTreeWidgetItem* m_pWaveformButton;
     QTreeWidgetItem* m_pAutoDJButton;
     QTreeWidgetItem* m_pEqButton;
-    QTreeWidgetItem* m_pEffectsButton;
+    //QTreeWidgetItem* m_pEffectsButton;
     QTreeWidgetItem* m_pCrossfaderButton;
     QTreeWidgetItem* m_pRecordingButton;
     QTreeWidgetItem* m_pBeatDetectionButton;
     QTreeWidgetItem* m_pKeyDetectionButton;
     QTreeWidgetItem* m_pVinylControlButton;
-    QTreeWidgetItem* m_pShoutcastButton;
+    QTreeWidgetItem* m_pBroadcastButton;
     QTreeWidgetItem* m_pReplayGainButton;
 #ifdef __MODPLUG__
     QTreeWidgetItem* m_pModplugButton;

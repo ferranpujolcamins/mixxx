@@ -32,8 +32,6 @@ class KeyControl : public EngineControl {
 
     double getKey();
 
-    void collectFeatures(GroupFeatureState* pGroupFeatures) const;
-
   private slots:
     void slotSetEngineKey(double);
     void slotSetEngineKeyDistance(double);
@@ -66,6 +64,7 @@ class KeyControl : public EngineControl {
     ControlPushButton* m_pButtonSyncKey;
     ControlPushButton* m_pButtonResetKey;
     ControlPushButton* m_keylockMode;
+    ControlPushButton* m_keyunlockMode;
 
     /** The current loaded file's detected key */
     ControlObject* m_pFileKey;

@@ -16,7 +16,7 @@
 
 #include "library/libraryfeature.h"
 #include "library/dao/trackdao.h"
-#include "treeitemmodel.h"
+#include "library/treeitemmodel.h"
 #include "preferences/usersettings.h"
 
 class DlgHidden;
@@ -40,7 +40,7 @@ class MixxxLibraryFeature : public LibraryFeature {
     bool dragMoveAccept(QUrl url);
     TreeItemModel* getChildModel();
     void bindWidget(WLibrary* pLibrary,
-                    MixxxKeyboard* pKeyboard);
+                    KeyboardEventFilter* pKeyboard);
 
   public slots:
     void activate();

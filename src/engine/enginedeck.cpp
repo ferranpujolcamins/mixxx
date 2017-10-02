@@ -17,7 +17,7 @@
 
 #include "engine/enginedeck.h"
 
-#include "controlpushbutton.h"
+#include "control/controlpushbutton.h"
 #include "effects/effectsmanager.h"
 #include "engine/effects/engineeffectsmanager.h"
 #include "engine/enginebuffer.h"
@@ -45,9 +45,7 @@ EngineDeck::EngineDeck(const ChannelHandleAndGroup& handle_group,
     }
 
     // Make input_configured read-only.
-    m_pInputConfigured->connectValueChangeRequest(
-        this, SLOT(slotInputConfiguredChangeRequest(double)),
-        Qt::DirectConnection);
+    m_pInputConfigured->setReadOnly();
 
     // Set up passthrough utilities and fields
     m_pPassing->setButtonMode(ControlPushButton::POWERWINDOW);
@@ -59,7 +57,7 @@ EngineDeck::EngineDeck(const ChannelHandleAndGroup& handle_group,
             this, SLOT(slotPassingToggle(double)),
             Qt::DirectConnection);
 
-    m_pSampleRate = new ControlObjectSlave("[Master]", "samplerate");
+    m_pSampleRate = new ControlProxy("[Master]", "samplerate");
 
     // Set up additional engines
     m_pPregain = new EnginePregain(getGroup());
@@ -84,8 +82,7 @@ void EngineDeck::process(CSAMPLE* pOut, const int iBufferSize) {
         SampleUtil::copy(pOut, sampleBuffer, iBufferSize);
         m_bPassthroughWasActive = true;
         m_sampleBuffer = NULL;
-        m_pPregain->setSpeed(1);
-        m_pPregain->setScratching(false);
+        m_pPregain->setSpeedAndScratching(1, false);
     } else {
         // If passthrough is no longer enabled, zero out the buffer
         if (m_bPassthroughWasActive) {
@@ -97,8 +94,7 @@ void EngineDeck::process(CSAMPLE* pOut, const int iBufferSize) {
         // Process the raw audio
         m_pBuffer->process(pOut, iBufferSize);
         m_pBuffer->collectFeatures(&features);
-        m_pPregain->setSpeed(m_pBuffer->getSpeed());
-        m_pPregain->setScratching(m_pBuffer->getScratching());
+        m_pPregain->setSpeedAndScratching(m_pBuffer->getSpeed(), m_pBuffer->getScratching());
         m_bPassthroughWasActive = false;
     }
 
@@ -108,7 +104,7 @@ void EngineDeck::process(CSAMPLE* pOut, const int iBufferSize) {
     if (m_pEngineEffectsManager != NULL) {
         // This is out of date by a callback but some effects will want the RMS
         // volume.
-        m_pVUMeter->collectFeatures(&features);
+        m_pPregain->collectFeatures(&features);
         m_pEngineEffectsManager->process(
                 getHandle(), pOut, iBufferSize,
                 static_cast<unsigned int>(m_pSampleRate->get()), features);
@@ -158,7 +154,7 @@ void EngineDeck::onInputConfigured(AudioInput input) {
         qDebug() << "WARNING: EngineDeck connected to AudioInput for a non-vinylcontrol type!";
         return;
     }
-    m_pInputConfigured->setAndConfirm(1.0);
+    m_pInputConfigured->forceSet(1.0);
     m_sampleBuffer =  NULL;
 }
 
@@ -168,7 +164,7 @@ void EngineDeck::onInputUnconfigured(AudioInput input) {
         qDebug() << "WARNING: EngineDeck connected to AudioInput for a non-vinylcontrol type!";
         return;
     }
-    m_pInputConfigured->setAndConfirm(0.0);
+    m_pInputConfigured->forceSet(0.0);
     m_sampleBuffer = NULL;
 }
 
