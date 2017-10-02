@@ -15,7 +15,7 @@
 ***************************************************************************/
 
 // This class provides a way to do audio processing that does not need
-// to be executed in real-time. For example, shoutcast encoding/broadcasting
+// to be executed in real-time. For example, broadcast encoding
 // and recording encoding can be done here. This class uses double-buffering
 // to increase the amount of time the CPU has to do whatever work needs to
 // be done, and that work is executed in a separate thread. (Threading
@@ -59,7 +59,7 @@ EngineSideChain::~EngineSideChain() {
     // Wait until the thread has finished.
     wait();
 
-    QMutexLocker locker(&m_workerLock);
+    MMutexLocker locker(&m_workerLock);
     while (!m_workers.empty()) {
         SideChainWorker* pWorker = m_workers.takeLast();
         pWorker->shutdown();
@@ -71,15 +71,28 @@ EngineSideChain::~EngineSideChain() {
 }
 
 void EngineSideChain::addSideChainWorker(SideChainWorker* pWorker) {
-    QMutexLocker locker(&m_workerLock);
+    MMutexLocker locker(&m_workerLock);
     m_workers.append(pWorker);
 }
 
-void EngineSideChain::writeSamples(const CSAMPLE* newBuffer, int buffer_size) {
-    Trace sidechain("EngineSideChain::writeSamples");
-    int samples_written = m_sampleFifo.write(newBuffer, buffer_size);
+void EngineSideChain::receiveBuffer(AudioInput input,
+                                    const CSAMPLE* pBuffer,
+                                    unsigned int iFrames) {
+    if (input.getType() != AudioInput::RECORD_BROADCAST) {
+        qDebug() << "WARNING: AudioInput type is not RECORD_BROADCAST. Ignoring incoming buffer.";
+        return;
+    }
+    writeSamples(pBuffer, iFrames);
+}
 
-    if (samples_written != buffer_size) {
+void EngineSideChain::writeSamples(const CSAMPLE* pBuffer, int iFrames) {
+    Trace sidechain("EngineSideChain::writeSamples");
+    // TODO: remove assumption of stereo buffer
+    const int kChannels = 2;
+    const int iSamples = iFrames * kChannels;
+    int samples_written = m_sampleFifo.write(pBuffer, iSamples);
+
+    if (samples_written != iSamples) {
         Counter("EngineSideChain::writeSamples buffer overrun").increment();
     }
 
@@ -110,7 +123,7 @@ void EngineSideChain::run() {
         while ((samples_read = m_sampleFifo.read(m_pWorkBuffer,
                                                  SIDECHAIN_BUFFER_SIZE))) {
             Trace process("EngineSideChain::process");
-            QMutexLocker locker(&m_workerLock);
+            MMutexLocker locker(&m_workerLock);
             foreach (SideChainWorker* pWorker, m_workers) {
                 pWorker->process(m_pWorkBuffer, samples_read);
             }

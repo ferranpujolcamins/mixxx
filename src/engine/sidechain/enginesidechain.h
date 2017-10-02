@@ -24,10 +24,12 @@
 
 #include "preferences/usersettings.h"
 #include "engine/sidechain/sidechainworker.h"
+#include "soundio/soundmanagerutil.h"
 #include "util/fifo.h"
+#include "util/mutex.h"
 #include "util/types.h"
 
-class EngineSideChain : public QThread {
+class EngineSideChain : public QThread, public AudioDestination {
     Q_OBJECT
   public:
     EngineSideChain(UserSettingsPointer pConfig);
@@ -36,13 +38,19 @@ class EngineSideChain : public QThread {
     // Not thread-safe, wait-free. Submit buffer of samples to the sidechain for
     // processing. Should only be called from a single writer thread (typically
     // the engine callback).
-    void writeSamples(const CSAMPLE* buffer, int buffer_size);
+    void writeSamples(const CSAMPLE* pBuffer, int iFrames);
+
+    // Thin wrapper around writeSamples that is used by SoundManager when receiving
+    // from a sound card input instead of the engine
+    void receiveBuffer(AudioInput input,
+                       const CSAMPLE* pBuffer,
+                       unsigned int iFrames) override;
 
     // Thread-safe, blocking.
     void addSideChainWorker(SideChainWorker* pWorker);
 
   private:
-    void run();
+    void run() override;
 
     UserSettingsPointer m_pConfig;
     // Indicates that the thread should exit.
@@ -57,8 +65,8 @@ class EngineSideChain : public QThread {
     QWaitCondition m_waitForSamples;
 
     // Sidechain workers registered with EngineSideChain.
-    QMutex m_workerLock;
-    QList<SideChainWorker*> m_workers;
+    MMutex m_workerLock;
+    QList<SideChainWorker*> m_workers GUARDED_BY(m_workerLock);
 };
 
 #endif

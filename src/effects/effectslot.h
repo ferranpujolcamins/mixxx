@@ -5,15 +5,17 @@
 #include <QSharedPointer>
 #include <QString>
 
-#include "controlobject.h"
-#include "controlpushbutton.h"
+#include "control/controlobject.h"
+#include "control/controlpotmeter.h"
+#include "control/controlpushbutton.h"
+#include "controllers/softtakeover.h"
 #include "effects/effect.h"
 #include "effects/effectparameterslot.h"
 #include "effects/effectbuttonparameterslot.h"
 #include "util/class.h"
 
 class EffectSlot;
-class ControlObjectSlave;
+class ControlProxy;
 typedef QSharedPointer<EffectSlot> EffectSlotPointer;
 
 class EffectSlot : public QObject {
@@ -28,15 +30,30 @@ class EffectSlot : public QObject {
     // returns a null EffectPointer.
     EffectPointer getEffect() const;
 
+    inline bool getEnableState() const {
+        return m_pControlEnabled->toBool();
+    }
+
+    inline int getEffectSlotNumber() const {
+        return m_iEffectNumber;
+    }
+
     unsigned int numParameterSlots() const;
     EffectParameterSlotPointer addEffectParameterSlot();
     EffectParameterSlotPointer getEffectParameterSlot(unsigned int slotNumber);
+    EffectParameterSlotPointer getEffectParameterSlotForConfigKey(unsigned int slotNumber);
+    inline const QList<EffectParameterSlotPointer>& getEffectParameterSlots() const {
+        return m_parameters;
+    };
 
     unsigned int numButtonParameterSlots() const;
     EffectButtonParameterSlotPointer addEffectButtonParameterSlot();
     EffectButtonParameterSlotPointer getEffectButtonParameterSlot(unsigned int slotNumber);
+    inline const QList<EffectButtonParameterSlotPointer>& getEffectButtonParameterSlots() const {
+        return m_buttonParameters;
+    };
 
-    void onChainSuperParameterChanged(double parameter, bool force=false);
+    double getMetaParameter() const;
 
     // ensures that Softtakover is bypassed for the following
     // ChainParameterChange. Uses for testing only
@@ -49,19 +66,21 @@ class EffectSlot : public QObject {
         return m_group;
     }
 
+    QDomElement toXml(QDomDocument* doc) const;
+    void loadEffectSlotFromXml(const QDomElement& effectElement);
+
   public slots:
     // Request that this EffectSlot load the given Effect
     void loadEffect(EffectPointer pEffect);
+    void setMetaParameter(double v, bool force = false);
 
-    void slotLoaded(double v);
-    void slotNumParameters(double v);
-    void slotNumParameterSlots(double v);
     void slotEnabled(double v);
     void slotNextEffect(double v);
     void slotPrevEffect(double v);
     void slotClear(double v);
     void slotEffectSelector(double v);
     void slotEffectEnabledChanged(bool enabled);
+    void slotEffectMetaParameter(double v, bool force = false);
 
   signals:
     // Indicates that the effect pEffect has been loaded into this
@@ -106,8 +125,11 @@ class EffectSlot : public QObject {
     ControlObject* m_pControlPrevEffect;
     ControlObject* m_pControlEffectSelector;
     ControlObject* m_pControlClear;
+    ControlPotmeter* m_pControlMetaParameter;
     QList<EffectParameterSlotPointer> m_parameters;
     QList<EffectButtonParameterSlotPointer> m_buttonParameters;
+
+    SoftTakeover* m_pSoftTakeover;
 
     DISALLOW_COPY_AND_ASSIGN(EffectSlot);
 };

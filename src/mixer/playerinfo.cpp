@@ -18,7 +18,7 @@
 
 #include <QMutexLocker>
 
-#include "controlobject.h"
+#include "control/controlobject.h"
 #include "engine/enginechannel.h"
 #include "engine/enginexfader.h"
 #include "mixer/playermanager.h"
@@ -27,7 +27,7 @@ static const int kPlayingDeckUpdateIntervalMillis = 2000;
 static PlayerInfo* m_pPlayerInfo = NULL;
 
 PlayerInfo::PlayerInfo()
-        : m_pCOxfader(new ControlObjectSlave("[Master]","crossfader", this)),
+        : m_pCOxfader(new ControlProxy("[Master]","crossfader", this)),
           m_currentlyPlayingDeck(-1) {
     startTimer(kPlayingDeckUpdateIntervalMillis);
 }
@@ -119,7 +119,7 @@ void PlayerInfo::updateCurrentPlayingDeck() {
             continue;
         }
 
-        if (pDc->m_pregain.get() <= 0.5) {
+        if (pDc->m_pregain.get() <= 0.25) {
             continue;
         }
 
@@ -150,7 +150,6 @@ void PlayerInfo::updateCurrentPlayingDeck() {
             maxVolume = dvol;
         }
     }
-
     if (maxDeck != m_currentlyPlayingDeck) {
         m_currentlyPlayingDeck = maxDeck;
         locker.unlock();

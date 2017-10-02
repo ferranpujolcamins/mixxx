@@ -23,7 +23,7 @@
 
 #include "preferences/dialog/ui_dlgprefeqdlg.h"
 #include "preferences/usersettings.h"
-#include "controlobjectslave.h"
+#include "control/controlproxy.h"
 #include "preferences/dlgpreferencepage.h"
 #include "effects/effectsmanager.h"
 #include "effects/effectrack.h"
@@ -57,6 +57,7 @@ class DlgPrefEQ : public DlgPreferencePage, public Ui::DlgPrefEQDlg  {
     void slotUpdate();
     void slotResetToDefaults();
     void slotUpdateEqAutoReset(int);
+    void slotUpdateGainAutoReset(int);
     void slotBypass(int state);
     // Update the Master EQ
     void slotUpdateMasterEQParameter(int value);
@@ -78,8 +79,8 @@ class DlgPrefEQ : public DlgPreferencePage, public Ui::DlgPrefEQDlg  {
     void setUpMasterEQ();
     void applySelections();
 
-    ControlObjectSlave m_COLoFreq;
-    ControlObjectSlave m_COHiFreq;
+    ControlProxy m_COLoFreq;
+    ControlProxy m_COHiFreq;
     UserSettingsPointer m_pConfig;
     double m_lowEqFreq, m_highEqFreq;
 
@@ -92,7 +93,7 @@ class DlgPrefEQ : public DlgPreferencePage, public Ui::DlgPrefEQDlg  {
     QList<QComboBox*> m_deckQuickEffectSelectors;
     QList<bool> m_filterWaveformEffectLoaded;
     QList<ControlObject*> m_filterWaveformEnableCOs;
-    ControlObjectSlave* m_pNumDecks;
+    ControlProxy* m_pNumDecks;
 
     bool m_inSlotPopulateDeckEffectSelectors;
 
@@ -103,6 +104,7 @@ class DlgPrefEQ : public DlgPreferencePage, public Ui::DlgPrefEQDlg  {
     QWeakPointer<Effect> m_pEffectMasterEQ;
 
     bool m_bEqAutoReset;
+    bool m_bGainAutoReset;
 };
 
 #endif

@@ -7,12 +7,13 @@
 
 #include "preferences/usersettings.h"
 
-class MixxxKeyboard;
+class KeyboardEventFilter;
 class PlayerManager;
 class ControllerManager;
 class Library;
 class VinylControlManager;
 class EffectsManager;
+class RecordingManager;
 class LaunchImage;
 
 class SkinLoader {
@@ -21,12 +22,13 @@ class SkinLoader {
     virtual ~SkinLoader();
 
     QWidget* loadDefaultSkin(QWidget* pParent,
-                             MixxxKeyboard* pKeyboard,
+                             KeyboardEventFilter* pKeyboard,
                              PlayerManager* pPlayerManager,
                              ControllerManager* pControllerManager,
                              Library* pLibrary,
                              VinylControlManager* pVCMan,
-                             EffectsManager* pEffectsManager);
+                             EffectsManager* pEffectsManager,
+                             RecordingManager* pRecordingManager);
 
     LaunchImage* loadLaunchImage(QWidget* pParent);
 

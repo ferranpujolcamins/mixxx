@@ -22,8 +22,8 @@
 #include <QMap>
 #include <QTimerEvent>
 
-#include "controlobjectslave.h"
-#include "trackinfoobject.h"
+#include "control/controlproxy.h"
+#include "track/track.h"
 
 class PlayerInfo : public QObject {
     Q_OBJECT
@@ -33,6 +33,7 @@ class PlayerInfo : public QObject {
     TrackPointer getTrackInfo(const QString& group);
     void setTrackInfo(const QString& group, const TrackPointer& trackInfoObj);
     TrackPointer getCurrentPlayingTrack();
+    int getCurrentPlayingDeck();
     QMap<QString, TrackPointer> getLoadedTracks();
     bool isTrackLoaded(const TrackPointer& pTrack) const;
     bool isFileLoaded(const QString& track_location) const;
@@ -53,23 +54,22 @@ class PlayerInfo : public QObject {
                       m_orientation(group, "orientation") {
             }
 
-            ControlObjectSlave m_play;
-            ControlObjectSlave m_pregain;
-            ControlObjectSlave m_volume;
-            ControlObjectSlave m_orientation;
+            ControlProxy m_play;
+            ControlProxy m_pregain;
+            ControlProxy m_volume;
+            ControlProxy m_orientation;
     };
 
     void clearControlCache();
     void timerEvent(QTimerEvent* pTimerEvent);
     void updateCurrentPlayingDeck();
-    int getCurrentPlayingDeck();
     DeckControls* getDeckControls(int i);
 
     PlayerInfo();
     virtual ~PlayerInfo();
 
     mutable QMutex m_mutex;
-    ControlObjectSlave* m_pCOxfader;
+    ControlProxy* m_pCOxfader;
     // QMap is faster than QHash for small count of elements < 50
     QMap<QString, TrackPointer> m_loadedTrackMap;
     int m_currentlyPlayingDeck;

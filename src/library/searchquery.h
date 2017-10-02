@@ -10,10 +10,11 @@
 #include <QString>
 #include <QStringList>
 
-#include "trackinfoobject.h"
+#include "track/track.h"
 #include "proto/keys.pb.h"
 #include "util/assert.h"
 #include "util/memory.h"
+#include "library/crate/cratestorage.h"
 
 QVariant getTrackValueForColumn(const TrackPointer& pTrack, const QString& column);
 
@@ -88,6 +89,21 @@ class TextFilterNode : public QueryNode {
     QSqlDatabase m_database;
     QStringList m_sqlColumns;
     QString m_argument;
+};
+
+class CrateFilterNode : public QueryNode {
+  public:
+    CrateFilterNode(const CrateStorage* pCrateStorage,
+                    const QString& crateNameLike);
+
+    bool match(const TrackPointer& pTrack) const override;
+    QString toSql() const override;
+
+  private:
+    const CrateStorage* m_pCrateStorage;
+    QString m_crateNameLike;
+    mutable bool m_matchInitialized;
+    mutable std::vector<TrackId> m_matchingTrackIds;
 };
 
 class NumericFilterNode : public QueryNode {

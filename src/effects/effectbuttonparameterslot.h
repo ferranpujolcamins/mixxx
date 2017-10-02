@@ -5,7 +5,7 @@
 #include <QVariant>
 #include <QString>
 
-#include "controlobject.h"
+#include "control/controlobject.h"
 #include "effects/effect.h"
 #include "effects/effectparameterslotbase.h"
 #include "util/class.h"
@@ -31,6 +31,9 @@ class EffectButtonParameterSlot : public EffectParameterSlotBase {
 
     // Clear the currently loaded effect
     void clear();
+
+    QDomElement toXml(QDomDocument* doc) const override;
+    void loadParameterSlotFromXml(const QDomElement& parameterElement) override;
 
   private slots:
     // Solely for handling control changes

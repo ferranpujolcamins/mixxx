@@ -3,10 +3,11 @@
 
 #include <QtDebug>
 
-#include "controlobjectslave.h"
+#include "control/controlproxy.h"
 #include "engine/enginechannel.h"
 #include "engine/enginemaster.h"
 #include "test/mixxxtest.h"
+#include "test/signalpathtest.h"
 #include "util/defs.h"
 #include "util/sample.h"
 #include "util/types.h"
@@ -39,15 +40,12 @@ class EngineChannelMock : public EngineChannel {
 
 class EngineMasterTest : public MixxxTest {
   protected:
-    virtual void SetUp() {
-        m_pMaster = new EngineMaster(config(), "[Master]", NULL, false, false);
-        m_pMasterEnabled = new ControlObjectSlave(ConfigKey("[Master]", "enabled"));
-        m_pMasterEnabled->set(1);
+    void SetUp() override {
+        m_pMaster = new TestEngineMaster(config(), "[Master]", NULL, false, false);
     }
 
-    virtual void TearDown() {
+    void TearDown() override {
         delete m_pMaster;
-        delete m_pMasterEnabled;
     }
 
     void ClearBuffer(CSAMPLE* pBuffer, int length) {
@@ -71,7 +69,6 @@ class EngineMasterTest : public MixxxTest {
     }
 
     EngineMaster* m_pMaster;
-    ControlObjectSlave* m_pMasterEnabled;
 };
 
 TEST_F(EngineMasterTest, SingleChannelOutputWorks) {

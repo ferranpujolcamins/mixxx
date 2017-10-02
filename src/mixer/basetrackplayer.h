@@ -9,12 +9,13 @@
 #include "engine/enginechannel.h"
 #include "engine/enginedeck.h"
 #include "mixer/baseplayer.h"
-#include "trackinfoobject.h"
+#include "track/track.h"
+#include "util/memory.h"
 
 class EngineMaster;
 class ControlObject;
 class ControlPotmeter;
-class ControlObjectSlave;
+class ControlProxy;
 class EffectsManager;
 
 // Interface for not leaking implementation details of BaseTrackPlayer into the
@@ -58,7 +59,7 @@ class BaseTrackPlayerImpl : public BaseTrackPlayer {
                         bool defaultHeadphones);
     virtual ~BaseTrackPlayerImpl();
 
-    TrackPointer getLoadedTrack() const;
+    TrackPointer getLoadedTrack() const override;
 
     // TODO(XXX): Only exposed to let the passthrough AudioInput get
     // connected. Delete me when EngineMaster supports AudioInput assigning.
@@ -66,54 +67,65 @@ class BaseTrackPlayerImpl : public BaseTrackPlayer {
 
     void setupEqControls();
 
+    // For testing, loads a fake track.
+    TrackPointer loadFakeTrack(bool bPlay, double filebpm);
+
   public slots:
     void slotLoadTrack(TrackPointer track, bool bPlay) override;
     void slotTrackLoaded(TrackPointer pNewTrack, TrackPointer pOldTrack);
-    void slotLoadFailed(TrackPointer pTrackInfoObject, QString reason);
-    void slotSetReplayGain(Mixxx::ReplayGain replayGain);
+    void slotLoadFailed(TrackPointer pTrack, QString reason);
+    void slotSetReplayGain(mixxx::ReplayGain replayGain);
     void slotPlayToggled(double);
 
   private slots:
     void slotPassthroughEnabled(double v);
     void slotVinylControlEnabled(double v);
+    void slotWaveformZoomValueChangeRequest(double pressed);
+    void slotWaveformZoomUp(double pressed);
+    void slotWaveformZoomDown(double pressed);
+    void slotWaveformZoomSetDefault(double pressed);
 
   private:
     void setReplayGain(double value);
 
     UserSettingsPointer m_pConfig;
+    EngineMaster* m_pEngineMaster;
     TrackPointer m_pLoadedTrack;
+    EngineDeck* m_pChannel;
+    bool m_replaygainPending;
 
     // Waveform display related controls
-    ControlPotmeter* m_pWaveformZoom;
-    ControlObject* m_pEndOfTrack;
+    std::unique_ptr<ControlObject> m_pWaveformZoom;
+    std::unique_ptr<ControlPushButton> m_pWaveformZoomUp;
+    std::unique_ptr<ControlPushButton> m_pWaveformZoomDown;
+    std::unique_ptr<ControlPushButton> m_pWaveformZoomSetDefault;
 
-    ControlObjectSlave* m_pLoopInPoint;
-    ControlObjectSlave* m_pLoopOutPoint;
-    ControlObject* m_pDuration;
+
+    std::unique_ptr<ControlProxy> m_pLoopInPoint;
+    std::unique_ptr<ControlProxy> m_pLoopOutPoint;
+    std::unique_ptr<ControlObject> m_pDuration;
+    std::unique_ptr<ControlObject> m_pEndOfTrack;
 
     // TODO() these COs are reconnected during runtime
     // This may lock the engine
-    ControlObjectSlave* m_pBPM;
-    ControlObjectSlave* m_pKey;
+    std::unique_ptr<ControlProxy> m_pBPM;
+    std::unique_ptr<ControlProxy> m_pKey;
 
-    ControlObjectSlave* m_pReplayGain;
-    ControlObjectSlave* m_pPlay;
-    ControlObjectSlave* m_pLowFilter;
-    ControlObjectSlave* m_pMidFilter;
-    ControlObjectSlave* m_pHighFilter;
-    ControlObjectSlave* m_pLowFilterKill;
-    ControlObjectSlave* m_pMidFilterKill;
-    ControlObjectSlave* m_pHighFilterKill;
-    ControlObjectSlave* m_pPreGain;
-    ControlObjectSlave* m_pRateSlider;
-    ControlObjectSlave* m_pPitchAdjust;
-    QScopedPointer<ControlObjectSlave> m_pInputConfigured;
-    QScopedPointer<ControlObjectSlave> m_pPassthroughEnabled;
-    QScopedPointer<ControlObjectSlave> m_pVinylControlEnabled;
-    QScopedPointer<ControlObjectSlave> m_pVinylControlStatus;
-    EngineDeck* m_pChannel;
-
-    bool m_replaygainPending;
+    std::unique_ptr<ControlProxy> m_pReplayGain;
+    std::unique_ptr<ControlProxy> m_pPlay;
+    std::unique_ptr<ControlProxy> m_pLowFilter;
+    std::unique_ptr<ControlProxy> m_pMidFilter;
+    std::unique_ptr<ControlProxy> m_pHighFilter;
+    std::unique_ptr<ControlProxy> m_pLowFilterKill;
+    std::unique_ptr<ControlProxy> m_pMidFilterKill;
+    std::unique_ptr<ControlProxy> m_pHighFilterKill;
+    std::unique_ptr<ControlProxy> m_pPreGain;
+    std::unique_ptr<ControlProxy> m_pRateSlider;
+    std::unique_ptr<ControlProxy> m_pPitchAdjust;
+    std::unique_ptr<ControlProxy> m_pInputConfigured;
+    std::unique_ptr<ControlProxy> m_pPassthroughEnabled;
+    std::unique_ptr<ControlProxy> m_pVinylControlEnabled;
+    std::unique_ptr<ControlProxy> m_pVinylControlStatus;
 };
 
 #endif // MIXER_BASETRACKPLAYER_H

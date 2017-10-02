@@ -26,12 +26,12 @@
 #include <QPaintEvent>
 #include <QApplication>
 
-#include "widget/wpixmapstore.h"
-#include "controlobject.h"
-#include "controlpushbutton.h"
 #include "control/controlbehavior.h"
+#include "control/controlobject.h"
+#include "control/controlpushbutton.h"
 #include "util/debug.h"
 #include "util/math.h"
+#include "widget/wpixmapstore.h"
 
 WPushButton::WPushButton(QWidget* pParent)
         : WWidget(pParent),
@@ -48,23 +48,25 @@ WPushButton::WPushButton(QWidget* pParent, ControlPushButton::ButtonMode leftBut
     setStates(0);
 }
 
-WPushButton::~WPushButton() {
-}
+void WPushButton::setup(const QDomNode& node, const SkinContext& context) {
+    setScaleFactor(context.getScaleFactor());
 
-void WPushButton::setup(QDomNode node, const SkinContext& context) {
     // Number of states
     int iNumStates = context.selectInt(node, "NumberStates");
     setStates(iNumStates);
 
     // Set background pixmap if available
-    if (context.hasNode(node, "BackPath")) {
-        QDomElement backPathNode = context.selectElement(node, "BackPath");
+
+    QDomElement backPathNode = context.selectElement(node, "BackPath");
+    if (!backPathNode.isNull()) {
         PixmapSource backgroundSource = context.getPixmapSource(backPathNode);
         if (!backgroundSource.isEmpty()) {
             // The implicit default in <1.12.0 was FIXED so we keep it for
             // backwards compatibility.
-            setPixmapBackground(backgroundSource,
-                                context.selectScaleMode(backPathNode, Paintable::FIXED));
+            setPixmapBackground(
+                    backgroundSource,
+                    context.selectScaleMode(backPathNode, Paintable::FIXED),
+                    context.getScaleFactor());
         }
     }
 
@@ -73,34 +75,47 @@ void WPushButton::setup(QDomNode node, const SkinContext& context) {
     while (!state.isNull()) {
         if (state.isElement() && state.nodeName() == "State") {
             // support for variables in State elements
-            SkinContext stateContext(context);
-            stateContext.updateVariables(state);
 
-            int iState = stateContext.selectInt(state, "Number");
+            // Creating a SkinContext is expensive (nearly 20% of our CPU usage
+            // creating a typical skin from profiling). As an optimization, we
+            // look for "SetVariable" nodes to see if we need to create a
+            // context.
+            QScopedPointer<SkinContext> createdStateContext;
+            if (context.hasVariableUpdates(state)) {
+                createdStateContext.reset(new SkinContext(context));
+                createdStateContext->updateVariables(state);
+            }
+
+            const SkinContext* stateContext = !createdStateContext.isNull() ?
+                    createdStateContext.data() : &context;
+
+            int iState = stateContext->selectInt(state, "Number");
             if (iState < m_iNoStates) {
 
-                QDomElement unpressedNode = stateContext.selectElement(state, "Unpressed");
-                PixmapSource pixmapSource = stateContext.getPixmapSource(unpressedNode);
+                QDomElement unpressedNode = stateContext->selectElement(state, "Unpressed");
+                PixmapSource pixmapSource = stateContext->getPixmapSource(unpressedNode);
                 // The implicit default in <1.12.0 was FIXED so we keep it for
                 // backwards compatibility.
                 Paintable::DrawMode unpressedMode =
-                        stateContext.selectScaleMode(unpressedNode, Paintable::FIXED);
+                        stateContext->selectScaleMode(unpressedNode, Paintable::FIXED);
                 if (!pixmapSource.isEmpty()) {
-                    setPixmap(iState, false, pixmapSource, unpressedMode);
+                    setPixmap(iState, false, pixmapSource,
+                              unpressedMode, context.getScaleFactor());
                 }
 
-                QDomElement pressedNode = stateContext.selectElement(state, "Pressed");
-                pixmapSource = stateContext.getPixmapSource(pressedNode);
+                QDomElement pressedNode = stateContext->selectElement(state, "Pressed");
+                pixmapSource = stateContext->getPixmapSource(pressedNode);
                 // The implicit default in <1.12.0 was FIXED so we keep it for
                 // backwards compatibility.
                 Paintable::DrawMode pressedMode =
-                        stateContext.selectScaleMode(pressedNode, Paintable::FIXED);
+                        stateContext->selectScaleMode(pressedNode, Paintable::FIXED);
                 if (!pixmapSource.isEmpty()) {
-                    setPixmap(iState, true, pixmapSource, pressedMode);
+                    setPixmap(iState, true, pixmapSource,
+                              pressedMode, context.getScaleFactor());
                 }
 
-                m_text.replace(iState, stateContext.selectString(state, "Text"));
-                QString alignment = stateContext.selectString(state, "Alignment").toLower();
+                m_text.replace(iState, stateContext->selectString(state, "Text"));
+                QString alignment = stateContext->selectString(state, "Alignment").toLower();
                 if (alignment == "left") {
                     m_align.replace(iState, Qt::AlignLeft);
                 } else if (alignment == "right") {
@@ -114,7 +129,7 @@ void WPushButton::setup(QDomNode node, const SkinContext& context) {
         state = state.nextSibling();
     }
 
-    ControlParameterWidgetConnection* leftConnection = NULL;
+    ControlParameterWidgetConnection* leftConnection = nullptr;
     if (m_leftConnections.isEmpty()) {
         if (!m_connections.isEmpty()) {
             // If no left connection is set, the this is the left connection
@@ -220,7 +235,7 @@ void WPushButton::setStates(int iStates) {
 }
 
 void WPushButton::setPixmap(int iState, bool bPressed, PixmapSource source,
-                            Paintable::DrawMode mode) {
+                            Paintable::DrawMode mode, double scaleFactor) {
     QVector<PaintablePointer>& pixmaps = bPressed ?
             m_pressedPixmaps : m_unpressedPixmaps;
 
@@ -228,7 +243,7 @@ void WPushButton::setPixmap(int iState, bool bPressed, PixmapSource source,
         return;
     }
 
-    PaintablePointer pPixmap = WPixmapStore::getPaintable(source, mode);
+    PaintablePointer pPixmap = WPixmapStore::getPaintable(source, mode, scaleFactor);
     if (pPixmap.isNull() || pPixmap->isNull()) {
         // Only log if it looks like the user tried to specify a pixmap.
         if (!source.isEmpty()) {
@@ -242,9 +257,10 @@ void WPushButton::setPixmap(int iState, bool bPressed, PixmapSource source,
 }
 
 void WPushButton::setPixmapBackground(PixmapSource source,
-                                      Paintable::DrawMode mode) {
+                                      Paintable::DrawMode mode,
+                                      double scaleFactor) {
     // Load background pixmap
-    m_pPixmapBack = WPixmapStore::getPaintable(source, mode);
+    m_pPixmapBack = WPixmapStore::getPaintable(source, mode, scaleFactor);
     if (!source.isEmpty() &&
             (m_pPixmapBack.isNull() || m_pPixmapBack->isNull())) {
         // Only log if it looks like the user tried to specify a pixmap.
