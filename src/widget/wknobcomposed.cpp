@@ -48,7 +48,7 @@ void WKnobComposed::setup(const QDomNode& node, const SkinContext& context) {
     // Set ring pixmap if available
     QDomElement ringNode = context.selectElement(node, "Ring");
     if (!ringNode.isNull()) {
-        setPixmapKnob(
+        setPixmapRing(
                 context.getPixmapSource(ringNode),
                 context.selectScaleMode(ringNode, Paintable::STRETCH),
                 scaleFactor);
