@@ -31,7 +31,7 @@ void ControlNumericBehavior::setValueFromMidi(
     pControl->set(parameterToValue(dNorm), NULL);
 }
 
-double ControlNumericBehavior::scaleStartParameter() {
+double ControlNumericBehavior::getScaleStartParameter() {
     return 0.0;
 }
 
@@ -101,7 +101,7 @@ double ControlPotmeterBehavior::valueToMidiParameter(double dValue) {
     }
 }
 
-double ControlPotmeterBehavior::scaleStartParameter() {
+double ControlPotmeterBehavior::getScaleStartParameter() {
     return m_dScaleStartParameter;
 }
 

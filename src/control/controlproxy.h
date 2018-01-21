@@ -68,8 +68,8 @@ class ControlProxy : public QObject {
         return m_pControl ? m_pControl->defaultValue() : 0.0;
     }
 
-    inline double scaleStartParameter() const {
-        return m_pControl ? m_pControl->scaleStartParameter() : 0.0;
+    inline double getScaleStartParameter() const {
+        return m_pControl ? m_pControl->getScaleStartParameter() : 0.0;
     }
 
   public slots:

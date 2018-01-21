@@ -97,7 +97,7 @@ class ControlDoublePrivate : public QObject {
         return m_defaultValue.getValue();
     }
 
-    double scaleStartParameter();
+    double getScaleStartParameter();
     void setScaleStartParameter(double value);
 
     inline ControlObject* getCreatorCO() const {

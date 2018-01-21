@@ -23,7 +23,7 @@ class ControlWidgetConnection : public QObject {
     double getControlParameter() const;
     double getControlParameterForValue(double value) const;
     inline double scaleStartParameter() const {
-        return m_pControl ? m_pControl->scaleStartParameter() : 0.0;
+        return m_pControl ? m_pControl->getScaleStartParameter() : 0.0;
     }
 
     const ConfigKey& getKey() const {

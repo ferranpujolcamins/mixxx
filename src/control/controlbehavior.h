@@ -30,7 +30,7 @@ class ControlNumericBehavior {
             MidiOpCode o, double dParam, ControlDoublePrivate* pControl);
     
     // This parameter is where the control has "no effect".
-    virtual double scaleStartParameter();
+    virtual double getScaleStartParameter();
     virtual void setScaleStartParameter(double value);
 };
 
@@ -44,7 +44,7 @@ class ControlPotmeterBehavior : public ControlNumericBehavior {
     double midiToParameter(double midiValue) override;
     double parameterToValue(double dParam) override;
     double valueToMidiParameter(double dValue) override;
-    double scaleStartParameter() override;
+    double getScaleStartParameter() override;
     virtual void setScaleStartParameter(double value);
 
   protected:
