@@ -113,10 +113,6 @@ void WKnobComposed::setPixmapRing(PixmapSource source,
     }
 }
 
-void WKnobComposed::addConnection(ControlParameterWidgetConnection* pConnection) {
-    WBaseWidget::addConnection(pConnection);
-}
-
 void WKnobComposed::onConnectedControlChanged(double dParameter, double dValue) {
     Q_UNUSED(dValue);
     // dParameter is in the range [0, 1].

@@ -24,8 +24,6 @@ class WKnobComposed : public WWidget {
 
     void setup(const QDomNode& node, const SkinContext& context);
 
-    void addConnection(ControlParameterWidgetConnection* pConnection);
-
     void onConnectedControlChanged(double dParameter, double dValue) override;
 
   protected:
