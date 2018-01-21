@@ -83,8 +83,9 @@ class ControlPotmeter : public ControlObject {
     // Sets the small step count of the associated PushButtons.
     void setSmallStepCount(int count);
 
-    // Sets the minimum and maximum allowed value. The control value is reset
-    // when calling this method
+    // Sets the minimum and maximum allowed value and also the scale start parameter.
+    // The scale start parameter is used to draw the moving knob ring in skins.
+    // The control value is reset when calling this method
     void setRange(double dMinValue, double dMaxValue, double dScaleStartParameter, bool allowOutOfBounds);
 
   protected:
