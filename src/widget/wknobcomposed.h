@@ -60,8 +60,8 @@ class WKnobComposed : public WWidget {
     double m_dMaxAngle;
     double m_dKnobCenterXOffset;
     double m_dKnobCenterYOffset;
-    double m_dMaskXOffset;
-    double m_dMaskYOffset;
+    double m_dRingMaskXOffset;
+    double m_dRingMaskYOffset;
     double m_dRingMinSpan;
     double m_dRingSpanOffset;
     bool m_bMaskBackground;

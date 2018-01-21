@@ -14,8 +14,8 @@ WKnobComposed::WKnobComposed(QWidget* pParent)
           m_dMaxAngle(135),
           m_dKnobCenterXOffset(0),
           m_dKnobCenterYOffset(0),
-          m_dMaskXOffset(0),
-          m_dMaskYOffset(0),
+          m_dRingMaskXOffset(0),
+          m_dRingMaskYOffset(0),
           m_dRingMinSpan(0),
           m_dRingSpanOffset(0),
           m_bMaskBackground(false) {
@@ -58,8 +58,8 @@ void WKnobComposed::setup(const QDomNode& node, const SkinContext& context) {
     context.hasNodeSelectDouble(node, "MaxAngle", &m_dMaxAngle);
     context.hasNodeSelectDouble(node, "KnobCenterXOffset", &m_dKnobCenterXOffset);
     context.hasNodeSelectDouble(node, "KnobCenterYOffset", &m_dKnobCenterYOffset);
-    context.hasNodeSelectDouble(node, "RingMaskXOffset", &m_dMaskXOffset);
-    context.hasNodeSelectDouble(node, "RingMaskYOffset", &m_dMaskYOffset);
+    context.hasNodeSelectDouble(node, "RingMaskXOffset", &m_dRingMaskXOffset);
+    context.hasNodeSelectDouble(node, "RingMaskYOffset", &m_dRingMaskYOffset);
     context.hasNodeSelectDouble(node, "RingMinSpan", &m_dRingMinSpan);
     context.hasNodeSelectDouble(node, "RingSpanOffset", &m_dRingSpanOffset);
     context.hasNodeSelectBool(node, "MaskBackground", &m_bMaskBackground);
@@ -74,8 +74,8 @@ void WKnobComposed::setup(const QDomNode& node, const SkinContext& context) {
 
     m_dKnobCenterXOffset *= scaleFactor;
     m_dKnobCenterYOffset *= scaleFactor;
-    m_dMaskXOffset *= scaleFactor;
-    m_dMaskYOffset *= scaleFactor;
+    m_dRingMaskXOffset *= scaleFactor;
+    m_dRingMaskYOffset *= scaleFactor;
 }
 
 void WKnobComposed::clear() {
@@ -139,12 +139,12 @@ void WKnobComposed::paintEvent(QPaintEvent* e) {
     p.setRenderHint(QPainter::SmoothPixmapTransform);
     p.drawPrimitive(QStyle::PE_Widget, option);
 
-    bool bScaleStartParameterIsDefined = false
+    bool bScaleStartParameterIsDefined = false;
     ControlParameterWidgetConnection* defaultConnection;
     if (!m_connections.isEmpty()) {
         defaultConnection = m_connections.at(0);
         if (defaultConnection) {
-            bScaleStartParameterIsDefined = true
+            bScaleStartParameterIsDefined = true;
             m_dScaleStartParameter = defaultConnection->scaleStartParameter();
         }
     }
@@ -153,32 +153,49 @@ void WKnobComposed::paintEvent(QPaintEvent* e) {
     // no-op detection.
     m_dCurrentAngle = m_dMinAngle + (m_dMaxAngle - m_dMinAngle) * getControlParameterDisplay();
 
-    // Qt measures angles in degrees from 3 o'clock counterclockwise.
-    // In Mixxx we measure angles also in degrees but from 12 o'clock clockwise.
-    // So: QtAngle = 90 - MixxxAngle
     if (m_pRing && bScaleStartParameterIsDefined) {
+        // The ring is masked so it's only painted between the control's scale start parameter and the knob's current value.
+        
         QPainterPath ringMaskPath;
         int w = width();
         int h = height();
-        ringMaskPath.moveTo(w/2.0 + m_dMaskXOffset, h/2.0 + m_dMaskYOffset);
-        double d = sqrt(pow(w+abs(m_dMaskXOffset),2) + pow(h+abs(m_dMaskYOffset),2));
-        QRectF rectangle = QRectF((w-d)/2.0,(h-d)/2.0,d,d);
-        // We do all calculations with Mixxx angles
+        
+        // Move ring painter to ring center position
+        double dRingCenterX = w/2.0 + m_dRingMaskXOffset;
+        double dRingCenterY = h/2.0 + m_dRingMaskYOffset;
+        ringMaskPath.moveTo(dRingCenterX, dRingCenterY);
+        
+        // The ring mask is a circular sector. We set its diameter for the mask to cover all the widget.
+        double dRingMaskDiameter = sqrt(pow(w,2) + pow(h,2));
+        
+        // Set the rectangle where the ring mask will be painted
+        QPointF ringMaskRectTopLeftCorner = QPointF(dRingCenterX-dRingMaskDiameter/2.0, dRingCenterY-dRingMaskDiameter/2.0);
+        QSizeF ringMaskRectSize = QSizeF(dRingMaskDiameter, dRingMaskDiameter);
+        QRectF ringMaskBoundingRectangle = QRectF(ringMaskRectTopLeftCorner, ringMaskRectSize);
+        
+        // Qt measures angles in degrees from 3 o'clock counterclockwise.
+        // In Mixxx we measure angles also in degrees but from 12 o'clock clockwise.
+        // So: QtAngle = 90 - MixxxAngle
+        // We do all calculations in Mixxx angle units. We convert to Qt Angle units later.
         double dScaleStartAngle = m_dMinAngle + (m_dMaxAngle - m_dMinAngle) * m_dScaleStartParameter;
-        double dInitialAngle;
-        double dSpan;
-
+        
+        // The angle where the mask circular sector starts
+        double dRingMaskBaseAngle;
+        // How wide the ring mask must be
+        double dRingMaskSpan;
         if (m_dCurrentAngle < dScaleStartAngle) {
-            dInitialAngle = math_max(dScaleStartAngle + m_dRingSpanOffset, dScaleStartAngle + m_dRingMinSpan);
-            dSpan = math_min(m_dCurrentAngle - dInitialAngle - m_dRingSpanOffset, -2*m_dRingMinSpan);
+            dRingMaskBaseAngle = math_max(dScaleStartAngle + m_dRingSpanOffset, dScaleStartAngle + m_dRingMinSpan);
+            dRingMaskSpan = math_min(m_dCurrentAngle - dRingMaskBaseAngle - m_dRingSpanOffset, -2*m_dRingMinSpan);
         } else {
-            dInitialAngle = math_min(dScaleStartAngle - m_dRingSpanOffset, dScaleStartAngle - m_dRingMinSpan);
-            dSpan = math_max(m_dCurrentAngle - dInitialAngle + m_dRingSpanOffset, 2*m_dRingMinSpan);
+            dRingMaskBaseAngle = math_min(dScaleStartAngle - m_dRingSpanOffset, dScaleStartAngle - m_dRingMinSpan);
+            dRingMaskSpan = math_max(m_dCurrentAngle - dRingMaskBaseAngle + m_dRingSpanOffset, 2*m_dRingMinSpan);
         }
-        // Here we convert to Qt angles
-        ringMaskPath.arcTo(rectangle, 90 - dInitialAngle, -dSpan);
+        
+        // Here we convert to Qt angles and draw the mask
+        ringMaskPath.arcTo(ringMaskBoundingRectangle, 90 - dRingMaskBaseAngle, -dRingMaskSpan);
         ringMaskPath.closeSubpath();
         p.save();
+        
         if (m_bMaskBackground) {
             // Do not paint the background pixmap where the ring will be painted.
             // It greatly improves the render quality if the ring and the background
@@ -189,12 +206,15 @@ void WKnobComposed::paintEvent(QPaintEvent* e) {
             QPainterPath backMaskPath = canvasPath.subtracted(ringMaskPath);
             p.setClipPath(backMaskPath);
         }
-        if(m_pPixmapBack) m_pPixmapBack->draw(rect(), &p, m_pPixmapBack->rect());
+        if (m_pPixmapBack) {
+            m_pPixmapBack->draw(rect(), &p, m_pPixmapBack->rect());
+        }
 
         p.setClipPath(ringMaskPath);
         m_pRing->draw(rect(), &p, m_pRing->rect());
         p.restore();
     } else if (m_pPixmapBack) {
+        // If we don't need to paint the ring, we paint the background without further transformations.
         m_pPixmapBack->draw(rect(), &p, m_pPixmapBack->rect());
     }
 
