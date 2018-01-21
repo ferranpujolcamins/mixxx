@@ -241,10 +241,10 @@ void EffectSlot::syncSofttakeover() {
     }
 }
 
-double EffectSlot::superParameterScaleStart() {
+double EffectSlot::metaParameterScaleStart() {
     if (m_pEffect) {
         EffectManifest manifest = m_pEffect->getManifest();
-        return manifest.superKnobScaleStart();
+        return manifest.metaParameterScaleStart();
     }
 }
 

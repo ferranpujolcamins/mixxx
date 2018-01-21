@@ -54,7 +54,7 @@ class EffectSlot : public QObject {
     };
 
     double getMetaParameter() const;
-    double superParameterScaleStart();
+    double metaParameterScaleStart();
 
     // ensures that Softtakover is bypassed for the following
     // ChainParameterChange. Uses for testing only

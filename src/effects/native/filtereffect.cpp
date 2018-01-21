@@ -22,7 +22,7 @@ EffectManifest FilterEffect::getManifest() {
     manifest.setDescription(QObject::tr(
         "Allows only high or low frequencies to play."));
     manifest.setEffectRampsFromDry(true);
-    manifest.setSuperKnobScaleStart(0.5);
+    manifest.setMetaParameterScaleStart(0.5);
 
     EffectManifestParameter* lpf = manifest.addParameter();
     lpf->setId("lpf");
