@@ -45,7 +45,7 @@ class ControlPotmeterBehavior : public ControlNumericBehavior {
     double parameterToValue(double dParam) override;
     double valueToMidiParameter(double dValue) override;
     double getScaleStartParameter() override;
-    virtual void setScaleStartParameter(double value);
+    void setScaleStartParameter(double value) override;
 
   protected:
     double m_dMinValue;
