@@ -139,10 +139,12 @@ void WKnobComposed::paintEvent(QPaintEvent* e) {
     p.setRenderHint(QPainter::SmoothPixmapTransform);
     p.drawPrimitive(QStyle::PE_Widget, option);
 
+    bool bScaleStartParameterIsDefined = false
     ControlParameterWidgetConnection* defaultConnection;
-    if (!m_connections.isEmpty()){
+    if (!m_connections.isEmpty()) {
         defaultConnection = m_connections.at(0);
         if (defaultConnection) {
+            bScaleStartParameterIsDefined = true
             m_dScaleStartParameter = defaultConnection->scaleStartParameter();
         }
     }
@@ -154,7 +156,7 @@ void WKnobComposed::paintEvent(QPaintEvent* e) {
     // Qt measures angles in degrees from 3 o'clock counterclockwise.
     // In Mixxx we measure angles also in degrees but from 12 o'clock clockwise.
     // So: QtAngle = 90 - MixxxAngle
-    if (m_pRing) {
+    if (m_pRing && bScaleStartParameterIsDefined) {
         QPainterPath ringMaskPath;
         int w = width();
         int h = height();
