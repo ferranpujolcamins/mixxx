@@ -29,8 +29,7 @@ class ControlNumericBehavior {
     virtual void setValueFromMidi(
             MidiOpCode o, double dParam, ControlDoublePrivate* pControl);
     
-    // This value is used for the skin system to determine a position
-    // of the control where its visual feedback should be off.
+    // This parameter is where the control has "no effect".
     virtual double scaleStartParameter();
     virtual void setScaleStartParameter(double value);
 };
