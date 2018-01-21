@@ -43,8 +43,6 @@ class EffectChainSlot : public QObject {
     double getSuperParameter() const;
     void setSuperParameter(double value, bool force = false);
     void setSuperParameterDefaultValue(double value);
-    double superParameterScaleStart() const;
-    void setSuperParameterScaleStart(double value);
 
     // Unload the loaded EffectChain.
     void clear();

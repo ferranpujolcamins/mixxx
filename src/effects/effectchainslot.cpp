@@ -129,16 +129,8 @@ void EffectChainSlot::setSuperParameter(double value, bool force) {
     slotControlChainSuperParameter(value, force);
 }
 
-void EffectChainSlot::setSuperParameterDefaultValue(double value) {
+    void EffectChainSlot::setSuperParameterDefaultValue(double value) {
     m_pControlChainSuperParameter->setDefaultValue(value);
-}
-
-double EffectChainSlot::superParameterScaleStart() const {
-    return m_pControlChainSuperParameter->scaleStartParameter();
-}
-
-void EffectChainSlot::setSuperParameterScaleStart(double value) {
-    m_pControlChainSuperParameter->setScaleStartParameter(value);
 }
 
 void EffectChainSlot::slotChainNameChanged(const QString&) {

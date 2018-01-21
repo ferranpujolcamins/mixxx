@@ -399,9 +399,6 @@ bool QuickEffectRack::loadEffectToGroup(const QString& groupName,
     // Force update metaknobs and parameters to match state of superknob
     pChainSlot->setSuperParameter(pChainSlot->getSuperParameter(), true);
 
-    // Update chain slot super parameter scale start parameter.
-    pChainSlot->setSuperParameterScaleStart(pChainSlot->superParameterScaleStart());
-
     return true;
 }
 
