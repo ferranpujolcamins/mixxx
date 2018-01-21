@@ -1,6 +1,6 @@
 #include "control/controllinpotmeter.h"
 
-ControlLinPotmeter::ControlLinPotmeter(ConfigKey key, LinPotmeterParameters parameters)
+ControlLinPotmeter::ControlLinPotmeter(ConfigKey key, ControlLinPotmeterParameters parameters)
         : ControlPotmeter(key, parameters) {
     if (m_pControl) {
         m_pControl->setBehavior(

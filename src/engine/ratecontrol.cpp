@@ -42,13 +42,13 @@ RateControl::RateControl(QString group,
     m_pScratchController = new PositionScratchController(group);
 
     m_pRateDir = new ControlObject(ConfigKey(group, "rate_dir"));
-    PotmeterParameters rateRangeParameters = PotmeterParameters();
+    ControlPotmeterParameters rateRangeParameters = ControlPotmeterParameters();
     rateRangeParameters.setMinValue(0.01);
     rateRangeParameters.setMaxValue(0.90);
     m_pRateRange = new ControlPotmeter(ConfigKey(group, "rateRange"), rateRangeParameters);
     // Allow rate slider to go out of bounds so that master sync rate
     // adjustments are not capped.
-    PotmeterParameters rateParameters;
+    ControlPotmeterParameters rateParameters;
     rateParameters.setMinValue(-1.0);
     rateParameters.setAllowOutOfBounds(true);
     m_pRateSlider = new ControlPotmeter(ConfigKey(group, "rate"),
@@ -56,7 +56,7 @@ RateControl::RateControl(QString group,
 
     // Search rate. Rate used when searching in sound. This overrules the
     // playback rate
-    PotmeterParameters rateSearchParameters;
+    ControlPotmeterParameters rateSearchParameters;
     rateSearchParameters.setMinValue(-300.0);
     rateSearchParameters.setMaxValue (300.0);
     m_pRateSearch = new ControlPotmeter(ConfigKey(group, "rateSearch"), rateSearchParameters);

@@ -20,7 +20,7 @@
 
 #include "preferences/usersettings.h"
 #include "control/controlobject.h"
-#include "potmeterparameters.h"
+#include "control/controlpotmeterparameters.h"
 
 /**
   *@author Tue and Ken Haste Andersen
@@ -74,7 +74,7 @@ class PotmeterControls : public QObject {
 class ControlPotmeter : public ControlObject {
     Q_OBJECT
   public:
-    ControlPotmeter(ConfigKey key, PotmeterParameters parameters = PotmeterParameters());
+    ControlPotmeter(ConfigKey key, ControlPotmeterParameters parameters = ControlPotmeterParameters());
     virtual ~ControlPotmeter();
 
     // Sets the step count of the associated PushButtons.

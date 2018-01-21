@@ -26,10 +26,10 @@ class EffectKnobParameters {
     double m_dMaxValue;
 };
 
-class LinPotmeterParameters {
+class ControlLinPotmeterParameters {
   public:
-    LinPotmeterParameters();
-    virtual ~LinPotmeterParameters();
+    ControlLinPotmeterParameters();
+    virtual ~ControlLinPotmeterParameters();
 
     double minValue();                          // Default: 0.
     double maxValue();                          // Default: 1.
@@ -54,10 +54,10 @@ class LinPotmeterParameters {
     double m_dSmallStep;
 };
 
-class LogPotmeterParameters {
+class ControlLogPotmeterParameters {
   public:
-    LogPotmeterParameters();
-    virtual ~LogPotmeterParameters();
+    ControlLogPotmeterParameters();
+    virtual ~ControlLogPotmeterParameters();
 
     double maxValue();                          // Default: 1.
     double scaleStartParameter();               // Default: 0.
@@ -73,13 +73,13 @@ class LogPotmeterParameters {
     double m_dMinDB;
 };
 
-class PotmeterParameters {
+class ControlPotmeterParameters {
   public:
-    PotmeterParameters();
-    PotmeterParameters(EffectKnobParameters& parameters);
-    PotmeterParameters(LinPotmeterParameters& parameters);
-    PotmeterParameters(LogPotmeterParameters& parameters);
-    virtual ~PotmeterParameters();
+    ControlPotmeterParameters();
+    ControlPotmeterParameters(EffectKnobParameters& parameters);
+    ControlPotmeterParameters(ControlLinPotmeterParameters& parameters);
+    ControlPotmeterParameters(ControlLogPotmeterParameters& parameters);
+    virtual ~ControlPotmeterParameters();
 
     double minValue();                          // Default: 0.
     double maxValue();                          // Default: 1.

@@ -17,7 +17,7 @@
 
 #include "control/controllogpotmeter.h"
 
-ControlLogpotmeter::ControlLogpotmeter(ConfigKey key, LogPotmeterParameters parameters)
+ControlLogpotmeter::ControlLogpotmeter(ConfigKey key, ControlLogPotmeterParameters parameters)
     : ControlPotmeter(key, parameters) {
     // Override ControlPotmeters default value of 0.5
     setDefaultValue(1.0);

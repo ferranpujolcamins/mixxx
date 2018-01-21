@@ -28,7 +28,7 @@
 class ControlLogpotmeter : public ControlPotmeter {
     Q_OBJECT
   public:
-    ControlLogpotmeter(ConfigKey key, LogPotmeterParameters parameters);
+    ControlLogpotmeter(ConfigKey key, ControlLogPotmeterParameters parameters);
 };
 
 #endif

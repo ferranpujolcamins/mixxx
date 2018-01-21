@@ -19,7 +19,7 @@
 #include "control/controlpotmeter.h"
 #include "control/controlproxy.h"
 
-ControlPotmeter::ControlPotmeter(ConfigKey key, PotmeterParameters parameters)
+ControlPotmeter::ControlPotmeter(ConfigKey key, ControlPotmeterParameters parameters)
         : ControlObject(key, parameters.ignoreNops(), parameters.track(), parameters.persist()),
           m_controls(key) {
     setRange(parameters.minValue(), parameters.maxValue(), parameters.scaleStartParameter(), parameters.allowOutOfBounds());

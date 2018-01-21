@@ -33,7 +33,7 @@ EngineDelay::EngineDelay(const char* group, ConfigKey delayControl, bool bPersis
           m_iDelay(0) {
     m_pDelayBuffer = SampleUtil::alloc(kiMaxDelay);
     SampleUtil::clear(m_pDelayBuffer, kiMaxDelay);
-    PotmeterParameters potmeterParameters;
+    ControlPotmeterParameters potmeterParameters;
     potmeterParameters.setMaxValue(kdMaxDelayPot);
     potmeterParameters.setPersist(bPersist);
     m_pDelayPot = new ControlPotmeter(delayControl, potmeterParameters);

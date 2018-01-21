@@ -1,4 +1,4 @@
-#include "potmeterparameters.h"
+#include "controlpotmeterparameters.h"
 
 EffectKnobParameters::EffectKnobParameters()
         : m_dMinValue(0.0), m_dMaxValue(1.0) {
@@ -23,103 +23,103 @@ void EffectKnobParameters::setMaxValue(double value) {
     m_dMaxValue = value;
 }
 
-LinPotmeterParameters::LinPotmeterParameters()
+ControlLinPotmeterParameters::ControlLinPotmeterParameters()
         : m_dMinValue(0.0), m_dMaxValue(1.0), m_dScaleStartParameter(0.0),
           m_bAllowOutOfBounds(false), m_dStep(0.0),
           m_dSmallStep(0.0) {
 }
 
-LinPotmeterParameters::~LinPotmeterParameters() {
+ControlLinPotmeterParameters::~ControlLinPotmeterParameters() {
 }
 
-double LinPotmeterParameters::minValue() {
+double ControlLinPotmeterParameters::minValue() {
     return m_dMinValue;
 }
 
-double LinPotmeterParameters::maxValue() {
+double ControlLinPotmeterParameters::maxValue() {
     return m_dMaxValue;
 }
 
-double LinPotmeterParameters::scaleStartParameter() {
+double ControlLinPotmeterParameters::scaleStartParameter() {
     return m_dScaleStartParameter;
 }
 
-bool LinPotmeterParameters::allowOutOfBounds() {
+bool ControlLinPotmeterParameters::allowOutOfBounds() {
     return m_bAllowOutOfBounds;
 }
 
-double LinPotmeterParameters::step() {
+double ControlLinPotmeterParameters::step() {
     return m_dStep;
 }
 
-double LinPotmeterParameters::smallStep() {
+double ControlLinPotmeterParameters::smallStep() {
     return m_dSmallStep;
 }
 
-void LinPotmeterParameters::setMinValue(double value) {
+void ControlLinPotmeterParameters::setMinValue(double value) {
     m_dMinValue = value;
 }
 
-void LinPotmeterParameters::setMaxValue(double value) {
+void ControlLinPotmeterParameters::setMaxValue(double value) {
     m_dMaxValue = value;
 }
 
-void LinPotmeterParameters::setScaleStartParameter(double value) {
+void ControlLinPotmeterParameters::setScaleStartParameter(double value) {
     m_dScaleStartParameter = value;
 }
 
-void LinPotmeterParameters::setAllowOutOfBounds(bool value) {
+void ControlLinPotmeterParameters::setAllowOutOfBounds(bool value) {
     m_bAllowOutOfBounds = value;
 }
 
-void LinPotmeterParameters::setStep(double value) {
+void ControlLinPotmeterParameters::setStep(double value) {
     m_dStep = value;
 }
 
-void LinPotmeterParameters::setSmallStep(double value) {
+void ControlLinPotmeterParameters::setSmallStep(double value) {
     m_dSmallStep = value;
 }
 
-LogPotmeterParameters::LogPotmeterParameters()
+ControlLogPotmeterParameters::ControlLogPotmeterParameters()
         : m_dMaxValue(1.0), m_dScaleStartParameter(0.0),
           m_dMinDB(60.) {
 }
 
-LogPotmeterParameters::~LogPotmeterParameters() {
+ControlLogPotmeterParameters::~ControlLogPotmeterParameters() {
 }
 
-double LogPotmeterParameters::maxValue() {
+double ControlLogPotmeterParameters::maxValue() {
     return m_dMaxValue;
 }
 
-double LogPotmeterParameters::scaleStartParameter() {
+double ControlLogPotmeterParameters::scaleStartParameter() {
     return m_dScaleStartParameter;
 }
 
-double LogPotmeterParameters::minDB() {
+double ControlLogPotmeterParameters::minDB() {
     return m_dMinDB;
 }
 
-void LogPotmeterParameters::setMaxValue(double value) {
+void ControlLogPotmeterParameters::setMaxValue(double value) {
     m_dMaxValue = value;
 }
 
-void LogPotmeterParameters::setScaleStartParameter(double value) {
+void ControlLogPotmeterParameters::setScaleStartParameter(double value) {
     m_dScaleStartParameter = value;
 }
 
-void LogPotmeterParameters::setMinDB(double value) {
+void ControlLogPotmeterParameters::setMinDB(double value) {
     m_dMinDB = value;
 }
 
 
-PotmeterParameters::PotmeterParameters()
+ControlPotmeterParameters::ControlPotmeterParameters()
         : m_dMinValue(0.0), m_dMaxValue(1.0), m_dScaleStartParameter(0.0),
           m_bAllowOutOfBounds(false), m_bIgnoreNops(true),
           m_bTrack(false), m_bPersist(false) {
 }
 
-PotmeterParameters::PotmeterParameters(EffectKnobParameters& parameters)
+ControlPotmeterParameters::ControlPotmeterParameters(EffectKnobParameters& parameters)
         : m_dMinValue(parameters.minValue()),
           m_dMaxValue(parameters.maxValue()),
           m_dScaleStartParameter(0.0),
@@ -127,7 +127,7 @@ PotmeterParameters::PotmeterParameters(EffectKnobParameters& parameters)
           m_bTrack(false), m_bPersist(false) {
 }
 
-PotmeterParameters::PotmeterParameters(LinPotmeterParameters& parameters)
+ControlPotmeterParameters::ControlPotmeterParameters(ControlLinPotmeterParameters& parameters)
         : m_dMinValue(parameters.minValue()),
           m_dMaxValue(parameters.maxValue()),
           m_dScaleStartParameter(parameters.scaleStartParameter()),
@@ -135,68 +135,68 @@ PotmeterParameters::PotmeterParameters(LinPotmeterParameters& parameters)
           m_bIgnoreNops(true), m_bTrack(false), m_bPersist(false) {
 }
 
-PotmeterParameters::PotmeterParameters(LogPotmeterParameters& parameters)
+ControlPotmeterParameters::ControlPotmeterParameters(ControlLogPotmeterParameters& parameters)
         : m_dMinValue(0.0), m_dMaxValue(parameters.maxValue()),
           m_dScaleStartParameter(parameters.scaleStartParameter()),
           m_bAllowOutOfBounds(false), m_bIgnoreNops(true),
           m_bTrack(false), m_bPersist(false) {
 }
 
-PotmeterParameters::~PotmeterParameters() {
+ControlPotmeterParameters::~ControlPotmeterParameters() {
 }
 
-double PotmeterParameters::minValue() {
+double ControlPotmeterParameters::minValue() {
     return m_dMinValue;
 }
 
-double PotmeterParameters::maxValue() {
+double ControlPotmeterParameters::maxValue() {
     return m_dMaxValue;
 }
 
-double PotmeterParameters::scaleStartParameter() {
+double ControlPotmeterParameters::scaleStartParameter() {
     return m_dScaleStartParameter;
 }
 
-bool PotmeterParameters::allowOutOfBounds() {
+bool ControlPotmeterParameters::allowOutOfBounds() {
     return m_bAllowOutOfBounds;
 }
 
-bool PotmeterParameters::ignoreNops() {
+bool ControlPotmeterParameters::ignoreNops() {
     return m_bIgnoreNops;
 }
 
-bool PotmeterParameters::track() {
+bool ControlPotmeterParameters::track() {
     return m_bTrack;
 }
 
-bool PotmeterParameters::persist() {
+bool ControlPotmeterParameters::persist() {
     return m_bPersist;
 }
 
-void PotmeterParameters::setMinValue(double value) {
+void ControlPotmeterParameters::setMinValue(double value) {
     m_dMinValue = value;
 }
 
-void PotmeterParameters::setMaxValue(double value) {
+void ControlPotmeterParameters::setMaxValue(double value) {
     m_dMaxValue = value;
 }
 
-void PotmeterParameters::setScaleStartParameter(double value) {
+void ControlPotmeterParameters::setScaleStartParameter(double value) {
     m_dScaleStartParameter = value;
 }
 
-void PotmeterParameters::setAllowOutOfBounds(bool value) {
+void ControlPotmeterParameters::setAllowOutOfBounds(bool value) {
     m_bAllowOutOfBounds = value;
 }
 
-void PotmeterParameters::setIgnoreNops(bool value) {
+void ControlPotmeterParameters::setIgnoreNops(bool value) {
     m_bIgnoreNops = value;
 }
 
-void PotmeterParameters::setTrack(bool value) {
+void ControlPotmeterParameters::setTrack(bool value) {
     m_bTrack = value;
 }
 
-void PotmeterParameters::setPersist(bool value) {
+void ControlPotmeterParameters::setPersist(bool value) {
     m_bPersist = value;
 }

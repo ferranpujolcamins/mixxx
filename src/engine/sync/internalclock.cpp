@@ -21,7 +21,7 @@ InternalClock::InternalClock(const char* pGroup, SyncableListener* pEngineSync)
     // and bpm_down controls.
     // bpm_up / bpm_down steps by 1
     // bpm_up_small / bpm_down_small steps by 0.1
-    LinPotmeterParameters bpmParameters;
+    ControlLinPotmeterParameters bpmParameters;
     bpmParameters.setMinValue(1.);
     bpmParameters.setMaxValue(200.);
     bpmParameters.setStep(1.);

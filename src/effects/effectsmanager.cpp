@@ -310,7 +310,7 @@ EffectButtonParameterSlotPointer EffectsManager::getEffectButtonParameterSlot(
 
 void EffectsManager::setup() {
     // These controls are used inside EQ Effects
-    PotmeterParameters potmeterParameters;
+    ControlPotmeterParameters potmeterParameters;
     potmeterParameters.setMaxValue(22040);
     m_pLoEqFreq = new ControlPotmeter(ConfigKey("[Mixer Profile]", "LoEQFrequency"), potmeterParameters);
     m_pHiEqFreq = new ControlPotmeter(ConfigKey("[Mixer Profile]", "HiEQFrequency"), potmeterParameters);

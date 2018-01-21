@@ -381,7 +381,7 @@ TEST_F(MidiControllerTest, ReceiveMessage_PotMeterCO_7BitCC) {
     const double kMinValue = -1234.5;
     const double kMaxValue = 678.9;
     const double kMiddleValue = (kMinValue + kMaxValue) * 0.5;
-    PotmeterParameters potmeterParameters;
+    ControlPotmeterParameters potmeterParameters;
     potmeterParameters.setMinValue(kMinValue);
     potmeterParameters.setMaxValue(kMaxValue);
     ControlPotmeter potmeter(key, potmeterParameters);
@@ -412,7 +412,7 @@ TEST_F(MidiControllerTest, ReceiveMessage_PotMeterCO_14BitCC) {
     const double kMinValue = -1234.5;
     const double kMaxValue = 678.9;
     const double kMiddleValue = (kMinValue + kMaxValue) * 0.5;
-    PotmeterParameters potmeterParameters;
+    ControlPotmeterParameters potmeterParameters;
     potmeterParameters.setMinValue(kMinValue);
     potmeterParameters.setMaxValue(kMaxValue);
     ControlPotmeter potmeter(key, potmeterParameters);
@@ -501,7 +501,7 @@ TEST_F(MidiControllerTest, ReceiveMessage_PotMeterCO_14BitPitchBend) {
     const double kMinValue = -1234.5;
     const double kMaxValue = 678.9;
     const double kMiddleValue = (kMinValue + kMaxValue) * 0.5;
-    PotmeterParameters potmeterParameters;
+    ControlPotmeterParameters potmeterParameters;
     potmeterParameters.setMinValue(kMinValue);
     potmeterParameters.setMaxValue(kMaxValue);
     ControlPotmeter potmeter(key, potmeterParameters);

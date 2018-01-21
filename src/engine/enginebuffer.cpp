@@ -160,7 +160,7 @@ EngineBuffer::EngineBuffer(QString group, UserSettingsPointer pConfig,
     m_timeElapsed = new ControlObject(ConfigKey(m_group, "time_elapsed"));
     m_timeRemaining = new ControlObject(ConfigKey(m_group, "time_remaining"));
 
-    LinPotmeterParameters linPotmeterParameters;
+    ControlLinPotmeterParameters linPotmeterParameters;
     linPotmeterParameters.setAllowOutOfBounds(true);
     m_playposSlider = new ControlLinPotmeter(
         ConfigKey(m_group, "playposition"), linPotmeterParameters);
