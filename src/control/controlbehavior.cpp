@@ -189,10 +189,10 @@ double ControlLinInvPotmeterBehavior::parameterToValue(double dParam) {
 
 ControlAudioTaperPotBehavior::ControlAudioTaperPotBehavior(
                              double minDB, double maxDB,
-                             double zeroDbParameter,
-                             double scaleStartParameter)
-        : ControlPotmeterBehavior(0.0, db2ratio(maxDB), scaleStartParameter, false),
-          m_dZeroDbParameter(zeroDbParameter),
+                             double dZeroDbParameter,
+                             double dScaleStartParameter)
+        : ControlPotmeterBehavior(0.0, db2ratio(maxDB), dScaleStartParameter, false),
+          m_dZeroDbParameter(dZeroDbParameter),
           m_minDB(minDB),
           m_maxDB(maxDB),
           m_offset(db2ratio(m_minDB)) {

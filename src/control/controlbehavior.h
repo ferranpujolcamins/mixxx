@@ -93,8 +93,8 @@ class ControlLinInvPotmeterBehavior : public ControlPotmeterBehavior {
 class ControlAudioTaperPotBehavior : public ControlPotmeterBehavior {
   public:
     ControlAudioTaperPotBehavior(double minDB, double maxDB,
-                                 double zeroDbParameter,
-                                 double scaleStartParameter);
+                                 double dZeroDbParameter,
+                                 double dScaleStartParameter);
 
     double valueToParameter(double dValue) override;
     double parameterToValue(double dParam) override;
