@@ -250,6 +250,7 @@ class Qt(Dependence):
                 # Keep alphabetized.
                 'QtConcurrent',
                 'QtWidgets',
+                'QtQml',
             ])
             if build.platform_is_windows:
                 qt_modules.extend([
