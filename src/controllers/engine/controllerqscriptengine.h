@@ -16,6 +16,7 @@
 #include "bytearrayclass.h"
 #include "preferences/usersettings.h"
 #include "controllers/controllerpreset.h"
+#include "controllers/engine/controllerengine.h"
 #include "controllers/softtakeover.h"
 #include "util/alphabetafilter.h"
 #include "util/duration.h"
@@ -28,7 +29,7 @@ class ControllerQScriptEngine;
 
 // ScriptConnectionInvokableWrapper is a class providing scripts
 // with an interface to ScriptConnection.
-class ScriptConnectionInvokableWrapper : public QObject {
+class ScriptConnectionInvokableWrapper : public QObject, public ControllerEngine {
     Q_OBJECT
     Q_PROPERTY(QString id READ readId)
     // We cannot expose ConfigKey directly since it's not a
@@ -52,8 +53,7 @@ class ScriptConnectionInvokableWrapper : public QObject {
 
 class ControllerQScriptEngine : public QObject {
     Q_OBJECT
-  public:
-    ControllerQScriptEngine(Controller* controller);
+public:
     virtual ~ControllerQScriptEngine();
 
     bool isReady();
@@ -80,6 +80,10 @@ class ControllerQScriptEngine : public QObject {
     void triggerScriptConnection(const ScriptConnection conn);
 
   protected:
+    // Constructor is protected because controllers must get an instance of
+    // ControllerEngine by asking ControllerEngineFactory
+    ControllerQScriptEngine(Controller* controller);
+
     Q_INVOKABLE double getValue(QString group, QString name);
     Q_INVOKABLE void setValue(QString group, QString name, double newValue);
     Q_INVOKABLE double getParameter(QString group, QString name);
@@ -196,6 +200,7 @@ class ControllerQScriptEngine : public QObject {
     QFileSystemWatcher m_scriptWatcher;
     QList<QString> m_lastScriptPaths;
 
+    friend class ControllerEngineFactory;
     friend class ControllerEngineTest;
 };
 

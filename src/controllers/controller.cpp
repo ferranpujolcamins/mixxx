@@ -10,6 +10,7 @@
 
 #include "controllers/controller.h"
 #include "controllers/controllerdebug.h"
+#include "controllers/engine/controllerenginefactory.h"
 #include "controllers/defs_controllers.h"
 #include "util/screensaver.h"
 
@@ -35,7 +36,7 @@ void Controller::startEngine()
         qWarning() << "Controller: Engine already exists! Restarting:";
         stopEngine();
     }
-    m_pEngine = new ControllerQScriptEngine(this);
+    m_pEngine = ControllerEngineFactory::getControllerEngineForController(this);
 }
 
 void Controller::stopEngine() {
