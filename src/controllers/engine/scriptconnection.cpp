@@ -1,5 +1,5 @@
 #include "controllers/engine/scriptconnection.h"
-#include "controllers/engine/controllerqscriptengine.h"
+#include "controllers/engine/controllerengine.h"
 
 /* -------- ------------------------------------------------------
    Purpose: Execute a ScriptConnection's callback
@@ -13,7 +13,7 @@ void ScriptConnection::executeCallback(double value) const {
     QScriptValue func = callback; // copy function because QScriptValue::call is not const
     QScriptValue result = func.call(context, args);
     if (result.isError()) {
-        qWarning() << "ControllerQScriptEngine: Invocation of connection " << id.toString()
+        qWarning() << "ControllerEngine: Invocation of connection " << id.toString()
                    << "connected to (" + key.group + ", " + key.item + ") failed:"
                    << result.toString();
     }

@@ -5,7 +5,7 @@
 
 #include "preferences/usersettings.h"
 
-class ControllerQScriptEngine;
+class ControllerEngine;
 
 // ScriptConnection represents a connection between
 // a ControlObject and a script callback function that gets executed when
@@ -15,7 +15,7 @@ class ScriptConnection {
     ConfigKey key;
     QUuid id;
     QScriptValue callback;
-    ControllerQScriptEngine *controllerEngine;
+    ControllerEngine *controllerEngine;
     QScriptValue context;
 
     void executeCallback(double value) const;

@@ -9,6 +9,7 @@
 #define CONTROLLERMANAGER_H
 
 #include <QSharedPointer>
+#include <QTimer>
 
 #include "controllers/controllerenumerator.h"
 #include "controllers/controllerpreset.h"

@@ -740,6 +740,11 @@ QScriptValue ControllerQScriptEngine::makeConnection(QString group, QString name
     return QScriptValue();
 }
 
+
+const QList<QString>& ControllerQScriptEngine::getScriptFunctionPrefixes() {
+    return m_scriptFunctionPrefixes;
+};
+
 /* -------- ------------------------------------------------------
    Purpose: (Dis)connects a ScriptConnection
    Input:   the ScriptConnection to disconnect

@@ -238,7 +238,7 @@ void MidiController::processInputMapping(const MidiInputMapping& mapping,
     unsigned char opCode = MidiUtils::opCodeFromStatus(status);
 
     if (mapping.options.script) {
-        ControllerQScriptEngine* pEngine = getEngine();
+        ControllerEngine* pEngine = getEngine();
         if (pEngine == NULL) {
             return;
         }
@@ -487,7 +487,7 @@ void MidiController::processInputMapping(const MidiInputMapping& mapping,
                                          mixxx::Duration timestamp) {
     // Custom script handler
     if (mapping.options.script) {
-        ControllerQScriptEngine* pEngine = getEngine();
+        ControllerEngine* pEngine = getEngine();
         if (pEngine == NULL) {
             return;
         }

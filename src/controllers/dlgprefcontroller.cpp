@@ -12,6 +12,7 @@
 #include <QTableWidgetItem>
 #include <QDesktopServices>
 #include <QtAlgorithms>
+#include <QUrl>
 
 #include "controllers/dlgprefcontroller.h"
 #include "controllers/controllerlearningeventfilter.h"

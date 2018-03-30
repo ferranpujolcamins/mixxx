@@ -6,6 +6,7 @@
   */
 
 #include <QSet>
+#include <QThread>
 
 #include "util/trace.h"
 #include "controllers/controllermanager.h"

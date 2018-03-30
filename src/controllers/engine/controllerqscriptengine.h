@@ -19,7 +19,6 @@
 #include "controllers/engine/controllerengine.h"
 #include "controllers/softtakeover.h"
 #include "util/alphabetafilter.h"
-#include "util/duration.h"
 #include "controllers/engine/scriptconnection.h"
 
 // Forward declaration(s)
@@ -29,7 +28,7 @@ class ControllerQScriptEngine;
 
 // ScriptConnectionInvokableWrapper is a class providing scripts
 // with an interface to ScriptConnection.
-class ScriptConnectionInvokableWrapper : public QObject, public ControllerEngine {
+class ScriptConnectionInvokableWrapper : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString id READ readId)
     // We cannot expose ConfigKey directly since it's not a
@@ -51,9 +50,10 @@ class ScriptConnectionInvokableWrapper : public QObject, public ControllerEngine
     QString m_idString;
 };
 
-class ControllerQScriptEngine : public QObject {
+class ControllerQScriptEngine: public ControllerEngine {
     Q_OBJECT
-public:
+
+  public:
     virtual ~ControllerQScriptEngine();
 
     bool isReady();
@@ -73,7 +73,7 @@ public:
     QScriptValue getThisObjectInFunctionCall();
 
     // Look up registered script function prefixes
-    const QList<QString>& getScriptFunctionPrefixes() { return m_scriptFunctionPrefixes; };
+    const QList<QString>& getScriptFunctionPrefixes();
 
     // Disconnect a ScriptConnection
     void removeScriptConnection(const ScriptConnection conn);

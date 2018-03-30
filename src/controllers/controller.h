@@ -12,7 +12,9 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "controllers/engine/controllerqscriptengine.h"
+#include <QTime>
+
+#include "controllers/engine/controllerengine.h"
 #include "controllers/controllervisitor.h"
 #include "controllers/controllerpreset.h"
 #include "controllers/controllerpresetinfo.h"
@@ -105,7 +107,7 @@ class Controller : public QObject, ConstControllerPresetVisitor {
     // To be called when receiving events
     void triggerActivity();
 
-    inline ControllerQScriptEngine* getEngine() const {
+    inline ControllerEngine* getEngine() const {
         return m_pEngine;
     }
     inline void setDeviceName(QString deviceName) {
@@ -146,7 +148,7 @@ class Controller : public QObject, ConstControllerPresetVisitor {
     // Returns a pointer to the currently loaded controller preset. For internal
     // use only.
     virtual ControllerPreset* preset() = 0;
-    ControllerQScriptEngine* m_pEngine;
+    ControllerEngine* m_pEngine;
 
     // Verbose and unique device name suitable for display.
     QString m_sDeviceName;

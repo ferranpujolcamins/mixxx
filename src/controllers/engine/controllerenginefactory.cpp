@@ -3,8 +3,9 @@
 //
 
 #include "controllerenginefactory.h"
+#include "controllers/engine/controllerqscriptengine.h"
 
 // static
-ControllerQScriptEngine* ControllerEngineFactory::getControllerEngineForController(Controller* controller) {
+ControllerEngine* ControllerEngineFactory::getControllerEngineForController(Controller* controller) {
     return new ControllerQScriptEngine(controller);
 }

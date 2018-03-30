@@ -11,6 +11,7 @@
 #include <hidapi.h>
 
 #include <QAtomicInt>
+#include <QThread>
 
 #include "controllers/controller.h"
 #include "controllers/hid/hidcontrollerpreset.h"
