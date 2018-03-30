@@ -19,33 +19,12 @@
 #include "controllers/softtakeover.h"
 #include "util/alphabetafilter.h"
 #include "util/duration.h"
+#include "controllers/engine/scriptconnection.h"
 
 // Forward declaration(s)
 class Controller;
 class ControlObjectScript;
 class ControllerEngine;
-
-// ScriptConnection represents a connection between
-// a ControlObject and a script callback function that gets executed when
-// the value of the ControlObject changes.
-class ScriptConnection {
-  public:
-    ConfigKey key;
-    QUuid id;
-    QScriptValue callback;
-    ControllerEngine *controllerEngine;
-    QScriptValue context;
-
-    void executeCallback(double value) const;
-
-    // Required for various QList methods and iteration to work.
-    inline bool operator==(const ScriptConnection& other) const {
-        return id == other.id;
-    }
-    inline bool operator!=(const ScriptConnection& other) const {
-        return !(*this == other);
-    }
-};
 
 // ScriptConnectionInvokableWrapper is a class providing scripts
 // with an interface to ScriptConnection.

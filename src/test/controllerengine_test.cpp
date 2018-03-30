@@ -4,7 +4,7 @@
 #include "control/controlobject.h"
 #include "control/controlpotmeter.h"
 #include "preferences/usersettings.h"
-#include "controllers/controllerengine.h"
+#include "controllers/engine/controllerengine.h"
 #include "controllers/controllerdebug.h"
 #include "controllers/softtakeover.h"
 #include "test/mixxxtest.h"

@@ -6,7 +6,7 @@
     email                : spappalardo@mixxx.org
  ***************************************************************************/
 
-#include "controllers/controllerengine.h"
+#include "controllerengine.h"
 
 #include "controllers/controller.h"
 #include "controllers/controllerdebug.h"
@@ -738,24 +738,6 @@ QScriptValue ControllerEngine::makeConnection(QString group, QString name,
     }
 
     return QScriptValue();
-}
-
-/* -------- ------------------------------------------------------
-   Purpose: Execute a ScriptConnection's callback
-   Input:   the value of the connected ControlObject to pass to the callback
-   -------- ------------------------------------------------------ */
-void ScriptConnection::executeCallback(double value) const {
-    QScriptValueList args;
-    args << QScriptValue(value);
-    args << QScriptValue(key.group);
-    args << QScriptValue(key.item);
-    QScriptValue func = callback; // copy function because QScriptValue::call is not const
-    QScriptValue result = func.call(context, args);
-    if (result.isError()) {
-        qWarning() << "ControllerEngine: Invocation of connection " << id.toString()
-                   << "connected to (" + key.group + ", " + key.item + ") failed:"
-                   << result.toString();
-    }
 }
 
 /* -------- ------------------------------------------------------
