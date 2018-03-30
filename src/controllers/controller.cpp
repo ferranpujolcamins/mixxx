@@ -35,7 +35,7 @@ void Controller::startEngine()
         qWarning() << "Controller: Engine already exists! Restarting:";
         stopEngine();
     }
-    m_pEngine = new ControllerEngine(this);
+    m_pEngine = new ControllerQScriptEngine(this);
 }
 
 void Controller::stopEngine() {

@@ -1,7 +1,7 @@
 #ifndef CONTROLOBJECTSCRIPT_H
 #define CONTROLOBJECTSCRIPT_H
 
-#include "controllers/engine/controllerengine.h"
+#include "controllers/engine/controllerqscriptengine.h"
 #include "controllers/controllerdebug.h"
 #include "control/controlproxy.h"
 
@@ -15,7 +15,7 @@ class ControlObjectScript : public ControlProxy {
 
     void removeScriptConnection(const ScriptConnection& conn);
 
-    // Required for legacy behavior of ControllerEngine::connectControl
+    // Required for legacy behavior of ControllerQScriptEngine::connectControl
     inline int countConnections() {
             return m_scriptConnections.size(); };
     inline ScriptConnection firstConnection() {

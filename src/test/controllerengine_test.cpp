@@ -4,7 +4,7 @@
 #include "control/controlobject.h"
 #include "control/controlpotmeter.h"
 #include "preferences/usersettings.h"
-#include "controllers/engine/controllerengine.h"
+#include "controllers/engine/controllerqscriptengine.h"
 #include "controllers/controllerdebug.h"
 #include "controllers/softtakeover.h"
 #include "test/mixxxtest.h"
@@ -17,7 +17,7 @@ class ControllerEngineTest : public MixxxTest {
         mixxx::Time::setTestMode(true);
         mixxx::Time::setTestElapsedTime(mixxx::Duration::fromMillis(10));
         QThread::currentThread()->setObjectName("Main");
-        cEngine = new ControllerEngine(nullptr);
+        cEngine = new ControllerQScriptEngine(nullptr);
         ControllerDebug::enable();
         cEngine->setPopups(false);
     }
@@ -34,7 +34,7 @@ class ControllerEngineTest : public MixxxTest {
                                         QScriptValueList());
     }
 
-    ControllerEngine *cEngine;
+    ControllerQScriptEngine *cEngine;
 };
 
 TEST_F(ControllerEngineTest, commonScriptHasNoErrors) {
@@ -118,7 +118,7 @@ TEST_F(ControllerEngineTest, softTakeover_setValue) {
     EXPECT_DOUBLE_EQ(-10.0, co->get());
 
     // Change the control internally (putting it out of sync with the
-    // ControllerEngine).
+    // ControllerQScriptEngine).
     co->setParameter(0.5);
 
     // Time elapsed is not greater than the threshold, so we do not ignore this
@@ -130,7 +130,7 @@ TEST_F(ControllerEngineTest, softTakeover_setValue) {
     mixxx::Time::setTestElapsedTime(SoftTakeover::TestAccess::getTimeThreshold() * 2);
 
     // Change the control internally (putting it out of sync with the
-    // ControllerEngine).
+    // ControllerQScriptEngine).
     co->setParameter(0.5);
 
     // Ignore the change since it occurred after the threshold and is too large.
@@ -149,7 +149,7 @@ TEST_F(ControllerEngineTest, softTakeover_setParameter) {
     EXPECT_DOUBLE_EQ(-10.0, co->get());
 
     // Change the control internally (putting it out of sync with the
-    // ControllerEngine).
+    // ControllerQScriptEngine).
     co->setParameter(0.5);
 
     // Time elapsed is not greater than the threshold, so we do not ignore this
@@ -161,7 +161,7 @@ TEST_F(ControllerEngineTest, softTakeover_setParameter) {
     mixxx::Time::setTestElapsedTime(SoftTakeover::TestAccess::getTimeThreshold() * 2);
 
     // Change the control internally (putting it out of sync with the
-    // ControllerEngine).
+    // ControllerQScriptEngine).
     co->setParameter(0.5);
 
     // Ignore the change since it occurred after the threshold and is too large.
@@ -180,7 +180,7 @@ TEST_F(ControllerEngineTest, softTakeover_ignoreNextValue) {
     EXPECT_DOUBLE_EQ(-10.0, co->get());
 
     // Change the control internally (putting it out of sync with the
-    // ControllerEngine).
+    // ControllerQScriptEngine).
     co->setParameter(0.5);
 
     EXPECT_TRUE(execute("function() { engine.softTakeoverIgnoreNextValue('[Test]', 'co'); }"));
@@ -223,7 +223,7 @@ TEST_F(ControllerEngineTest, trigger) {
     EXPECT_DOUBLE_EQ(1.0, pass->get());
 }
 
-// ControllerEngine::connectControl has a lot of quirky, inconsistent legacy behaviors
+// ControllerQScriptEngine::connectControl has a lot of quirky, inconsistent legacy behaviors
 // depending on how it is invoked, so we need a lot of tests to make sure old scripts
 // do not break.
 

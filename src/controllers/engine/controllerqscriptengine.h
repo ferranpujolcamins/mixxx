@@ -24,7 +24,7 @@
 // Forward declaration(s)
 class Controller;
 class ControlObjectScript;
-class ControllerEngine;
+class ControllerQScriptEngine;
 
 // ScriptConnectionInvokableWrapper is a class providing scripts
 // with an interface to ScriptConnection.
@@ -50,11 +50,11 @@ class ScriptConnectionInvokableWrapper : public QObject {
     QString m_idString;
 };
 
-class ControllerEngine : public QObject {
+class ControllerQScriptEngine : public QObject {
     Q_OBJECT
   public:
-    ControllerEngine(Controller* controller);
-    virtual ~ControllerEngine();
+    ControllerQScriptEngine(Controller* controller);
+    virtual ~ControllerQScriptEngine();
 
     bool isReady();
 
