@@ -1071,6 +1071,8 @@ class MixxxCore(Feature):
                    "library/parserm3u.cpp",
                    "library/parsercsv.cpp",
 
+                   "library/asynctrackloader.cpp",
+
                    "widget/wwaveformviewer.cpp",
 
                    "waveform/sharedglcontext.cpp",

@@ -36,6 +36,12 @@ class LibraryControl;
 class KeyboardEventFilter;
 class PlayerManagerInterface;
 
+namespace mixxx {
+
+class AsyncTrackLoader;
+
+}
+
 class Library: public QObject,
     public virtual /*implements*/ GlobalTrackCacheSaver {
     Q_OBJECT
@@ -135,7 +141,10 @@ class Library: public QObject,
     const mixxx::DbConnectionPoolPtr m_pDbConnectionPool;
 
     SidebarModel* m_pSidebarModel;
+
     TrackCollection* m_pTrackCollection;
+
+    QPointer<mixxx::AsyncTrackLoader> m_trackLoader;
     LibraryControl* m_pLibraryControl;
     QList<LibraryFeature*> m_features;
     const static QString m_sTrackViewName;

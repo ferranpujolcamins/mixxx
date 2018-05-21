@@ -39,6 +39,8 @@
 
 #include "controllers/keyboard/keyboardeventfilter.h"
 
+#include "library/asynctrackloader.h"
+
 
 namespace {
 
@@ -69,6 +71,7 @@ Library::Library(
       m_pDbConnectionPool(pDbConnectionPool),
       m_pSidebarModel(new SidebarModel(parent)),
       m_pTrackCollection(new TrackCollection(pConfig)),
+      m_trackLoader(new mixxx::AsyncTrackLoader(m_pTrackCollection, this)),
       m_pLibraryControl(new LibraryControl(this)),
       m_pMixxxLibraryFeature(nullptr),
       m_pPlaylistFeature(nullptr),
