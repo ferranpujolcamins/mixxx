@@ -27,6 +27,7 @@ class Controller;
 class ControlObjectScript;
 class ControllerEngine;
 class ControllerEngineJSProxy;
+class EvaluationException;
 
 // ScriptConnection represents a connection between
 // a ControlObject and a script callback function that gets executed when
@@ -92,6 +93,7 @@ class ControllerEngine : public QObject {
     }
 
     // Wrap a snippet of JS code in an anonymous function
+    // Throws EvaluationException and NullEngineException.
     QJSValue wrapFunctionCode(const QString& codeSnippet, int numberOfArgs);
 
     // Look up registered script function prefixes
@@ -166,7 +168,7 @@ class ControllerEngine : public QObject {
 
   private:
 //    bool syntaxIsValid(const QString& scriptCode);
-    bool evaluate(const QString& scriptName, QList<QString> scriptPaths);
+    bool evaluateScriptFile(const QString& scriptName, QList<QString> scriptPaths);
     bool internalExecute(QJSValue thisObject, const QString& scriptCode);
     bool internalExecute(const QString& scriptCode);
     bool internalExecute(QJSValue thisObject, QJSValue functionObject,
@@ -181,7 +183,12 @@ class ControllerEngine : public QObject {
     void stopAllTimers();
 
     void callFunctionOnObjects(QList<QString>, const QString&, QJSValueList args = QJSValueList());
-    bool handleEvaluationException(QJSValue &returnedValue);
+    // Throws EvaluationException and NullEngineException.
+    QJSValue evaluateProgram(const QString& program, const QString& fileName = QString(),
+    		int lineNumber = 1);
+    // Throws EvaluationException
+    void handleEvaluationException(QJSValue evaluationResult);
+    void presentErrorDialogForEvaluationException(EvaluationException exception);
     QJSEngine *m_pEngine;
 
     ControlObjectScript* getControlObjectScript(const QString& group, const QString& name);
