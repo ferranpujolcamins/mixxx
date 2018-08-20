@@ -34,7 +34,7 @@ const double kAlphaBetaDt = kScratchTimerMs / 1000.0;
 ControllerEngine::ControllerEngine(Controller* controller)
         : m_pEngine(nullptr),
           m_pController(controller),
-          m_bPopups(false),
+          m_bPopups(true),
           m_pBaClass(nullptr) {
     // Handle error dialog buttons
     qRegisterMetaType<QMessageBox::StandardButton>("QMessageBox::StandardButton");
@@ -311,6 +311,9 @@ bool ControllerEngine::internalExecute(QJSValue thisObject,
     	presentErrorDialogForEvaluationException(exception);
         qDebug() << "Exception evaluating:" << scriptCode;
         return false;
+    } catch (NullEngineException& exception) {
+    	qDebug() << "ControllerEngine::execute: No script engine exists!";
+    	return false;
     }
 
     if (!scriptFunction.isCallable()) {
@@ -825,6 +828,9 @@ QJSValue ControllerEngine::connectControl(
         	actualCallbackFunction = evaluateProgram(passedCallback.toString());
         } catch (EvaluationException& exception) {
         	exceptionHappened = true;
+        } catch (NullEngineException& exception) {
+        	qDebug() << "ControllerEngine::execute: No script engine exists!";
+        	exceptionHappened = true;
         }
 
         if (exceptionHappened || !actualCallbackFunction.isCallable()) {
@@ -959,10 +965,10 @@ bool ControllerEngine::evaluateScriptFile(const QString& scriptName, QList<QStri
     try {
     	QJSValue scriptFunction = evaluateProgram(scriptCode, filename);
     } catch (EvaluationException& exception) {
-    	error = QString("%1 at line %2 in file %4: %5")
-					.arg(error,
-						 exception.line,
-						 exception.filename, exception.errorMessage);
+    	QString error = QString("Evaluation error at line %1 in file %2: %3")
+					.arg(exception.line,
+						 exception.filename,
+						 exception.errorMessage);
 
 		qWarning() << "ControllerEngine:" << error;
 		if (m_bPopups) {
@@ -975,6 +981,9 @@ bool ControllerEngine::evaluateScriptFile(const QString& scriptName, QList<QStri
 
 			ErrorDialogHandler::instance()->requestErrorDialog(props);
 		}
+    	return false;
+    } catch (NullEngineException& exception) {
+    	qDebug() << "ControllerEngine::execute: No script engine exists!";
     	return false;
     }
 
