@@ -243,7 +243,7 @@ void MidiController::processInputMapping(const MidiInputMapping& mapping,
             return;
         }
 
-        QScriptValue function = pEngine->wrapFunctionCode(mapping.control.item, 5);
+        QJSValue function = pEngine->wrapFunctionCode(mapping.control.item, 5);
         if (!pEngine->execute(function, channel, control, value, status,
                               mapping.control.group, timestamp)) {
             qDebug() << "MidiController: Invalid script function"
@@ -491,7 +491,7 @@ void MidiController::processInputMapping(const MidiInputMapping& mapping,
         if (pEngine == NULL) {
             return;
         }
-        QScriptValue function = pEngine->wrapFunctionCode(mapping.control.item, 2);
+        QJSValue function = pEngine->wrapFunctionCode(mapping.control.item, 2);
         if (!pEngine->execute(function, data, timestamp)) {
             qDebug() << "MidiController: Invalid script function"
                      << mapping.control.item;
