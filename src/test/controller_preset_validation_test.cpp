@@ -5,121 +5,13 @@
 #include <QScopedPointer>
 #include <QtDebug>
 
-#include "controllers/controller.h"
 #include "controllers/controllerpresetfilehandler.h"
 #include "controllers/controllerpresetinfoenumerator.h"
-#include "controllers/midi/midicontrollerpreset.h"
-#include "controllers/hid/hidcontrollerpreset.h"
+#include "controllers/midi/midicontroller.h"
+
 #include "controllers/defs_controllers.h"
 #include "test/mixxxtest.h"
-
-class FakeController : public Controller {
-  public:
-    FakeController();
-    ~FakeController() override;
-
-    QString presetExtension() override {
-        // Doesn't affect anything at the moment.
-        return ".test.xml";
-    }
-
-    ControllerPresetPointer getPreset() const override {
-        if (m_bHidPreset) {
-            HidControllerPreset* pClone = new HidControllerPreset();
-            *pClone = m_hidPreset;
-            return ControllerPresetPointer(pClone);
-        } else {
-            MidiControllerPreset* pClone = new MidiControllerPreset();
-            *pClone = m_midiPreset;
-            return ControllerPresetPointer(pClone);
-        }
-    }
-
-    bool savePreset(const QString fileName) const override {
-        Q_UNUSED(fileName);
-        return true;
-    }
-
-    void visit(const MidiControllerPreset* preset) override {
-        m_bMidiPreset = true;
-        m_bHidPreset = false;
-        m_midiPreset = *preset;
-        m_hidPreset = HidControllerPreset();
-    }
-    void visit(const HidControllerPreset* preset) override {
-        m_bMidiPreset = false;
-        m_bHidPreset = true;
-        m_midiPreset = MidiControllerPreset();
-        m_hidPreset = *preset;
-    }
-
-    void accept(ControllerVisitor* visitor) override {
-        // Do nothing since we aren't a normal controller.
-        Q_UNUSED(visitor);
-    }
-
-    bool isMappable() const override {
-        if (m_bMidiPreset) {
-            return m_midiPreset.isMappable();
-        } else if (m_bHidPreset) {
-            return m_hidPreset.isMappable();
-        }
-        return false;
-    }
-
-    bool matchPreset(const PresetInfo& preset) override {
-        // We're not testing product info matching in this test.
-        Q_UNUSED(preset);
-        return false;
-    }
-
-  protected:
-    using Controller::send;
-    Q_INVOKABLE void send(QList<int> data, unsigned int length, unsigned int reportID) {
-        Q_UNUSED(data);
-        Q_UNUSED(length);
-        Q_UNUSED(reportID);
-    }
-
-  private slots:
-    int open() override {
-        return 0;
-    }
-    int close() override {
-        return 0;
-    }
-
-  private:
-    void send(QByteArray data) override {
-        Q_UNUSED(data);
-    }
-    virtual void send(QByteArray data, unsigned int reportID) {
-        Q_UNUSED(data);
-        Q_UNUSED(reportID);
-    }
-
-    ControllerPreset* preset() override {
-        if (m_bHidPreset) {
-            return &m_hidPreset;
-        } else {
-            // Default to MIDI.
-            return &m_midiPreset;
-        }
-    }
-
-    bool m_bMidiPreset;
-    bool m_bHidPreset;
-    MidiControllerPreset m_midiPreset;
-    HidControllerPreset m_hidPreset;
-};
-
-FakeController::FakeController()
-        : m_bMidiPreset(false),
-          m_bHidPreset(false) {
-}
-
-FakeController::~FakeController() {
-}
+#include "test/fakecontroller.h"
 
 class ControllerPresetValidationTest : public MixxxTest {
   protected:
