@@ -239,7 +239,7 @@ DlgPreferences::~DlgPreferences() {
     // When DlgPrefControllers is deleted it manually deletes the controller tree items,
     // which makes QTreeWidgetItem trigger this signal. If we don't disconnect,
     // &DlgPreferences::changePage iterates on the PreferencesPage instances in m_allPages,
-    // but the pDlg objects of the controller items are already destructed by DlgPrefControllers,
+    // but the pDlg objects of the controller items are already destroyed by DlgPrefControllers,
     // which causes a crash when accessed.
     disconnect(contentsTreeWidget, &QTreeWidget::currentItemChanged,
             this, &DlgPreferences::changePage);
