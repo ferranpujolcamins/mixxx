@@ -199,8 +199,8 @@ DlgPreferences::DlgPreferences(MixxxMainWindow * mixxx, SkinLoader* pSkinLoader,
 
 #ifdef __MODPLUG__
     addPageWidget(PreferencesPage(
-            tr("Modplug Decoder"),
-            QIcon(":/images/preferences/ic_preferences_modplug.svg"))
+            new DlgPrefModplug(this, m_pConfig),
+            createTreeItem(tr("Modplug Decoder"), QIcon(":/images/preferences/ic_preferences_modplug.svg"))
     ));
 #endif
 
