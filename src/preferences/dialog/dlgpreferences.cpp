@@ -436,7 +436,6 @@ void DlgPreferences::addPageWidget(PreferencesPage page) {
     int iframe = 2 * sa->frameWidth();
     m_pageSizeHint = m_pageSizeHint.expandedTo(
             page.pDlg->sizeHint()+QSize(iframe, iframe));
-
 }
 
 DlgPreferencePage* DlgPreferences::currentPage() {
