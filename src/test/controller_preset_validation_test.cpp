@@ -105,11 +105,13 @@ class FakeController : public Controller {
     }
 
   protected:
-    using Controller::send;
-    Q_INVOKABLE void send(QList<int> data, unsigned int length, unsigned int reportID) {
+    void send(QList<int> data, unsigned int length) override {
         Q_UNUSED(data);
         Q_UNUSED(length);
-        Q_UNUSED(reportID);
+    }
+
+    void send(QByteArray data) {
+        Q_UNUSED(data);
     }
 
   private slots:
@@ -121,14 +123,6 @@ class FakeController : public Controller {
     }
 
   private:
-    void send(QByteArray data) override {
-        Q_UNUSED(data);
-    }
-    virtual void send(QByteArray data, unsigned int reportID) {
-        Q_UNUSED(data);
-        Q_UNUSED(reportID);
-    }
-
     ControllerPreset* preset() override {
         if (m_bHidPreset) {
             return &m_hidPreset;
