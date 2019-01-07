@@ -13,6 +13,33 @@
 #include "controllers/defs_controllers.h"
 #include "test/mixxxtest.h"
 
+class FakeControllerJSProxy : public ControllerJSProxy {
+  Q_OBJECT
+  public:
+    FakeControllerJSProxy();
+
+    Q_INVOKABLE void send(QList<int> data, unsigned int length = 0) override {
+        Q_UNUSED(data);
+        Q_UNUSED(length);
+    }
+
+    Q_INVOKABLE void sendSysexMsg(QList<int> data, unsigned int length = 0) {
+        Q_UNUSED(data);
+        Q_UNUSED(length);
+    }
+
+    Q_INVOKABLE void sendShortMsg(unsigned char status,
+            unsigned char byte1, unsigned char byte2) {
+        Q_UNUSED(status);
+        Q_UNUSED(byte1);
+        Q_UNUSED(byte2);
+    }
+};
+
+FakeControllerJSProxy::FakeControllerJSProxy()
+        : ControllerJSProxy(nullptr) {
+}
+
 class FakeController : public Controller {
   public:
     FakeController();
@@ -21,6 +48,10 @@ class FakeController : public Controller {
     QString presetExtension() override {
         // Doesn't affect anything at the moment.
         return ".test.xml";
+    }
+
+    ControllerJSProxy* jsProxy() override {
+        return new FakeControllerJSProxy();
     }
 
     ControllerPresetPointer getPreset() const override {
