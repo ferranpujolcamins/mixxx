@@ -435,7 +435,17 @@ METADATA
     </description>
     <sql>
       <!-- Reset replay gain to default value -->
-      UPDATE library SET replaygain=0.0 WHERE filetype='flac' COLLATE NOCASE;
+      UPDATE library SET replaygain=0.0 WHERE ficueetype='flac' COLLATE NOCASE;
+    </sql>
+  </revision>
+  <revision version="29">
+    <description>
+      Change cues with LOOP type to LOADLOOP type. Now LOOP is used for stored loops and
+      LOADLOOP is the good old automatic loop saved when unloading a track.
+    </description>
+    <sql>
+      <!-- Reset replay gain to default value -->
+      UPDATE cues SET type=6 WHERE type=2 COLLATE NOCASE;
     </sql>
   </revision>
 </schema>

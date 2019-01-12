@@ -15,12 +15,15 @@ class Cue : public QObject {
   Q_OBJECT
   public:
     enum CueType {
-        INVALID = 0,
-        CUE     = 1, // hot cue
-        LOAD    = 2, // the cue
-        BEAT    = 3,
-        LOOP    = 4,
-        JUMP    = 5,
+        INVALID  = 0,
+        CUE      = 1, // hot cue
+        LOAD     = 2, // the cue
+        BEAT     = 3,
+        LOOP     = 4,
+        JUMP     = 5,
+        LOADLOOP = 6, // The loop that's automatically saved when unloading a track.
+        // Don't forget to update iCueTypeMaxInt with the largest int in the enum.
+        // Also, we assume that all ints between 0 and maxInt have a corresponding type.
     };
 
     ~Cue() override;
@@ -70,6 +73,7 @@ class Cue : public QObject {
     QString m_label;
     QColor m_color;
 
+    static const int iCueTypeMaxInt = 6;
     friend class Track;
     friend class CueDAO;
 };
