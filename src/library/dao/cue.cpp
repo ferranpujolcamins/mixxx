@@ -83,6 +83,13 @@ void Cue::setType(Cue::CueType type) {
     emit(updated());
 }
 
+void Cue::setType(int type) {
+    if (type < 0 || type > iCueTypeMaxInt) {
+        type = 0;
+    }
+    setType(static_cast<Cue::CueType>(type));
+}
+
 double Cue::getPosition() const {
     QMutexLocker lock(&m_mutex);
     return m_samplePosition;

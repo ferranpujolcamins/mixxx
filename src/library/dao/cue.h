@@ -34,6 +34,9 @@ class Cue : public QObject {
 
     CueType getType() const;
     void setType(CueType type);
+    // Safely setCueType from it's int representation. If the int does not correspond to any valid type,
+    // the type is set to INVALID.
+    void setType(int type);
 
     double getPosition() const;
     void setPosition(double samplePosition);
@@ -73,7 +76,9 @@ class Cue : public QObject {
     QString m_label;
     QColor m_color;
 
+    // The largest int among all the CueType values.
     static const int iCueTypeMaxInt = 6;
+
     friend class Track;
     friend class CueDAO;
 };

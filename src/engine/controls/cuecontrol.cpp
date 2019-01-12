@@ -11,6 +11,7 @@
 #include "control/controlpushbutton.h"
 #include "control/controlindicator.h"
 #include "vinylcontrol/defs_vinylcontrol.h"
+#include "util/memory.h"
 #include "util/sample.h"
 
 // TODO: Convert these doubles to a standard enum
@@ -105,6 +106,13 @@ CueControl::CueControl(QString group,
 
     m_pVinylControlEnabled = new ControlProxy(group, "vinylcontrol_enabled");
     m_pVinylControlMode = new ControlProxy(group, "vinylcontrol_mode");
+
+    m_pLoopEnabled = std::make_unique<ControlProxy>(group, "loop_enabled");
+    m_pReloop = std::make_unique<ControlProxy>(group, "reloop");
+    m_pReloopAndPlay = std::make_unique<ControlProxy>(group, "reloop_andplay");
+    m_pReloopAndStop = std::make_unique<ControlProxy>(group, "reloop_andstop");
+    m_pLoopStartPosition = std::make_unique<ControlProxy>(group, "loop_start_position");
+    m_pLoopEndPosition = std::make_unique<ControlProxy>(group, "loop_end_position");
 }
 
 CueControl::~CueControl() {
@@ -132,6 +140,12 @@ void CueControl::createControls() {
 
         connect(pControl, &HotcueControl::hotcuePositionChanged,
                 this, &CueControl::hotcuePositionChanged,
+                Qt::DirectConnection);
+        connect(pControl, &HotcueControl::hotcueTypeChanged,
+                this, &CueControl::hotcueTypeChanged,
+                Qt::DirectConnection);
+        connect(pControl, &HotcueControl::hotcueLengthChanged,
+                this, &CueControl::hotcueLengthChanged,
                 Qt::DirectConnection);
         connect(pControl, &HotcueControl::hotcueSet,
                 this, &CueControl::hotcueSet,
@@ -297,6 +311,8 @@ void CueControl::trackCuesUpdated() {
             } else {
                 // If the old hotcue is the same, then we only need to update
                 pControl->setPosition(pCue->getPosition());
+                pControl->setLength(pCue->getLength());
+                pControl->setType(pCue->getType());
             }
             // Add the hotcue to the list of active hotcues
             active_hotcues.insert(hotcue);
@@ -329,26 +345,36 @@ void CueControl::hotcueSet(HotcueControl* pControl, double v) {
     hotcueClear(pControl, v);
 
     CuePointer pCue(m_pLoadedTrack->createAndAddCue());
-    double closestBeat = m_pClosestBeat->get();
-    double cuePosition =
-            (m_pQuantizeEnabled->toBool() && closestBeat != -1) ?
-                    closestBeat : getSampleOfTrack().current;
-    pCue->setPosition(cuePosition);
     pCue->setHotCue(hotcue);
     pCue->setLabel("");
-    pCue->setType(Cue::CUE);
+
+    double loopStart = m_pLoopStartPosition->get();
+    double loopEnd = m_pLoopEndPosition->get();
+    if (m_pLoopEnabled->get() == 1.0 && loopStart != -1 && loopEnd != -1 && loopStart <= loopEnd) {
+        pCue->setType(Cue::LOOP);
+        pCue->setPosition(loopStart);
+        pCue->setLength(loopEnd - loopStart);
+    } else {
+        double closestBeat = m_pClosestBeat->get();
+        double cuePosition =
+                (m_pQuantizeEnabled->toBool() && closestBeat != -1) ?
+                        closestBeat : getSampleOfTrack().current;
+        pCue->setPosition(cuePosition);
+        pCue->setType(Cue::CUE);
+
+        // If quantize is enabled and we are not playing, jump to the cue point
+        // since it's not necessarily where we currently are. TODO(XXX) is this
+        // potentially invalid for vinyl control?
+        bool playing = m_pPlay->toBool();
+        if (!playing && m_pQuantizeEnabled->toBool()) {
+            lock.unlock();  // prevent deadlock.
+            // Enginebuffer will quantize more exactly than we can.
+            seekAbs(cuePosition);
+        }
+    }
+
     // TODO(XXX) deal with spurious signals
     attachCue(pCue, hotcue);
-
-    // If quantize is enabled and we are not playing, jump to the cue point
-    // since it's not necessarily where we currently are. TODO(XXX) is this
-    // potentially invalid for vinyl control?
-    bool playing = m_pPlay->toBool();
-    if (!playing && m_pQuantizeEnabled->toBool()) {
-        lock.unlock();  // prevent deadlock.
-        // Enginebuffer will quantize more exactly than we can.
-        seekAbs(cuePosition);
-    }
 }
 
 void CueControl::hotcueGoto(HotcueControl* pControl, double v) {
@@ -368,7 +394,14 @@ void CueControl::hotcueGoto(HotcueControl* pControl, double v) {
     if (pCue) {
         int position = pCue->getPosition();
         if (position != -1) {
-            seekAbs(position);
+            if (pCue->getType() == Cue::CueType::LOOP) {
+                double length = pCue->getLength();
+                m_pLoopStartPosition->set(position);
+                m_pLoopEndPosition->set(position + length);
+                m_pReloop->set(1);
+            } else {
+                seekAbs(position);
+            }
         }
     }
 }
@@ -389,8 +422,15 @@ void CueControl::hotcueGotoAndStop(HotcueControl* pControl, double v) {
     if (pCue) {
         int position = pCue->getPosition();
         if (position != -1) {
-            m_pPlay->set(0.0);
-            seekExact(position);
+            if (pCue->getType() == Cue::CueType::LOOP) {
+                double length = pCue->getLength();
+                m_pLoopStartPosition->set(position);
+                m_pLoopEndPosition->set(position + length);
+                m_pReloopAndStop->set(1.0);
+            } else {
+                m_pPlay->set(0.0);
+                seekExact(position);
+            }
         }
     }
 }
@@ -412,7 +452,6 @@ void CueControl::hotcueGotoAndPlay(HotcueControl* pControl, double v) {
     if (pCue) {
         int position = pCue->getPosition();
         if (position != -1) {
-            seekAbs(position);
             if (!isPlayingByPlayButton()) {
                 // cueGoto is processed asynchrony.
                 // avoid a wrong cue set if seek by cueGoto is still pending
@@ -420,7 +459,16 @@ void CueControl::hotcueGotoAndPlay(HotcueControl* pControl, double v) {
                 m_iCurrentlyPreviewingHotcues = 0;
                 // don't move the cue point to the hot cue point in DENON mode
                 m_bypassCueSetByPlay = true;
-                m_pPlay->set(1.0);
+
+                if (pCue->getType() == Cue::CueType::LOOP) {
+                    double length = pCue->getLength();
+                    m_pLoopStartPosition->set(position);
+                    m_pLoopEndPosition->set(position + length);
+                    m_pReloopAndPlay->set(1.0);
+                } else {
+                    m_pPlay->set(1.0);
+                    seekAbs(position);
+                }
             }
         }
     }
@@ -538,6 +586,30 @@ void CueControl::hotcuePositionChanged(HotcueControl* pControl, double newPositi
         } else if (newPosition > 0 && newPosition < m_pTrackSamples->get()) {
             pCue->setPosition(newPosition);
         }
+    }
+}
+
+void CueControl::hotcueLengthChanged(HotcueControl* pControl, double newLength) {
+    QMutexLocker lock(&m_mutex);
+    if (!m_pLoadedTrack)
+        return;
+
+    CuePointer pCue(pControl->getCue());
+    if (pCue) {
+        // TODO: checks that length is valid everywhere
+        pCue->setLength(newLength);
+    }
+}
+
+void CueControl::hotcueTypeChanged(HotcueControl* pControl, int newType) {
+    QMutexLocker lock(&m_mutex);
+    if (!m_pLoadedTrack)
+        return;
+
+    CuePointer pCue(pControl->getCue());
+    if (pCue) {
+        // TODO: checks that length is valid everywhere
+        pCue->setType(newType);
     }
 }
 
@@ -1033,8 +1105,18 @@ HotcueControl::HotcueControl(QString group, int i)
             Qt::DirectConnection);
     m_hotcuePosition->set(-1);
 
+    m_hotcueLength = std::make_unique<ControlObject>(keyForControl(i, "length"));
+    connect(m_hotcueLength.get(), &ControlObject::valueChanged,
+            this, &HotcueControl::slotHotcueLengthChanged,
+            Qt::DirectConnection);
+
     m_hotcueEnabled = new ControlObject(keyForControl(i, "enabled"));
     m_hotcueEnabled->setReadOnly();
+
+    m_hotcueType = std::make_unique<ControlObject>(keyForControl(i, "type"));
+    connect(m_hotcueType.get(), &ControlObject::valueChanged,
+            this, &HotcueControl::slotHotcueTypeChanged,
+            Qt::DirectConnection);
 
     m_hotcueSet = new ControlPushButton(keyForControl(i, "set"));
     connect(m_hotcueSet, &ControlObject::valueChanged,
@@ -1117,25 +1199,49 @@ void HotcueControl::slotHotcuePositionChanged(double newPosition) {
     emit(hotcuePositionChanged(this, newPosition));
 }
 
+void HotcueControl::slotHotcueLengthChanged(double newLength) {
+    emit(hotcuePositionChanged(this, newLength));
+}
+
+void HotcueControl::slotHotcueTypeChanged(double newType) {
+    emit(hotcueTypeChanged(this, newType));
+}
 double HotcueControl::getPosition() const {
     return m_hotcuePosition->get();
-}
-
-void HotcueControl::setCue(CuePointer pCue) {
-    setPosition(pCue->getPosition());
-    // set pCue only if all other data is in place
-    // because we have a null check for valid data else where in the code
-    m_pCue = pCue;
-}
-
-void HotcueControl::resetCue() {
-    // clear pCue first because we have a null check for valid data else where
-    // in the code
-    m_pCue.reset();
-    setPosition(-1.0);
 }
 
 void HotcueControl::setPosition(double position) {
     m_hotcuePosition->set(position);
     m_hotcueEnabled->forceSet(position == -1.0 ? 0.0 : 1.0);
+}
+
+double HotcueControl::getLength() const {
+    return m_hotcueLength->get();
+}
+
+void HotcueControl::setLength(double length) {
+    m_hotcueLength->set(length);
+}
+
+void HotcueControl::setCue(CuePointer pCue) {
+    setPosition(pCue->getPosition());
+    setLength(pCue->getLength());
+    setType(pCue->getType());
+    // set pCue only if all other data is in place
+    // because we have a null check for valid data else where in the code
+    m_pCue = pCue;
+}
+
+Cue::CueType HotcueControl::getType() const {
+    return static_cast<Cue::CueType>(static_cast<int>(m_hotcueType->get()));
+}
+
+void HotcueControl::setType(Cue::CueType newType) {
+    m_hotcueType->set(newType);
+}
+void HotcueControl::resetCue() {
+    // clear pCue first because we have a null check for valid data else where
+    // in the code
+    m_pCue.reset();
+    setPosition(-1.0);
 }

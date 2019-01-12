@@ -11,6 +11,7 @@
 #include "preferences/usersettings.h"
 #include "control/controlproxy.h"
 #include "track/track.h"
+#include "util/memory.h"
 
 #define NUM_HOT_CUES 37
 
@@ -27,9 +28,14 @@ class HotcueControl : public QObject {
     inline int getHotcueNumber() { return m_iHotcueNumber; }
     inline CuePointer getCue() { return m_pCue; }
     double getPosition() const;
+    void setPosition(double position);
+    // Some CueTypes represent a range rather than a single position. This is the lenght of the range.
+    double getLength() const;
+    void setLength(double length);
     void setCue(CuePointer pCue);
     void resetCue();
-    void setPosition(double position);
+    Cue::CueType getType() const;
+    void setType(Cue::CueType newType);
 
     // Used for caching the preview state of this hotcue control.
     inline bool isPreviewing() {
@@ -54,6 +60,8 @@ class HotcueControl : public QObject {
     void slotHotcueActivatePreview(double v);
     void slotHotcueClear(double v);
     void slotHotcuePositionChanged(double newPosition);
+    void slotHotcueLengthChanged(double newLength);
+    void slotHotcueTypeChanged(double newType);
 
   signals:
     void hotcueSet(HotcueControl* pHotcue, double v);
@@ -64,6 +72,8 @@ class HotcueControl : public QObject {
     void hotcueActivatePreview(HotcueControl* pHotcue, double v);
     void hotcueClear(HotcueControl* pHotcue, double v);
     void hotcuePositionChanged(HotcueControl* pHotcue, double newPosition);
+    void hotcueLengthChanged(HotcueControl* pHotcue, double newLength);
+    void hotcueTypeChanged(HotcueControl* pHotcue, double newType);
     void hotcuePlay(double v);
 
   private:
@@ -75,7 +85,9 @@ class HotcueControl : public QObject {
 
     // Hotcue state controls
     ControlObject* m_hotcuePosition;
+    std::unique_ptr<ControlObject> m_hotcueLength;
     ControlObject* m_hotcueEnabled;
+    std::unique_ptr<ControlObject> m_hotcueType;
     // Hotcue button controls
     ControlObject* m_hotcueSet;
     ControlObject* m_hotcueGoto;
@@ -115,6 +127,8 @@ class CueControl : public EngineControl {
     void hotcueActivatePreview(HotcueControl* pControl, double v);
     void hotcueClear(HotcueControl* pControl, double v);
     void hotcuePositionChanged(HotcueControl* pControl, double newPosition);
+    void hotcueLengthChanged(HotcueControl* pControl, double newLength);
+    void hotcueTypeChanged(HotcueControl* pControl, int newType);
 
     void cueSet(double v);
     void cueGoto(double v);
@@ -169,6 +183,12 @@ class CueControl : public EngineControl {
     ControlPushButton* m_pCuePreview;
     ControlProxy* m_pVinylControlEnabled;
     ControlProxy* m_pVinylControlMode;
+    std::unique_ptr<ControlProxy> m_pLoopEnabled;
+    std::unique_ptr<ControlProxy> m_pReloop;
+    std::unique_ptr<ControlProxy> m_pReloopAndPlay;
+    std::unique_ptr<ControlProxy> m_pReloopAndStop;
+    std::unique_ptr<ControlProxy> m_pLoopStartPosition;
+    std::unique_ptr<ControlProxy> m_pLoopEndPosition;
 
     TrackPointer m_pLoadedTrack; // is written from an engine worker thread
 

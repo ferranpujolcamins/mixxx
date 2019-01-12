@@ -12,6 +12,7 @@
 #include "engine/controls/enginecontrol.h"
 #include "util/compatibility.h"
 #include "util/math.h"
+#include "util/memory.h"
 #include "util/sample.h"
 
 #include "track/track.h"
@@ -89,6 +90,17 @@ LoopingControl::LoopingControl(QString group,
     // The old reloop_exit name was confusing. This CO does both entering and exiting.
     ControlDoublePrivate::insertAlias(ConfigKey(group, "reloop_exit"),
                                       ConfigKey(group, "reloop_toggle"));
+
+    // TODO: add new CO to lists and docs
+    m_pReloopButton = std::make_unique<ControlPushButton>(ConfigKey(group, "reloop"));
+    connect(m_pReloopButton.get(), &ControlObject::valueChanged,
+            this, &LoopingControl::slotReloop,
+            Qt::DirectConnection);
+
+    m_pReloopAndPlayButton = std::make_unique<ControlPushButton>(ConfigKey(group, "reloop_andplay"));
+    connect(m_pReloopAndPlayButton.get(), &ControlObject::valueChanged,
+            this, &LoopingControl::slotReloopAndPlay,
+            Qt::DirectConnection);
 
     m_pReloopAndStopButton = new ControlPushButton(ConfigKey(group, "reloop_andstop"));
     connect(m_pReloopAndStopButton, &ControlObject::valueChanged,
@@ -699,6 +711,23 @@ void LoopingControl::slotReloopToggle(double val) {
             }
         }
         //qDebug() << "reloop_toggle looping on";
+    }
+}
+
+void LoopingControl::slotReloop(double pressed) {
+    if (pressed > 0) {
+        seekAbs(static_cast<double>(
+            m_loopSamples.getValue().start));
+        setLoopingEnabled(true);
+    }
+}
+
+void LoopingControl::slotReloopAndPlay(double pressed) {
+    if (pressed > 0) {
+        m_pPlayButton->set(1.0);
+        seekAbs(static_cast<double>(
+            m_loopSamples.getValue().start));
+        setLoopingEnabled(true);
     }
 }
 

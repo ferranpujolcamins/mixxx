@@ -59,6 +59,8 @@ class LoopingControl : public EngineControl {
     void slotLoopOutGoto(double);
     void slotLoopExit(double);
     void slotReloopToggle(double);
+    void slotReloop(double);
+    void slotReloopAndPlay(double);
     void slotReloopAndStop(double);
     void slotLoopStartPos(double);
     void slotLoopEndPos(double);
@@ -119,6 +121,8 @@ class LoopingControl : public EngineControl {
     ControlPushButton* m_pLoopOutGotoButton;
     ControlPushButton* m_pLoopExitButton;
     ControlPushButton* m_pReloopToggleButton;
+    std::unique_ptr<ControlPushButton> m_pReloopButton;
+    std::unique_ptr<ControlPushButton> m_pReloopAndPlayButton;
     ControlPushButton* m_pReloopAndStopButton;
     ControlObject* m_pCOLoopScale;
     ControlPushButton* m_pLoopHalveButton;
