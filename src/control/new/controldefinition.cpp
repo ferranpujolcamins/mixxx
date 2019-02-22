@@ -1,21 +1,25 @@
-/*
- * controltype.cpp
- *
- *  Created on: Feb 21, 2019
- *      Author: ferranpujolcamins
- */
-
-#include "controldefinition.h"
+#include "control/new/controldefinition.h"
 
 namespace NewControl {
 
-ControlType::ControlType() {
-    // TODO Auto-generated constructor stub
+template<typename Value, typename Parameter>
+Value ControlDefinition<Value, Parameter>::getValue() const {
+    return getProxy().get();
+}
+
+template<typename Value, typename Parameter>
+Parameter ControlDefinition<Value, Parameter>::getParameter() const {
 
 }
 
-ControlType::~ControlType() {
-    // TODO Auto-generated destructor stub
+template<typename Value, typename Parameter>
+Parameter ControlDefinition<Value, Parameter>::getParameterForValue(Value value) const {
+
+}
+
+template<typename Value, typename Parameter>
+Value ControlDefinition<Value, Parameter>::defaultValue() const {
+
 }
 
 } /* namespace NewControl */

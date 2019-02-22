@@ -2,9 +2,4 @@
 
 namespace {
 
-double Value::getMidiParameter() const {
-
-    return m_behavior.valueToMidiParameter(get());
-}
-
 } // namespace

@@ -3,7 +3,7 @@
 namespace NewControl {
 
 template<typename Value, typename Parameter>
-class Behavior {
+class ControlBehavior {
 
 };
 

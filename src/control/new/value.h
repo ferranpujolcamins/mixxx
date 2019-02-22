@@ -1,6 +1,8 @@
 #pragma once
 
 #include "control/new/controlvalueinterface.h"
+#include "control/new/controlbehavior.h"
+#include "control/controlvalue.h"
 
 namespace NewControl {
 
@@ -9,10 +11,10 @@ class ValueInterface {
 };
 // TODO: think what needs to be a pointer
 // TODO: explicitly write the thread safety requirements and later check that the implementaiton fulfills them
-template<typename Value, typename Parameter, template <typename> class Behavior>
+template<typename Value, typename Parameter>
 class ControlValue final: public ControlValueInterface<Value, Parameter> {
 public:
-    ControlValue(Value defaultValue, Behavior<Parameter>);
+    ControlValue(Value defaultValue, ControlBehavior<Value, Parameter>);
     ~ControlValue();
 
     // ControlValueInterface
@@ -32,7 +34,7 @@ private:
     // TODO: this is a sharedpointer so the methods using behaviour are thread safe, each invokation retains the old behaviour
     // in case a new one is set
     // But do we really need to mutate this?
-    Behavior m_behavior;
+    ControlBehavior<Value, Parameter> m_behavior;
 };
 
 } // namespace
