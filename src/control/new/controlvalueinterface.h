@@ -7,10 +7,9 @@ namespace NewControl {
 template<typename Value, typename Parameter>
 class ControlValueReadOnlyInterface {
 public:
-    ControlValueReadOnlyInterface();
-    virtual ~ControlValueReadOnlyInterface();
+    virtual ~ControlValueReadOnlyInterface() {};
 
-    virtual Value get() const = 0;
+    virtual Value getValue() const = 0;
 
     virtual Parameter getParameter() const = 0;
     virtual Parameter getParameterForValue(Value value) const = 0;
@@ -23,10 +22,9 @@ public:
 template<typename Value, typename Parameter>
 class ControlValueInterface: public ControlValueReadOnlyInterface<Value, Parameter> {
 public:
-    ControlValueInterface();
-    virtual ~ControlValueInterface();
+    virtual ~ControlValueInterface() {};
 
-    virtual void set(Value value) = 0;
+    virtual void setValue(Value value) = 0;
 
     virtual void setParameter(Parameter parameter) = 0;
     //virtual Parameter getParameterForMidi(Value midiValue) const;

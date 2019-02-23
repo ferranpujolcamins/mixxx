@@ -1,21 +1,20 @@
 #pragma once
 
-#include "control/new/controldefinition.h"
+#include "controlfactory.h"
 
 namespace NewControl {
 
-class Channel {
+template class ControlFactory<bool, bool>;
+
+class Channel: Group {
   public:
-    Channel(int index);
+    Channel(int index)
+  // TODO: Fix this: "[Channel" + std::to_string(index) + "]"
+      : Group("[Channel1]") {};
 
-    class Play: public ControlDefinition<bool, bool> {
-
-    };
-    ControlDefinition<bool, bool> play() {
-        return Play(m_iChannel, true);
+    ControlFactory<bool, bool> play() {
+        return ControlFactory<bool, bool>(*this, "play", false, true);
     }
-  private:
-    int m_iChannel;
 };
 
 } // namespace

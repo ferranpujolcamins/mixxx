@@ -707,12 +707,12 @@ class MixxxCore(Feature):
                    "src/control/controlttrotary.cpp",
                    "src/control/controlencoder.cpp",
                    
-                   "src/control/new/controlbehavior.cpp",
-                   "src/control/new/controldefinition.cpp",
-                   "src/control/new/controlobject.cpp",
-                   "src/control/new/controlproxy.cpp",
-                   "src/control/new/controlvalueinterface.cpp",
-                   "src/control/new/value.cpp",
+                   #"src/control/new/controlbehavior.cpp",
+                   #"src/control/new/controlfactory.cpp",
+                   #"src/control/new/controlobject.cpp",
+                   #"src/control/new/controlproxy.cpp",
+                   #"src/control/new/controlvalueinterface.cpp",
+                   #"src/control/new/controlvalue.cpp",
 
                    "src/controllers/dlgcontrollerlearning.cpp",
                    "src/controllers/dlgprefcontroller.cpp",
