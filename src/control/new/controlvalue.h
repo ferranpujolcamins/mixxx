@@ -12,7 +12,7 @@ namespace NewControl {
 template<typename Value, typename Parameter>
 class ControlValue final: public ControlValueInterface<Value, Parameter> {
 public:
-    ControlValue(ControlFactory<Value, Parameter> controlFactory);
+    ControlValue(ControlFactory<Value, Parameter>&& controlFactory);
     ~ControlValue();
 
     // ControlValueInterface
@@ -55,14 +55,46 @@ using ControlValueWeakPointer = std::weak_ptr<ControlValue<Value, Parameter> >;
 namespace NewControl {
 
 template<typename Value, typename Parameter>
-ControlValue<Value, Parameter>::ControlValue(ControlFactory<Value, Parameter> controlFactory)
+ControlValue<Value, Parameter>::ControlValue(ControlFactory<Value, Parameter>&& controlFactory)
     : m_controlFactory(controlFactory) {
-
+    m_value.setValue(m_controlFactory.initialValue());
+    m_defaultValue.setValue(m_controlFactory.defaultValue222());
 }
 
 template<typename Value, typename Parameter>
 ControlValue<Value, Parameter>::~ControlValue() {
     ControlValueStore<Value, Parameter>::remove(configKey());
+}
+
+template<typename Value, typename Parameter>
+void ControlValue<Value, Parameter>::setValue(Value value) {
+    // TODO: check if we use the atomic specialization
+    m_value.setValue(value);
+}
+
+template<typename Value, typename Parameter>
+Value ControlValue<Value, Parameter>::getValue() const {
+    return m_value.getValue();
+}
+
+template<typename Value, typename Parameter>
+void ControlValue<Value, Parameter>::setParameter(Parameter parameter) {}
+
+template<typename Value, typename Parameter>
+Parameter ControlValue<Value, Parameter>::getParameter() const {}
+
+template<typename Value, typename Parameter>
+Parameter ControlValue<Value, Parameter>::getParameterForValue(Value value) const {}
+
+template<typename Value, typename Parameter>
+void ControlValue<Value, Parameter>::reset() {}
+
+template<typename Value, typename Parameter>
+void ControlValue<Value, Parameter>::setDefaultValue(Value value) {}
+
+template<typename Value, typename Parameter>
+Value ControlValue<Value, Parameter>::defaultValue() const {
+    return m_defaultValue.getValue();
 }
 
 } // namespace

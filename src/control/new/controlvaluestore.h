@@ -26,22 +26,28 @@ protected:
         return s_keySet.remove(key);
     }
 
-    static QSet<ConfigKey> s_keySet GUARDED_BY(s_mutex);
+    static QSet<ConfigKey> s_keySet;
     static MMutex s_mutex;
 };
+
+QSet<ConfigKey> ControlConfigKeyRegister::s_keySet
+GUARDED_BY(ControlConfigKeyRegister::s_mutex);
+
+// TODO: we can probably make the lock non recursive
+MMutex ControlConfigKeyRegister::s_mutex(QMutex::Recursive);
 
 template<typename Value, typename Parameter>
 class ControlValue;
 
 template<typename Value, typename Parameter>
-class ControlValueStore: private ControlConfigKeyRegister {
+class ControlValueStore final: private ControlConfigKeyRegister {
 public:
     // Return false if the key is already registered
     static bool insert(ConfigKey key, std::shared_ptr<ControlValue<Value, Parameter> > value);
     static std::shared_ptr<ControlValue<Value, Parameter> > get(ConfigKey key);
     static bool remove(ConfigKey key);
 
-    static QHash<ConfigKey, std::weak_ptr<ControlValue<Value, Parameter> >>  s_controlValueHash GUARDED_BY(s_mutex);
+    static QHash<ConfigKey, std::weak_ptr<ControlValue<Value, Parameter> >>  s_controlValueHash;
 };
 
 } /* namespace NewControl */
@@ -50,6 +56,10 @@ public:
 #include "control/new/controlvalue.h"
 
 namespace NewControl {
+
+template<typename Value, typename Parameter>
+QHash<ConfigKey, std::weak_ptr<ControlValue<Value, Parameter> >> ControlValueStore<Value,Parameter>::s_controlValueHash
+GUARDED_BY(ControlConfigKeyRegister::s_mutex);
 
 // Return false if the key is already registered
 template<typename Value, typename Parameter>
@@ -72,6 +82,7 @@ std::shared_ptr<ControlValue<Value, Parameter> > ControlValueStore<Value, Parame
 }
 template<typename Value, typename Parameter>
 bool ControlValueStore<Value, Parameter>::remove(ConfigKey key) {
+    MMutexLocker locker(&s_mutex);
     if (s_controlValueHash.remove(key) > 0) {
         removeKey(key);
         return true;

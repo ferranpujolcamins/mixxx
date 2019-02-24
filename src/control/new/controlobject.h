@@ -12,6 +12,8 @@ namespace NewControl {
 template<typename Value, typename Parameter>
 class ControlObject : public ControlValueInterface<Value, Parameter> {
 public:
+    ControlObject(ControlValuePointer<Value, Parameter> pControlValue);
+
     // ControlValueInterface
     void setValue(Value value) override;
     Value getValue() const override;
@@ -23,13 +25,10 @@ public:
     Value defaultValue() const override;
 
 private:
-  ControlObject(ControlValuePointer<Value, Parameter> pControlValue);
-
   ControlValuePointer<Value, Parameter> m_pControlValue;
 
   friend class ControlFactory<Value, Parameter>;
 };
-
 
 } // namespace
 

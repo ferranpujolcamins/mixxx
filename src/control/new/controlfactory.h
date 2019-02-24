@@ -2,6 +2,7 @@
 
 #include "control/new/controlvalueinterface.h"
 #include "preferences/configobject.h"
+#include "util/memory.h"
 
 namespace NewControl {
 
@@ -26,12 +27,14 @@ private:
 template<typename Value, typename Parameter>
 class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
   public:
-    ControlFactory(Group group, QString sItemKey, bool bPersistInConfiguration, Value initialValue)
-      : m_group(group), m_sItemKey(sItemKey), m_bPersistInConfiguration(bPersistInConfiguration) {
+    // TODO: do we really want move semantics?
+    ControlFactory(Group&& group, QString sItemKey, bool bPersistInConfiguration, Value initialValue, Value defaultValue)
+      : m_group(group), m_sItemKey(sItemKey), m_bPersistInConfiguration(bPersistInConfiguration),
+        m_initialValue(initialValue), m_defaultValue(defaultValue) {
     };
     virtual ~ControlFactory() {};
 
-    std::unique_ptr<ControlObject<Value, Parameter> > create();
+    std::unique_ptr<ControlObject<Value, Parameter> > create() &&;
 
 //    ControlProxy<Value, Parameter> getProxy() {
 //        return ControlProxy<Value, Parameter>();
@@ -50,6 +53,15 @@ class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
         return m_sItemKey;
     }
 
+    Value initialValue() {
+        return m_initialValue;
+    }
+
+    // TODO: name for this
+    Value defaultValue222() {
+        return m_defaultValue;
+    }
+
     // ControlValueReadOnlyInterface
     Value getValue() const;
     Parameter getParameter() const;
@@ -65,6 +77,8 @@ class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
     Group m_group;
     QString m_sItemKey;
     bool m_bPersistInConfiguration;
+    Value m_initialValue;
+    Value m_defaultValue;
 };
 
 } // namespace
@@ -75,12 +89,12 @@ class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
 namespace NewControl {
 
 template<typename Value, typename Parameter>
-std::unique_ptr<ControlObject<Value, Parameter> > ControlFactory<Value, Parameter>::create() {
-//    ControlValuePointer<Value, Parameter> value = std::make_shared<ControlValue<Value, Parameter> >(*this);
-//    if (!ControlValueStore<Value, Parameter>::insert(configKey(), value)) {
-//        // TODO: handle error. careful, we have already consumed this
-//    }
-//    return ControlObject<Value, Parameter>(value);
+std::unique_ptr<ControlObject<Value, Parameter> > ControlFactory<Value, Parameter>::create() && {
+    ControlValuePointer<Value, Parameter> value = std::make_shared<ControlValue<Value, Parameter> >(std::move(*this));
+    if (!ControlValueStore<Value, Parameter>::insert(configKey(), value)) {
+        // TODO: handle error. careful, we have already consumed this
+    }
+    return std::make_unique<ControlObject<Value, Parameter>>(value);
 }
 
 template<typename Value, typename Parameter>
