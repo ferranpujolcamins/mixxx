@@ -37,10 +37,11 @@ class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
     };
     virtual ~ControlFactory() {};
 
+    // Create a ControlObject. Can return nullptr is the creation failed, for example because another CO with the same key is already created.
     // TODO: if getProxy doesn't ocnsume this, why then create should?
-    std::unique_ptr<ControlObject<Value, Parameter> > create() &&;
+    std::unique_ptr<ControlObject<Value, Parameter>> create() &&;
 
-    ControlProxy<Value, Parameter> getProxy() const;
+    std::unique_ptr<ControlProxy<Value, Parameter>> getProxy() const;
 
     ConfigKey configKey() const {
         return ConfigKey(group().group(), itemKey());
@@ -93,19 +94,22 @@ class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
 namespace NewControl {
 
 template<typename Value, typename Parameter>
-std::unique_ptr<ControlObject<Value, Parameter> > ControlFactory<Value, Parameter>::create() && {
-    ControlValuePointer<Value, Parameter> value = std::make_shared<ControlValue<Value, Parameter> >(std::move(*this));
+std::unique_ptr<ControlObject<Value, Parameter>> ControlFactory<Value, Parameter>::create() && {
+    ControlValuePointer<Value, Parameter> value = std::make_shared<ControlValue<Value, Parameter>>(std::move(*this));
     if (!ControlValueStore<Value, Parameter>::insert(configKey(), value)) {
-        // TODO: handle error. careful, we have already consumed this
+        return std::unique_ptr<ControlObject<Value, Parameter>>(nullptr);
     }
     return std::make_unique<ControlObject<Value, Parameter>>(value);
 }
 
+// TODO: use alias for pointers
 template<typename Value, typename Parameter>
-ControlProxy<Value, Parameter> ControlFactory<Value, Parameter>::getProxy() const {
+std::unique_ptr<ControlProxy<Value, Parameter>> ControlFactory<Value, Parameter>::getProxy() const {
     ControlValuePointer<Value, Parameter> value = ControlValueStore<Value, Parameter>::get(configKey());
-    ControlProxy<Value, Parameter> proxy(value);
-    return proxy;
+    if (value == nullptr) {
+        return std::unique_ptr<ControlProxy<Value, Parameter>>(nullptr);
+    }
+    return std::make_unique<ControlProxy<Value, Parameter>>(value);
 }
 
 template<typename Value, typename Parameter>

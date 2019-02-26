@@ -44,6 +44,7 @@ class ControlValueStore final: private ControlConfigKeyRegister {
 public:
     // Return false if the key is already registered
     static bool insert(ConfigKey key, std::shared_ptr<ControlValue<Value, Parameter> > value);
+    // Returns nullptr if the key does not have a registered CO
     static std::shared_ptr<ControlValue<Value, Parameter> > get(ConfigKey key);
     static bool remove(ConfigKey key);
 
@@ -67,14 +68,14 @@ private:
 namespace NewControl {
 
 template<typename Value, typename Parameter>
-QHash<ConfigKey, std::weak_ptr<ControlValue<Value, Parameter> >> ControlValueStore<Value,Parameter>::s_controlValueHash
+QHash<ConfigKey, std::weak_ptr<ControlValue<Value, Parameter>>> ControlValueStore<Value,Parameter>::s_controlValueHash
 GUARDED_BY(ControlConfigKeyRegister::s_mutex);
 
-// Return false if the key is already registered
 template<typename Value, typename Parameter>
 bool ControlValueStore<Value, Parameter>::insert(ConfigKey key, std::shared_ptr<ControlValue<Value, Parameter> > value) {
     MMutexLocker locker(&s_mutex);
     if (keyExists(key)) {
+        qWarning() << "A control with the following key is already created: " << key;
         return false;
     }
     bool inserted = s_controlValueHash.insert(key, value) != s_controlValueHash.end();
@@ -83,12 +84,16 @@ bool ControlValueStore<Value, Parameter>::insert(ConfigKey key, std::shared_ptr<
     }
     return inserted;
 }
+
+
 template<typename Value, typename Parameter>
 std::shared_ptr<ControlValue<Value, Parameter>> ControlValueStore<Value, Parameter>::get(ConfigKey key) {
     MMutexLocker locker(&s_mutex);
-    // TODO: What if it doesn't exist? Or if the weak_ptr already died? Can this happen? Why?
-    // Now this throws ifthe weak pointer is nullptr
-    return std::shared_ptr<ControlValue<Value, Parameter>>(s_controlValueHash.value(key));
+    auto it = s_controlValueHash.constFind(key);
+    if (it == s_controlValueHash.constEnd()) {
+        return std::shared_ptr<ControlValue<Value, Parameter>>(nullptr);
+    }
+    return std::shared_ptr<ControlValue<Value, Parameter>>(*it);
 }
 template<typename Value, typename Parameter>
 bool ControlValueStore<Value, Parameter>::remove(ConfigKey key) {

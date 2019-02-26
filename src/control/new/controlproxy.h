@@ -12,10 +12,16 @@ class ControlProxy: public AbstractControlProxy<Value, Parameter> {
         : ControlProxy(other.m_pControlValue) {
     }
 
-  private:
+    // TODO: make private
     ControlProxy(ControlValuePointer<Value, Parameter> pControlValue)
           : AbstractControlProxy<Value, Parameter>(pControlValue) {
         };
+
+    // TODO: make private, this is just to make tests easier
+    ControlProxy()
+        : AbstractControlProxy<Value, Parameter>(std::shared_ptr<ControlValue<Value, Parameter>>()) {}
+
+  private:
 
     friend class ControlFactory<Value, Parameter>;
 };
