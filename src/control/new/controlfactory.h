@@ -9,6 +9,9 @@ namespace NewControl {
 template<typename Value, typename Parameter>
 class ControlObject;
 
+template<typename Value, typename Parameter>
+class ControlProxy;
+
 // Move only, we use this to create a ControlFactory, injecting itself into the created ControlFactory
 class Group {
 public:
@@ -34,11 +37,10 @@ class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
     };
     virtual ~ControlFactory() {};
 
+    // TODO: if getProxy doesn't ocnsume this, why then create should?
     std::unique_ptr<ControlObject<Value, Parameter> > create() &&;
 
-//    ControlProxy<Value, Parameter> getProxy() {
-//        return ControlProxy<Value, Parameter>();
-//    }
+    ControlProxy<Value, Parameter> getProxy() const;
 
     ConfigKey configKey() const {
         return ConfigKey(group().group(), itemKey());
@@ -85,6 +87,8 @@ class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
 
 #include "control/new/controlvaluestore.h"
 #include "control/new/controlvalue.h"
+#include "control/new/controlobject.h"
+#include "control/new/controlproxy.h"
 
 namespace NewControl {
 
@@ -95,6 +99,13 @@ std::unique_ptr<ControlObject<Value, Parameter> > ControlFactory<Value, Paramete
         // TODO: handle error. careful, we have already consumed this
     }
     return std::make_unique<ControlObject<Value, Parameter>>(value);
+}
+
+template<typename Value, typename Parameter>
+ControlProxy<Value, Parameter> ControlFactory<Value, Parameter>::getProxy() const {
+    ControlValuePointer<Value, Parameter> value = ControlValueStore<Value, Parameter>::get(configKey());
+    ControlProxy<Value, Parameter> proxy(value);
+    return proxy;
 }
 
 template<typename Value, typename Parameter>

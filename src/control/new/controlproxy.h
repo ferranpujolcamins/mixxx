@@ -1,25 +1,23 @@
 #pragma once
 
-#include "controlvalueinterface.h"
+#include "control/new/abstractcontrolproxy.h"
 
 namespace NewControl {
 
 // Used to read/write a ControlValue (guarantees the value is still alive while this object is alive)
 template<typename Value, typename Parameter>
-class ControlProxy: public ControlValueInterface<Value, Parameter> {
+class ControlProxy: public AbstractControlProxy<Value, Parameter> {
   public:
-    Value value() {};
-    // Subscription subscribe(std::function<void(ValueType)>) { return Subscription(); }
+    ControlProxy(ControlProxy<Value, Parameter>& other)
+        : ControlProxy(other.m_pControlValue) {
+    }
 
-    // ControlValueInterface
-    void set(Value value);
-    Value get() const;
-    void setParameter(Parameter parameter);
-    Parameter getParameter() const;
-    Parameter getParameterForValue(Value value) const;
-    void reset();
-    void setDefaultValue(Value value);
-    Value defaultValue() const;
+  private:
+    ControlProxy(ControlValuePointer<Value, Parameter> pControlValue)
+          : AbstractControlProxy<Value, Parameter>(pControlValue) {
+        };
+
+    friend class ControlFactory<Value, Parameter>;
 };
 
 } //namespace

@@ -47,7 +47,16 @@ public:
     static std::shared_ptr<ControlValue<Value, Parameter> > get(ConfigKey key);
     static bool remove(ConfigKey key);
 
+    // TODO: make this pricate
+    // Test helpers
+    static int count() {
+        MMutexLocker locker(&s_mutex);
+        return s_controlValueHash.count();
+    }
+
+private:
     static QHash<ConfigKey, std::weak_ptr<ControlValue<Value, Parameter> >>  s_controlValueHash;
+    friend class NewControlTest;
 };
 
 } /* namespace NewControl */
@@ -75,10 +84,11 @@ bool ControlValueStore<Value, Parameter>::insert(ConfigKey key, std::shared_ptr<
     return inserted;
 }
 template<typename Value, typename Parameter>
-std::shared_ptr<ControlValue<Value, Parameter> > ControlValueStore<Value, Parameter>::get(ConfigKey key) {
+std::shared_ptr<ControlValue<Value, Parameter>> ControlValueStore<Value, Parameter>::get(ConfigKey key) {
     MMutexLocker locker(&s_mutex);
-    // TODO: What if it doesn't exist?
-    return s_controlValueHash.find(key);
+    // TODO: What if it doesn't exist? Or if the weak_ptr already died? Can this happen? Why?
+    // Now this throws ifthe weak pointer is nullptr
+    return std::shared_ptr<ControlValue<Value, Parameter>>(s_controlValueHash.value(key));
 }
 template<typename Value, typename Parameter>
 bool ControlValueStore<Value, Parameter>::remove(ConfigKey key) {

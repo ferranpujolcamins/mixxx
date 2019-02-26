@@ -7,7 +7,8 @@ namespace {
 
 using namespace NewControl;
 
-class NewControlTest : public testing::Test {};
+class NewControlTest : public testing::Test {
+};
 
 TEST_F(NewControlTest, CreateAndGetDefaultValue) {
     std::unique_ptr<ControlObject<bool, bool> > co = Channel(1).play().create();
@@ -26,22 +27,29 @@ TEST_F(NewControlTest, CreateSetAndGet) {
 }
 
 TEST_F(NewControlTest, CreateAndGetDefaultValueInt) {
-    Group group = Channel(1);
-    std::unique_ptr<ControlObject<int, int>> co = ControlFactory<int, int>(std::move(group), "co", false, 1, 2).create();
+    std::unique_ptr<ControlObject<int, int>> co = ControlFactory<int, int>(Channel(1), "co", false, 1, 2).create();
     EXPECT_EQ(co->defaultValue(), 2);
 }
 
 TEST_F(NewControlTest, CreateAndGetInitialValueInt) {
-    Group group = Channel(1);
-    std::unique_ptr<ControlObject<int, int>> co = ControlFactory<int, int>(std::move(group), "co", false, 1, 2).create();
+    std::unique_ptr<ControlObject<int, int>> co = ControlFactory<int, int>(Channel(1), "co", false, 1, 2).create();
     EXPECT_EQ(co->getValue(), 1);
 }
 
 TEST_F(NewControlTest, CreateSetAndGetInt) {
-    Group group = Channel(1);
-    std::unique_ptr<ControlObject<int, int>> co = ControlFactory<int, int>(std::move(group), "co", false, 1, 2).create();
+    std::unique_ptr<ControlObject<int, int>> co = ControlFactory<int, int>(Channel(1), "co", false, 1, 2).create();
     co->setValue(23);
     EXPECT_EQ(co->getValue(), 23);
+}
+
+TEST_F(NewControlTest, Ownership) {
+    {
+        std::unique_ptr<ControlObject<int, int>> co = ControlFactory<int, int>(Channel(1), "co", false, 1, 2).create();
+        int count = ControlValueStore<int, int>::count();
+        EXPECT_EQ(count, 1);
+    }
+    int count = ControlValueStore<int, int>::count();
+    EXPECT_EQ(count, 0);
 }
 
 }  // namespace

@@ -41,10 +41,10 @@ private:
 };
 
 template<typename Value, typename Parameter>
-using ControlValuePointer = std::shared_ptr<ControlValue<Value, Parameter> >;
+using ControlValuePointer = std::shared_ptr<ControlValue<Value, Parameter>>;
 
 template<typename Value, typename Parameter>
-using ControlValueWeakPointer = std::weak_ptr<ControlValue<Value, Parameter> >;
+using ControlValueWeakPointer = std::weak_ptr<ControlValue<Value, Parameter>>;
 
 
 } // namespace
