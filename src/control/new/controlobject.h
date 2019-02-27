@@ -11,6 +11,7 @@ class ControlObject : public AbstractControlProxy<Value, Parameter> {
 public:
     // This should be private, but we need it public for make_unique
     ControlObject(ControlValuePointer<Value, Parameter> pControlValue);
+    virtual ~ControlObject();
 private:
     ControlObject(ControlObject& other) = delete;
 
@@ -25,6 +26,11 @@ template<typename Value, typename Parameter>
 ControlObject<Value, Parameter>::ControlObject(ControlValuePointer<Value, Parameter> pControlValue)
     : AbstractControlProxy<Value, Parameter>(pControlValue) {
 
+}
+
+template<typename Value, typename Parameter>
+ControlObject<Value, Parameter>::~ControlObject() {
+    this->m_pControlValue->markForDeletion();
 }
 
 } // namespace

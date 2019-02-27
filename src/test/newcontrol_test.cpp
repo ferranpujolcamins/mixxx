@@ -70,7 +70,7 @@ TEST_F(NewControlTest, Ownership3) {
         EXPECT_EQ(1, count) << "While a ControlProxy is in scope, the ControlValue must not be destroyed.";
 
         std::unique_ptr<ControlProxy<int, int>> proxy2 = ControlFactory<int, int>(Channel(1), "co", false, 1, 2).getProxy();
-        EXPECT_EQ(nullptr, proxy) << "A proxy must not be created after the CO is destroyed, even if there are live proxies.";
+        EXPECT_EQ(nullptr, proxy2) << "A proxy must not be created after the CO is destroyed, even if there are live proxies.";
     }
     int count = ControlValueStore<int, int>::count();
     EXPECT_EQ(0, count) << "After the last ControlProxy is destroyed, the ControlValue must be destroyed.";

@@ -106,7 +106,7 @@ std::unique_ptr<ControlObject<Value, Parameter>> ControlFactory<Value, Parameter
 template<typename Value, typename Parameter>
 std::unique_ptr<ControlProxy<Value, Parameter>> ControlFactory<Value, Parameter>::getProxy() const {
     ControlValuePointer<Value, Parameter> value = ControlValueStore<Value, Parameter>::get(configKey());
-    if (value == nullptr) {
+    if (value == nullptr || value->isMarkedForDeletion()) {
         return std::unique_ptr<ControlProxy<Value, Parameter>>(nullptr);
     }
     return std::make_unique<ControlProxy<Value, Parameter>>(value);

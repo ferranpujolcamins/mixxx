@@ -11,6 +11,7 @@ template<typename Value, typename Parameter>
 class AbstractControlProxy: public ControlValueInterface<Value, Parameter> {
 public:
     AbstractControlProxy(ControlValuePointer<Value, Parameter> pControlValue);
+    virtual ~AbstractControlProxy() {};
 
     // ControlValueInterface
     void setValue(Value value) override;

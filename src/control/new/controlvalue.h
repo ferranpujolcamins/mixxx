@@ -1,12 +1,14 @@
 #pragma once
 
+#include <QAtomicInt>
+
 #include "control/new/controlbehavior.h"
 #include "control/new/controlfactory.h"
 #include "control/controlvalue.h"
 
 namespace NewControl {
 
-
+// TODO: document what is thread safe and what not
 // TODO: think what needs to be a pointer
 // TODO: explicitly write the thread safety requirements and later check that the implementaiton fulfills them
 template<typename Value, typename Parameter>
@@ -25,6 +27,9 @@ public:
     void setDefaultValue(Value value);
     Value defaultValue() const;
 
+    bool isMarkedForDeletion() const;
+    void markForDeletion();
+
     ConfigKey configKey() const {
         return m_controlFactory.configKey();
     }
@@ -38,6 +43,8 @@ private:
     // in case a new one is set
     // But do we really need to mutate this?
     ControlBehavior<Value, Parameter> m_behavior;
+
+    QAtomicInt m_deletionMark;
 };
 
 template<typename Value, typename Parameter>
@@ -45,7 +52,6 @@ using ControlValuePointer = std::shared_ptr<ControlValue<Value, Parameter>>;
 
 template<typename Value, typename Parameter>
 using ControlValueWeakPointer = std::weak_ptr<ControlValue<Value, Parameter>>;
-
 
 } // namespace
 
@@ -56,7 +62,7 @@ namespace NewControl {
 
 template<typename Value, typename Parameter>
 ControlValue<Value, Parameter>::ControlValue(ControlFactory<Value, Parameter>&& controlFactory)
-    : m_controlFactory(controlFactory) {
+    : m_controlFactory(controlFactory), m_deletionMark(0) {
     m_value.setValue(m_controlFactory.initialValue());
     m_defaultValue.setValue(m_controlFactory.defaultValue222());
 }
@@ -96,5 +102,16 @@ template<typename Value, typename Parameter>
 Value ControlValue<Value, Parameter>::defaultValue() const {
     return m_defaultValue.getValue();
 }
+
+template<typename Value, typename Parameter>
+bool ControlValue<Value, Parameter>::isMarkedForDeletion() const {
+    return m_deletionMark.loadAcquire();
+}
+
+template<typename Value, typename Parameter>
+void ControlValue<Value, Parameter>::markForDeletion() {
+    m_deletionMark.storeRelease(1);
+}
+
 
 } // namespace
