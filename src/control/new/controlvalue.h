@@ -4,6 +4,7 @@
 
 #include "control/new/controlbehavior.h"
 #include "control/new/controlfactory.h"
+#include "control/new/voidsignal.h"
 #include "control/controlvalue.h"
 
 namespace NewControl {
@@ -16,6 +17,10 @@ class ControlValue final: public ControlValueInterface<Value, Parameter> {
 public:
     ControlValue(ControlFactory<Value, Parameter>&& controlFactory);
     ~ControlValue();
+
+    VoidSignal* signal() {
+        return m_pSignal.get();
+    }
 
     // ControlValueInterface
     void setValue(Value value);
@@ -35,6 +40,7 @@ public:
     }
 
 private:
+    // TODO: is this member needed?
     ControlFactory<Value, Parameter> m_controlFactory;
     ControlValueAtomic<Value> m_value;
     ControlValueAtomic<Value> m_defaultValue;
@@ -45,6 +51,7 @@ private:
     ControlBehavior<Value, Parameter> m_behavior;
 
     QAtomicInt m_deletionMark;
+    std::unique_ptr<VoidSignal> m_pSignal;
 };
 
 template<typename Value, typename Parameter>
@@ -62,7 +69,7 @@ namespace NewControl {
 
 template<typename Value, typename Parameter>
 ControlValue<Value, Parameter>::ControlValue(ControlFactory<Value, Parameter>&& controlFactory)
-    : m_controlFactory(controlFactory), m_deletionMark(0) {
+    : m_controlFactory(controlFactory), m_deletionMark(0), m_pSignal(new VoidSignal()) {
     m_value.setValue(m_controlFactory.initialValue());
     m_defaultValue.setValue(m_controlFactory.defaultValue222());
 }
@@ -76,6 +83,7 @@ template<typename Value, typename Parameter>
 void ControlValue<Value, Parameter>::setValue(Value value) {
     // TODO: check if we use the atomic specialization
     m_value.setValue(value);
+    m_pSignal->signal();
 }
 
 template<typename Value, typename Parameter>

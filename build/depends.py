@@ -713,6 +713,7 @@ class MixxxCore(Feature):
                    #"src/control/new/controlproxy.cpp",
                    #"src/control/new/controlvalueinterface.cpp",
                    #"src/control/new/controlvalue.cpp",
+                   "src/control/new/voidsignal.cpp",
 
                    "src/controllers/dlgcontrollerlearning.cpp",
                    "src/controllers/dlgprefcontroller.cpp",

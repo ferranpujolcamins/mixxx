@@ -6,7 +6,7 @@ namespace NewControl {
 
 // Used to read/write a ControlValue (guarantees the value is still alive while this object is alive)
 template<typename Value, typename Parameter>
-class ControlProxy: public AbstractControlProxy<Value, Parameter> {
+class ControlProxy: public AbstractControlProxy<Value, Parameter, MaybeDirectConnectionProxy> {
   public:
     ControlProxy(ControlProxy<Value, Parameter>& other)
         : ControlProxy(other.m_pControlValue) {
@@ -14,12 +14,12 @@ class ControlProxy: public AbstractControlProxy<Value, Parameter> {
 
     // TODO: make private
     ControlProxy(ControlValuePointer<Value, Parameter> pControlValue)
-          : AbstractControlProxy<Value, Parameter>(pControlValue) {
+          : AbstractControlProxy<Value, Parameter, MaybeDirectConnectionProxy>(pControlValue) {
         };
 
     // TODO: make private, this is just to make tests easier
     ControlProxy()
-        : AbstractControlProxy<Value, Parameter>(std::shared_ptr<ControlValue<Value, Parameter>>()) {}
+        : AbstractControlProxy<Value, Parameter, MaybeDirectConnectionProxy>(std::shared_ptr<ControlValue<Value, Parameter>>()) {}
 
   private:
 

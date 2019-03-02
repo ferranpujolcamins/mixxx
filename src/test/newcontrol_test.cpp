@@ -1,5 +1,4 @@
-#include <gtest/gtest.h>
-
+#include "test/mixxxtest.h"
 #include "control/new/controldefinitions.h"
 #include "control/new/controlobject.h"
 
@@ -7,7 +6,7 @@ namespace {
 
 using namespace NewControl;
 
-class NewControlTest : public testing::Test {
+class NewControlTest: public MixxxTest {
 };
 
 TEST_F(NewControlTest, CreateAndGetDefaultValue) {
@@ -96,6 +95,35 @@ TEST_F(NewControlTest, CreateSetAndGetProxy) {
     proxy->setValue(33);
     value = co->getValue();
     EXPECT_EQ(33, value);
+}
+
+TEST_F(NewControlTest, TestConnection1) {
+    bool slotCalled = false;
+    VoidSlot slot([&](){
+        slotCalled = true;
+    });
+    std::unique_ptr<ControlObject<int, int>> co = ControlFactory<int, int>(Channel(1), "co", false, 1, 2).create();
+    co->connect(&slot, &VoidSlot::slot);
+    co->setValue(7);
+    application()->processEvents();
+    EXPECT_TRUE(slotCalled);
+    int value = co->getValue();
+    EXPECT_EQ(7, value);
+}
+
+TEST_F(NewControlTest, TestConnection2) {
+    bool slotCalled = false;
+    VoidSlot slot([&](){
+        slotCalled = true;
+    });
+    std::unique_ptr<ControlObject<int, int>> co = ControlFactory<int, int>(Channel(1), "co", false, 1, 2).create();
+    std::unique_ptr<ControlProxy<int, int>> proxy = ControlFactory<int, int>(Channel(1), "co", false, 1, 2).getProxy();
+    proxy->connect(&slot, &VoidSlot::slot);
+    co->setValue(7);
+    application()->processEvents();
+    EXPECT_TRUE(slotCalled);
+    int value = proxy->getValue();
+    EXPECT_EQ(7, value);
 }
 
 }  // namespace
