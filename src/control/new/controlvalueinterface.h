@@ -2,8 +2,8 @@
 
 namespace NewControl {
 
-// TODO: Do we really need the interfaces? Do we abstractly use objects implementing them somewhere?
-
+// This interface defines the methods that can be used to read the value of a ControlValue.
+// All classes that somehow allow a client to read a ControlValue implement this interface.
 template<typename Value, typename Parameter>
 class ControlValueReadOnlyInterface {
 public:
@@ -19,6 +19,8 @@ public:
     virtual Value defaultValue() const = 0;
 };
 
+// This interface defines the methods that can be used to read and write the value of a ControlValue.
+// All classes that somehow allow a client to read and write a ControlValue implement this interface.
 template<typename Value, typename Parameter>
 class ControlValueInterface: public ControlValueReadOnlyInterface<Value, Parameter> {
 public:

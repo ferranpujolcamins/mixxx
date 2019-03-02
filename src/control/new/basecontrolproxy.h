@@ -4,14 +4,13 @@
 
 namespace NewControl {
 
-// Implements the interface forwarding the calls to a ControlValuePointer
-// TODO: this is not really abstract, find a better name
-// TODO: Do we need this? OR is this actualyl just ControlProxy?
+// This is the base for both ControlProxy and ControlObject.
+// BaseControlProxy implements ControlValueInterface, it forwards all the method calls to the associated ControlValue.
 template<typename Value, typename Parameter, typename ConnectionProxy>
-class AbstractControlProxy: public ControlValueInterface<Value, Parameter> {
+class BaseControlProxy: public ControlValueInterface<Value, Parameter> {
 public:
-    AbstractControlProxy(ControlValuePointer<Value, Parameter> pControlValue);
-    virtual ~AbstractControlProxy() {};
+    BaseControlProxy(ControlValuePointer<Value, Parameter> pControlValue);
+    virtual ~BaseControlProxy() {};
 
     template<typename Receiver, typename Slot>
     QMetaObject::Connection connect(Receiver* receiver, Slot slot, Qt::ConnectionType connectionType = Qt::AutoConnection) {
@@ -35,50 +34,52 @@ protected:
 
 } // namespace
 
+// ------------------------Implementation -------------------------------------
+
 namespace NewControl {
 
 template<typename Value, typename Parameter, typename ConnectionProxy>
-AbstractControlProxy<Value, Parameter, ConnectionProxy>::AbstractControlProxy(ControlValuePointer<Value, Parameter> pControlValue)
+BaseControlProxy<Value, Parameter, ConnectionProxy>::BaseControlProxy(ControlValuePointer<Value, Parameter> pControlValue)
     : m_pControlValue(pControlValue),
-      m_connectionProxy(pControlValue->signal()) {
-
-}
+      m_connectionProxy(pControlValue->signal()) {}
 
 template<typename Value, typename Parameter, typename ConnectionProxy>
-void AbstractControlProxy<Value, Parameter, ConnectionProxy>::setValue(Value value) {
+void BaseControlProxy<Value, Parameter, ConnectionProxy>::setValue(Value value) {
     m_pControlValue->setValue(value);
 }
 
 template<typename Value, typename Parameter, typename ConnectionProxy>
-Value AbstractControlProxy<Value, Parameter, ConnectionProxy>::getValue() const {
+Value BaseControlProxy<Value, Parameter, ConnectionProxy>::getValue() const {
     return m_pControlValue->getValue();
 }
 
 template<typename Value, typename Parameter, typename ConnectionProxy>
-void AbstractControlProxy<Value, Parameter, ConnectionProxy>::setParameter(Parameter parameter) {
+void BaseControlProxy<Value, Parameter, ConnectionProxy>::setParameter(Parameter parameter) {
     m_pControlValue->setParameter(parameter);
 }
 
 template<typename Value, typename Parameter, typename ConnectionProxy>
-Parameter AbstractControlProxy<Value, Parameter, ConnectionProxy>::getParameter() const {
+Parameter BaseControlProxy<Value, Parameter, ConnectionProxy>::getParameter() const {
     return m_pControlValue->getParameter();
 }
 
 template<typename Value, typename Parameter, typename ConnectionProxy>
-Parameter AbstractControlProxy<Value, Parameter, ConnectionProxy>::getParameterForValue(Value value) const {
+Parameter BaseControlProxy<Value, Parameter, ConnectionProxy>::getParameterForValue(Value value) const {
     return m_pControlValue->getParameterForValue(value);
 }
 
 template<typename Value, typename Parameter, typename ConnectionProxy>
-void AbstractControlProxy<Value, Parameter, ConnectionProxy>::reset() {}
+void BaseControlProxy<Value, Parameter, ConnectionProxy>::reset() {
+    m_pControlValue->reset();
+}
 
 template<typename Value, typename Parameter, typename ConnectionProxy>
-void AbstractControlProxy<Value, Parameter, ConnectionProxy>::setDefaultValue(Value value) {
+void BaseControlProxy<Value, Parameter, ConnectionProxy>::setDefaultValue(Value value) {
     m_pControlValue->setDefaultValue(value);
 }
 
 template<typename Value, typename Parameter, typename ConnectionProxy>
-Value AbstractControlProxy<Value, Parameter, ConnectionProxy>::defaultValue() const {
+Value BaseControlProxy<Value, Parameter, ConnectionProxy>::defaultValue() const {
     return m_pControlValue->defaultValue();
 }
 

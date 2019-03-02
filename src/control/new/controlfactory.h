@@ -86,6 +86,8 @@ class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
 
 } // namespace
 
+// ------------------------Implementation -------------------------------------
+
 #include "control/new/controlvaluestore.h"
 #include "control/new/controlvalue.h"
 #include "control/new/controlobject.h"

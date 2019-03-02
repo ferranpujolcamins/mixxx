@@ -1,12 +1,12 @@
 #pragma once
 
-#include "control/new/abstractcontrolproxy.h"
+#include "basecontrolproxy.h"
 
 namespace NewControl {
 
 // Used to read/write a ControlValue (guarantees the value is still alive while this object is alive)
 template<typename Value, typename Parameter>
-class ControlProxy: public AbstractControlProxy<Value, Parameter, MaybeDirectConnectionProxy> {
+class ControlProxy: public BaseControlProxy<Value, Parameter, MaybeDirectConnectionProxy> {
   public:
     ControlProxy(ControlProxy<Value, Parameter>& other)
         : ControlProxy(other.m_pControlValue) {
@@ -14,8 +14,7 @@ class ControlProxy: public AbstractControlProxy<Value, Parameter, MaybeDirectCon
 
     // TODO: make private
     ControlProxy(ControlValuePointer<Value, Parameter> pControlValue)
-          : AbstractControlProxy<Value, Parameter, MaybeDirectConnectionProxy>(pControlValue) {
-        };
+          : AbstractControlProxy<Value, Parameter, MaybeDirectConnectionProxy>(pControlValue) {};
 
     // TODO: make private, this is just to make tests easier
     ControlProxy()

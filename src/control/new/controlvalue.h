@@ -62,6 +62,7 @@ using ControlValueWeakPointer = std::weak_ptr<ControlValue<Value, Parameter>>;
 
 } // namespace
 
+// ------------------------Implementation -------------------------------------
 
 #import "control/new/controlvaluestore.h"
 
@@ -101,10 +102,15 @@ template<typename Value, typename Parameter>
 Parameter ControlValue<Value, Parameter>::getParameterForValue(Value value) const {}
 
 template<typename Value, typename Parameter>
-void ControlValue<Value, Parameter>::reset() {}
+void ControlValue<Value, Parameter>::reset() {
+    Value defaultValue = m_defaultValue->getValue();
+    m_value->setValue(defaultValue);
+}
 
 template<typename Value, typename Parameter>
-void ControlValue<Value, Parameter>::setDefaultValue(Value value) {}
+void ControlValue<Value, Parameter>::setDefaultValue(Value value) {
+    m_defaultValue->setValue(value);
+}
 
 template<typename Value, typename Parameter>
 Value ControlValue<Value, Parameter>::defaultValue() const {

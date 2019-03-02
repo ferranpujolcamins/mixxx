@@ -707,12 +707,6 @@ class MixxxCore(Feature):
                    "src/control/controlttrotary.cpp",
                    "src/control/controlencoder.cpp",
                    
-                   #"src/control/new/controlbehavior.cpp",
-                   #"src/control/new/controlfactory.cpp",
-                   #"src/control/new/controlobject.cpp",
-                   #"src/control/new/controlproxy.cpp",
-                   #"src/control/new/controlvalueinterface.cpp",
-                   #"src/control/new/controlvalue.cpp",
                    "src/control/new/voidsignal.cpp",
 
                    "src/controllers/dlgcontrollerlearning.cpp",
@@ -736,7 +730,7 @@ class MixxxCore(Feature):
                    "src/preferences/dialog/dlgprefsound.cpp",
                    "src/preferences/dialog/dlgprefsounditem.cpp",
                    "src/preferences/dialog/dlgprefwaveform.cpp",
-                   "src/preferences/dialog/dlgprefbeats.cpp",
+                   "src/preferences/dialog/dlgprabefbeats.cpp",
                    "src/preferences/dialog/dlgprefkey.cpp",
                    "src/preferences/settingsmanager.cpp",
                    "src/preferences/replaygainsettings.cpp",
