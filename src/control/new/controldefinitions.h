@@ -14,7 +14,7 @@ class Channel: public Group {
 
     ControlFactory<bool, bool> play() {
         // TODO: builder pattern or parameter object
-        return ControlFactory<bool, bool>(std::move(*this), "play", false, true, false);
+        return ControlFactory<bool, bool>(*this, "play", false, true, false);
     }
 };
 

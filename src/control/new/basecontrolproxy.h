@@ -6,16 +6,11 @@ namespace NewControl {
 
 // This is the base for both ControlProxy and ControlObject.
 // BaseControlProxy implements ControlValueInterface, it forwards all the method calls to the associated ControlValue.
-template<typename Value, typename Parameter, typename ConnectionProxy>
+template<typename Value, typename Parameter>
 class BaseControlProxy: public ControlValueInterface<Value, Parameter> {
 public:
     BaseControlProxy(ControlValuePointer<Value, Parameter> pControlValue);
     virtual ~BaseControlProxy() {};
-
-    template<typename Receiver, typename Slot>
-    QMetaObject::Connection connect(Receiver* receiver, Slot slot, Qt::ConnectionType connectionType = Qt::AutoConnection) {
-        return m_connectionProxy.connect(receiver, slot, connectionType);
-    }
 
     // ControlValueInterface
     void setValue(Value value) override;
@@ -29,7 +24,6 @@ public:
 
 protected:
     ControlValuePointer<Value, Parameter> m_pControlValue;
-    ConnectionProxy m_connectionProxy;
 };
 
 } // namespace
@@ -38,48 +32,47 @@ protected:
 
 namespace NewControl {
 
-template<typename Value, typename Parameter, typename ConnectionProxy>
-BaseControlProxy<Value, Parameter, ConnectionProxy>::BaseControlProxy(ControlValuePointer<Value, Parameter> pControlValue)
-    : m_pControlValue(pControlValue),
-      m_connectionProxy(pControlValue->signal()) {}
+template<typename Value, typename Parameter>
+BaseControlProxy<Value, Parameter>::BaseControlProxy(ControlValuePointer<Value, Parameter> pControlValue)
+    : m_pControlValue(pControlValue) {}
 
-template<typename Value, typename Parameter, typename ConnectionProxy>
-void BaseControlProxy<Value, Parameter, ConnectionProxy>::setValue(Value value) {
+template<typename Value, typename Parameter>
+void BaseControlProxy<Value, Parameter>::setValue(Value value) {
     m_pControlValue->setValue(value);
 }
 
-template<typename Value, typename Parameter, typename ConnectionProxy>
-Value BaseControlProxy<Value, Parameter, ConnectionProxy>::getValue() const {
+template<typename Value, typename Parameter>
+Value BaseControlProxy<Value, Parameter>::getValue() const {
     return m_pControlValue->getValue();
 }
 
-template<typename Value, typename Parameter, typename ConnectionProxy>
-void BaseControlProxy<Value, Parameter, ConnectionProxy>::setParameter(Parameter parameter) {
+template<typename Value, typename Parameter>
+void BaseControlProxy<Value, Parameter>::setParameter(Parameter parameter) {
     m_pControlValue->setParameter(parameter);
 }
 
-template<typename Value, typename Parameter, typename ConnectionProxy>
-Parameter BaseControlProxy<Value, Parameter, ConnectionProxy>::getParameter() const {
+template<typename Value, typename Parameter>
+Parameter BaseControlProxy<Value, Parameter>::getParameter() const {
     return m_pControlValue->getParameter();
 }
 
-template<typename Value, typename Parameter, typename ConnectionProxy>
-Parameter BaseControlProxy<Value, Parameter, ConnectionProxy>::getParameterForValue(Value value) const {
+template<typename Value, typename Parameter>
+Parameter BaseControlProxy<Value, Parameter>::getParameterForValue(Value value) const {
     return m_pControlValue->getParameterForValue(value);
 }
 
-template<typename Value, typename Parameter, typename ConnectionProxy>
-void BaseControlProxy<Value, Parameter, ConnectionProxy>::reset() {
+template<typename Value, typename Parameter>
+void BaseControlProxy<Value, Parameter>::reset() {
     m_pControlValue->reset();
 }
 
-template<typename Value, typename Parameter, typename ConnectionProxy>
-void BaseControlProxy<Value, Parameter, ConnectionProxy>::setDefaultValue(Value value) {
+template<typename Value, typename Parameter>
+void BaseControlProxy<Value, Parameter>::setDefaultValue(Value value) {
     m_pControlValue->setDefaultValue(value);
 }
 
-template<typename Value, typename Parameter, typename ConnectionProxy>
-Value BaseControlProxy<Value, Parameter, ConnectionProxy>::defaultValue() const {
+template<typename Value, typename Parameter>
+Value BaseControlProxy<Value, Parameter>::defaultValue() const {
     return m_pControlValue->defaultValue();
 }
 

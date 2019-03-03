@@ -12,7 +12,7 @@ class ControlObject;
 template<typename Value, typename Parameter>
 class ControlProxy;
 
-// Move only, we use this to create a ControlFactory, injecting itself into the created ControlFactory
+// This object must be fast to copy, because it's copied into a ControlFactory when we create one.
 class Group {
 public:
     Group(QString sGroup)
@@ -30,15 +30,13 @@ private:
 template<typename Value, typename Parameter>
 class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
   public:
-    // TODO: do we really want move semantics?
-    ControlFactory(Group&& group, QString sItemKey, bool bPersistInConfiguration, Value initialValue, Value defaultValue)
+    ControlFactory(Group group, QString sItemKey, bool bPersistInConfiguration, Value initialValue, Value defaultValue)
       : m_group(group), m_sItemKey(sItemKey), m_bPersistInConfiguration(bPersistInConfiguration),
         m_initialValue(initialValue), m_defaultValue(defaultValue) {
     };
     virtual ~ControlFactory() {};
 
     // Create a ControlObject. Can return nullptr is the creation failed, for example because another CO with the same key is already created.
-    // TODO: if getProxy doesn't ocnsume this, why then create should?
     std::unique_ptr<ControlObject<Value, Parameter>> create() &&;
 
     std::unique_ptr<ControlProxy<Value, Parameter>> getProxy() const;
@@ -47,7 +45,6 @@ class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
         return ConfigKey(group().group(), itemKey());
     }
 
-    // TODO: improve this
     Group group() const {
         return m_group;
     }
@@ -71,11 +68,6 @@ class ControlFactory: public ControlValueReadOnlyInterface<Value, Parameter> {
     Parameter getParameterForValue(Value value) const;
     Value defaultValue() const;
 
-    //rxcpp::subjects::behavior<ValueType> subject;
-
-    // Always called on the subscribing thread
-    // Shortcut for get().subscribe()
-    //Subscription subscribe(std::function<void(ValueType)>) { return Subscription(); }
   private:
     Group m_group;
     QString m_sItemKey;
