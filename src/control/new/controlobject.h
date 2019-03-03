@@ -13,7 +13,7 @@ class ControlObject : public BaseControlProxy<Value, Parameter, DirectConnection
 public:
     // This should be private, but we need it public for make_unique
     ControlObject(ControlValuePointer<Value, Parameter> pControlValue)
-        : AbstractControlProxy<Value, Parameter, DirectConnectionProxy>(pControlValue) {};
+        : BaseControlProxy<Value, Parameter, DirectConnectionProxy>(pControlValue) {};
 
     virtual ~ControlObject() {
         this->m_pControlValue->markForDeletion();

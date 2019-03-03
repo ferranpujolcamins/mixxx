@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-// A QObject with only a single void signal.
+// A QObject with a single void signal.
 // We use this object to provide non-QObjects with a signal they can emit and subscribe QObjects to it.
 class VoidSignal: public QObject {
     Q_OBJECT

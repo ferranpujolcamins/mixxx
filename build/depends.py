@@ -730,7 +730,7 @@ class MixxxCore(Feature):
                    "src/preferences/dialog/dlgprefsound.cpp",
                    "src/preferences/dialog/dlgprefsounditem.cpp",
                    "src/preferences/dialog/dlgprefwaveform.cpp",
-                   "src/preferences/dialog/dlgprabefbeats.cpp",
+                   "src/preferences/dialog/dlgprefbeats.cpp",
                    "src/preferences/dialog/dlgprefkey.cpp",
                    "src/preferences/settingsmanager.cpp",
                    "src/preferences/replaygainsettings.cpp",

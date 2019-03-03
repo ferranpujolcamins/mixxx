@@ -103,13 +103,13 @@ Parameter ControlValue<Value, Parameter>::getParameterForValue(Value value) cons
 
 template<typename Value, typename Parameter>
 void ControlValue<Value, Parameter>::reset() {
-    Value defaultValue = m_defaultValue->getValue();
-    m_value->setValue(defaultValue);
+    Value defaultValue = m_defaultValue.getValue();
+    m_value.setValue(defaultValue);
 }
 
 template<typename Value, typename Parameter>
 void ControlValue<Value, Parameter>::setDefaultValue(Value value) {
-    m_defaultValue->setValue(value);
+    m_defaultValue.setValue(value);
 }
 
 template<typename Value, typename Parameter>

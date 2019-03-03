@@ -6,47 +6,68 @@
 
 namespace NewControl {
 
-// TODO: Do we really need the interfaces? Do we abstractly use objects implementing them somewhere?
+// ConnectionProxy classes encapsulate a VoidSignal that is connected to a source VoidSignal.
+// Client QObjects can then connect to the ConnectionProxy and receive the source signal events:
+//     [source] -> [proxy] -> [client]
+// The ConnectionProxy controls what type of Qt connections are used.
 
+
+// Connects the proxy to the source using Qt::DirectConnection.
 class DirectConnectionProxy {
 public:
     // The sender is owned by ControlValue, which is owned by Proxy/Object, which also own this class.
     // Thus we don't need to worry about the owenrship of pSender.
-    DirectConnectionProxy(VoidSignal* pSender)
-        : m_pSignal(new VoidSignal()) {
-        QObject::connect(pSender, &VoidSignal::signal,
-                m_pSignal.get(), &VoidSignal::signal,
+    DirectConnectionProxy(VoidSignal* pSourceSignal)
+        : m_pProxySignal(new VoidSignal()) {
+        QObject::connect(pSourceSignal, &VoidSignal::signal,
+                m_pProxySignal.get(), &VoidSignal::signal,
                 Qt::DirectConnection);
     };
 
     ~DirectConnectionProxy() {};
 
-    template<typename Receiver, typename Slot>
-    QMetaObject::Connection connect(Receiver* receiver, Slot slot, Qt::ConnectionType connectionType = Qt::AutoConnection) {
-        return QObject::connect(m_pSignal.get(), &VoidSignal::signal,
-                receiver, slot,
+    // Connect a client QObject to the proxy using the specified connectionType
+    template<typename Client, typename Slot>
+    QMetaObject::Connection connect(Client* client, Slot slot, Qt::ConnectionType connectionType = Qt::AutoConnection) {
+        return QObject::connect(m_pProxySignal.get(), &VoidSignal::signal,
+                client, slot,
                 connectionType);
     };
 private:
-    std::unique_ptr<VoidSignal> m_pSignal;
+    std::unique_ptr<VoidSignal> m_pProxySignal;
 };
 
-class MaybeDirectConnectionProxy {
+// Connects the proxy to the source only after the client has been successfully connected to the proxy.
+// The type of connection between the client and the proxy is automatically chosen.
+// Can only be connected once. Subsequent connections always fail.
+class SafeConnectionProxy {
 public:
-    // The sender is owned by ControlValue, which is owned by Proxy/Object, which also own this class.
-    // Thus we don't need to worry about the owenrship of pSender.
-    MaybeDirectConnectionProxy(VoidSignal* pSender)
-        : m_pSignal(new VoidSignal()),
-          m_pSender(pSender) {
-        QObject::connect(m_pSender, &VoidSignal::signal,
-                m_pSignal.get(), &VoidSignal::signal,
+    SafeConnectionProxy(VoidSignal* pSourceSignal)
+        : m_pProxySignal(new VoidSignal()),
+          m_pSourceSignal(pSourceSignal),
+          m_bConnected(false) {
+        // pSourceSignal is owned by ControlValue, which is owned by ControlProxy and/or ControlObject, which also own this class.
+        // Thus pSourceSignal will be valid up until we are destroyed.
+        QObject::connect(m_pSourceSignal, &VoidSignal::signal,
+                m_pProxySignal.get(), &VoidSignal::signal,
                 Qt::DirectConnection);
     };
 
-    ~MaybeDirectConnectionProxy() {};
+    ~SafeConnectionProxy() {};
 
-    template<typename Receiver, typename Slot>
-    QMetaObject::Connection connect(Receiver* receiver, Slot slot, Qt::ConnectionType requestedConnectionType = Qt::AutoConnection) {
+    bool connected() {
+        return m_bConnected;
+    }
+
+    // Connect the source to the proxy using the specified connectionType
+    // The connection type between the client QObject and the proxy is automatically chosen.
+    template<typename Client, typename Slot>
+    QMetaObject::Connection connect(Client* client, Slot slot, Qt::ConnectionType requestedConnectionType = Qt::AutoConnection) {
+        DEBUG_ASSERT(!connected());
+        if (connected()) {
+            return QMetaObject::Connection();
+        }
+
         // We connect to the
         // sender only once and in a way that
         // the requested ConnectionType is working as desired.
@@ -82,7 +103,7 @@ public:
             return QMetaObject::Connection();
         }
 
-        QMetaObject::Connection connection = QObject::connect(m_pSignal.get(), &VoidSignal::signal, receiver, slot, scoConnection);
+        QMetaObject::Connection connection = QObject::connect(m_pProxySignal.get(), &VoidSignal::signal, client, slot, scoConnection);
         if (!connection) {
             return QMetaObject::Connection();
         }
@@ -93,13 +114,15 @@ public:
         // use only explicit direct connection if requested
         // the caller must not delete this until the all signals are
         // processed to avoid segfaults
-        QObject::connect(m_pSender, &VoidSignal::signal,
-                m_pSignal.get(), &VoidSignal::signal,
-                static_cast<Qt::ConnectionType>(copConnection | Qt::UniqueConnection));
+        QObject::connect(m_pSourceSignal, &VoidSignal::signal,
+                m_pProxySignal.get(), &VoidSignal::signal,
+                static_cast<Qt::ConnectionType>(copConnection));
+        m_bConnected = true;
         return connection;
     };
 private:
-    std::unique_ptr<VoidSignal> m_pSignal;
-    VoidSignal* m_pSender;
+    std::unique_ptr<VoidSignal> m_pProxySignal;
+    VoidSignal* m_pSourceSignal;
+    bool m_bConnected;
 };
 } /* namespace NewControl */
