@@ -12,13 +12,15 @@ namespace NewControl {
 // TODO: document what is thread safe and what not
 // TODO: think what needs to be a pointer
 // TODO: explicitly write the thread safety requirements and later check that the implementaiton fulfills them
+
+// This class is thread-safe.
 template<typename Value, typename Parameter>
 class ControlValue final: public ControlValueInterface<Value, Parameter> {
 public:
     ControlValue(ControlFactory<Value, Parameter>&& controlFactory);
     ~ControlValue();
 
-    VoidSignal* signal() {
+    const VoidSignal* signal() const {
         return m_pSignal.get();
     }
 
@@ -46,7 +48,7 @@ private:
     ControlValueAtomic<Value> m_defaultValue;
 
     // TODO: this is a sharedpointer so the methods using behaviour are thread safe, each invokation retains the old behaviour
-    // in case a new one is set
+    // in case a new one is set.
     // But do we really need to mutate this?
     ControlBehavior<Value, Parameter> m_behavior;
 

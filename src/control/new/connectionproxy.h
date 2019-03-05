@@ -17,7 +17,7 @@ class DirectConnectionProxy {
 public:
     // The sender is owned by ControlValue, which is owned by Proxy/Object, which also own this class.
     // Thus we don't need to worry about the owenrship of pSender.
-    DirectConnectionProxy(VoidSignal* pSourceSignal)
+    DirectConnectionProxy(const VoidSignal* pSourceSignal)
         : m_pProxySignal(new VoidSignal()) {
         QObject::connect(pSourceSignal, &VoidSignal::signal,
                 m_pProxySignal.get(), &VoidSignal::signal,
@@ -42,7 +42,7 @@ private:
 // Can only be connected once. Subsequent connections always fail.
 class SafeConnectionProxy {
 public:
-    SafeConnectionProxy(VoidSignal* pSourceSignal)
+    SafeConnectionProxy(const VoidSignal* pSourceSignal)
         : m_pProxySignal(new VoidSignal()),
           m_pSourceSignal(pSourceSignal),
           m_bConnected(false) {
@@ -122,7 +122,7 @@ public:
     };
 private:
     std::unique_ptr<VoidSignal> m_pProxySignal;
-    VoidSignal* m_pSourceSignal;
+    const VoidSignal* m_pSourceSignal;
     bool m_bConnected;
 };
 } /* namespace NewControl */

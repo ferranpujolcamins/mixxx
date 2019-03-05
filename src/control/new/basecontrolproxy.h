@@ -5,7 +5,8 @@
 namespace NewControl {
 
 // This is the base for both ControlProxy and ControlObject.
-// BaseControlProxy implements ControlValueInterface, it forwards all the method calls to the associated ControlValue.
+// BaseControlProxy implements ControlValueInterface, it forwards all the method calls to the ControlValue member.
+// The methods in this class are thread-safe because the calls are forwarded to ControlValue, which is thread-safe.
 template<typename Value, typename Parameter>
 class BaseControlProxy: public ControlValueInterface<Value, Parameter> {
 public:

@@ -8,8 +8,9 @@ class VoidSignal: public QObject {
     Q_OBJECT
   public:
     ~VoidSignal();
+
   signals:
-    void signal();
+    void signal() const;
 };
 
 // TODO: find a better place for this, we use it only for tests
@@ -18,8 +19,10 @@ class VoidSlot: public QObject {
   public:
     VoidSlot(std::function<void(void)> fCallback);
     ~VoidSlot();
+
   public slots:
     void slot();
+
   private:
     std::function<void(void)> m_fCallback;
 };
