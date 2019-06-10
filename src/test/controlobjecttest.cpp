@@ -84,4 +84,40 @@ TEST_F(ControlObjectTest, Persistence_ValidValue) {
     EXPECT_DOUBLE_EQ(5.0, co.get());
 }
 
+TEST_F(ControlObjectTest, Enabled_CO) {
+    ConfigKey ck("[Test]", "item");
+    auto co = std::make_unique<ControlObject>(ck);
+    co->createEnabledCO();
+
+    // Assert that the CO is enabled by default
+    EXPECT_EQ(true, co->isEnabled());
+
+    ConfigKey ckEnabled("[Test]", "item_enabled");
+    auto coEnabled = std::make_unique<ControlProxy>(ckEnabled);
+    // Assert that the enabled CO is created
+    EXPECT_EQ(true, coEnabled->valid());
+
+    // Assert that changes in the enabled CO are reflected in the CO properties
+    coEnabled->set(0);
+    EXPECT_EQ(false, co->isEnabled());
+
+    // Assert that changes in the CO are reflected in the enabled CO properties
+    co->enable();
+    EXPECT_EQ(true, coEnabled->toBool());
+}
+
+TEST_F(ControlObjectTest, No_Enabled_CO) {
+    ConfigKey ck("[Test]", "item");
+    auto co = std::make_unique<ControlObject>(ck);
+    ConfigKey ckEnabled("[Test]", "item_enabled");
+    auto coEnabled = std::make_unique<ControlProxy>(ckEnabled);
+    // Assert that the enabled CO is not created
+    EXPECT_EQ(false, coEnabled->valid());
+
+    // Assert that the CO always returns isEnabled == true
+    EXPECT_EQ(true, co->isEnabled());
+    co->disable();
+    EXPECT_EQ(true, co->isEnabled());
+}
+
 }

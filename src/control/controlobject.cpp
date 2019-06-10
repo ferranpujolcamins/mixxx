@@ -21,6 +21,7 @@
 #include <QMutexLocker>
 
 #include "control/controlobject.h"
+#include "control/controlpushbutton.h"
 #include "control/control.h"
 #include "util/stat.h"
 #include "util/timer.h"
@@ -30,7 +31,7 @@ ControlObject::ControlObject() {
 
 ControlObject::ControlObject(ConfigKey key, bool bIgnoreNops, bool bTrack,
                              bool bPersist, double defaultValue)
-        : m_key(key) {
+        : m_key(key), m_bPersist(bPersist) {
     // Don't bother looking up the control if key is NULL. Prevents log spew.
     if (!m_key.isNull()) {
         m_pControl = ControlDoublePrivate::getControl(m_key, true, this,
@@ -49,6 +50,15 @@ ControlObject::~ControlObject() {
     if (m_pControl) {
         m_pControl->removeCreatorCO();
     }
+}
+
+void ControlObject::createEnabledCO() {
+    m_pCOEnabled = std::make_unique<ControlPushButton>(
+            ConfigKey(m_key.group, QString(m_key.item) + "_enabled"),
+            m_bPersist,
+            true
+    );
+    m_pCOEnabled->setButtonMode(ControlPushButton::ButtonMode::TOGGLE);
 }
 
 // slot
@@ -106,6 +116,20 @@ void ControlObject::setParameter(double v) {
 void ControlObject::setParameterFrom(double v, QObject* pSender) {
     if (m_pControl) {
         m_pControl->setParameter(v, pSender);
+    }
+}
+
+bool ControlObject::isEnabled() {
+    if (m_pCOEnabled) {
+        return m_pCOEnabled->toBool();
+    }
+    return true;
+}
+
+// If the CO does not have the associated enabled CO this is a NOOP.
+void ControlObject::setIsEnabled(bool isEnabled) {
+    if (m_pCOEnabled) {
+        return m_pCOEnabled->set(isEnabled);
     }
 }
 

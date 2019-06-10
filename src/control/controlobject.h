@@ -25,6 +25,9 @@
 #include "preferences/usersettings.h"
 #include "controllers/midi/midimessage.h"
 #include "control/control.h"
+#include "util/memory.h"
+
+class ControlPushButton;
 
 class ControlObject : public QObject {
     Q_OBJECT
@@ -36,10 +39,18 @@ class ControlObject : public QObject {
     // bPersist: Store value on exit, load on startup.
     // defaultValue: default value of CO. If CO is persistent and there is no valid
     //               value found in the config, this is also the initial value.
+    // createEnabledCO: If true an additional CO is created to indicate the
+    //                  enabled/disabled status of the CO. If the CO is disabled
+    //                  the value returned by get is not guaranteed to be a
+    //                  valid, correct or updated value.
     ControlObject(ConfigKey key,
                   bool bIgnoreNops = true, bool bTrack = false,
                   bool bPersist = false, double defaultValue = 0.0);
     virtual ~ControlObject();
+
+    // Create an additional CO to indicate the enabled/disabled status of
+    // 'this' CO.
+    void createEnabledCO();
 
     // Returns a pointer to the ControlObject matching the given ConfigKey
     static ControlObject* getControl(const ConfigKey& key, bool warn = true);
@@ -144,6 +155,23 @@ class ControlObject : public QObject {
     // Sets the control parameterized value to v. Thread safe, non-blocking.
     virtual void setParameterFrom(double v, QObject* pSender = NULL);
 
+    // If 'this' CO is disabled the value returned by get() is not
+    // guaranteed to be a valid, correct or updated value.
+    bool isEnabled();
+
+    // If the CO does not have the associated enabled CO this is a NOOP.
+    void setIsEnabled(bool isEnabled);
+
+    // If the CO does not have the associated enabled CO this is a NOOP.
+    void enable() {
+        setIsEnabled(true);
+    }
+
+    // If the CO does not have the associated enabled CO this is a NOOP.
+    void disable() {
+        setIsEnabled(false);
+    }
+
     // Connects a Qt slot to a signal that is delivered when a new value change
     // request arrives for this control.
     // Qt::AutoConnection: Qt ensures that the signal slot is called from the
@@ -186,6 +214,10 @@ class ControlObject : public QObject {
     inline bool ignoreNops() const {
         return m_pControl ? m_pControl->ignoreNops() : true;
     }
+
+    bool m_bPersist;
+
+    std::unique_ptr<ControlPushButton> m_pCOEnabled;
 };
 
 #endif
