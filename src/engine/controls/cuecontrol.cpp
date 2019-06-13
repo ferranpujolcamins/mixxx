@@ -788,9 +788,10 @@ void CueControl::cueSet(double v) {
         return;
 
     QMutexLocker lock(&m_mutex);
-    double closestBeat = m_pClosestBeat->get();
-    double cue = (m_pQuantizeEnabled->toBool() && closestBeat != -1) ?
-            closestBeat : getSampleOfTrack().current;
+    // TODO: is there any race condition caused by the fact that now here we check
+    // two different COs instead of one?
+    double cue = (m_pQuantizeEnabled->toBool() && m_pClosestBeat->isEnabled()) ?
+                 m_pClosestBeat->get() : getSampleOfTrack().current;
     m_pCuePoint->set(cue);
     TrackPointer pLoadedTrack = m_pLoadedTrack;
     lock.unlock();

@@ -27,6 +27,7 @@ Cue::Cue(TrackId trackId)
           m_type(INVALID),
           m_samplePosition(-1.0),
           m_length(0.0),
+          m_bEnabled(false),
           m_iHotCue(-1),
           m_label(kDefaultLabel),
           m_color(Color::kPredefinedColorsSet.noColor) {
@@ -34,7 +35,7 @@ Cue::Cue(TrackId trackId)
 }
 
 Cue::Cue(int id, TrackId trackId, Cue::CueSource source, Cue::CueType type, double position, double length,
-         int hotCue, QString label, PredefinedColorPointer color)
+         bool enabled, int hotCue, QString label, PredefinedColorPointer color)
         : m_bDirty(false),
           m_iId(id),
           m_trackId(trackId),
@@ -42,6 +43,7 @@ Cue::Cue(int id, TrackId trackId, Cue::CueSource source, Cue::CueType type, doub
           m_type(type),
           m_samplePosition(position),
           m_length(length),
+          m_bEnabled(enabled),
           m_iHotCue(hotCue),
           m_label(label),
           m_color(color) {
@@ -124,6 +126,14 @@ void Cue::setLength(double length) {
     m_bDirty = true;
     lock.unlock();
     emit(updated());
+}
+
+bool Cue::isEnabled() const {
+    return m_bEnabled;
+}
+
+void Cue::setIsEnabled(bool bEnabled) {
+    m_bEnabled = bEnabled;
 }
 
 int Cue::getHotCue() const {

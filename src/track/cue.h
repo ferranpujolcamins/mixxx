@@ -52,6 +52,9 @@ class Cue : public QObject {
     double getLength() const;
     void setLength(double length);
 
+    bool isEnabled() const;
+    void setIsEnabled(bool bEnabled);
+
     int getHotCue() const;
     void setHotCue(int hotCue);
 
@@ -69,7 +72,7 @@ class Cue : public QObject {
   private:
     explicit Cue(TrackId trackId);
     Cue(int id, TrackId trackId, CueSource source, CueType type, double position, double length,
-        int hotCue, QString label, PredefinedColorPointer color);
+        bool enabled, int hotCue, QString label, PredefinedColorPointer color);
     void setDirty(bool dirty);
     void setId(int id);
     void setTrackId(TrackId trackId);
@@ -83,6 +86,7 @@ class Cue : public QObject {
     CueType m_type;
     double m_samplePosition;
     double m_length;
+    bool m_bEnabled;
     int m_iHotCue;
     QString m_label;
     PredefinedColorPointer m_color;
@@ -105,9 +109,9 @@ class CuePointer: public std::shared_ptr<Cue> {
 class CuePosition {
   public:
     CuePosition()
-        : m_position(0.0), m_source(Cue::UNKNOWN) {}
-    CuePosition(double position, Cue::CueSource source)
-        : m_position(position), m_source(source) {}
+        : m_position(0.0), m_bEnabled(true), m_source(Cue::UNKNOWN) {}
+    CuePosition(double position, bool enabled = true, Cue::CueSource source)
+        : m_position(position), m_bEnabled(enabled), m_source(source) {}
 
     double getPosition() const {
         return m_position;
@@ -115,6 +119,14 @@ class CuePosition {
 
     void setPosition(double position) {
         m_position = position;
+    }
+
+    bool isEnabled() const {
+        return m_bEnabled;
+    }
+
+    void setIsEnabled(bool enabled) {
+        m_bEnabled = enabled;
     }
 
     Cue::CueSource getSource() const {
@@ -137,6 +149,7 @@ class CuePosition {
 
   private:
     double m_position;
+    bool m_bEnabled;
     Cue::CueSource m_source;
 };
 
