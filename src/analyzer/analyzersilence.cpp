@@ -11,15 +11,16 @@ constexpr float kSilenceThreshold = 0.001;
 
 bool shouldUpdateMainCue(CuePosition mainCue) {
     return mainCue.getSource() != Cue::MANUAL ||
-            mainCue.getPosition() == -1.0 ||
+            !mainCue.isEnabled() ||
             mainCue.getPosition() == 0.0;
 }
 
 bool hasIntroCueStart(const Cue& introCue) {
-    return introCue.getPosition() != -1.0;
+    return introCue.isEnabled();
 }
 
 bool hasOutroCueEnd(const Cue& outroCue) {
+    // TODO
     return outroCue.getEndPosition() > 0.0;
 }
 
@@ -129,6 +130,7 @@ void AnalyzerSilence::storeResults(TrackPointer tio) {
     }
     if (pIntroCue->getSource() != Cue::MANUAL) {
         pIntroCue->setPosition(introStart);
+        pIntroCue->setIsEnabled(true);
         pIntroCue->setLength(0.0);
     }
 
@@ -139,7 +141,7 @@ void AnalyzerSilence::storeResults(TrackPointer tio) {
         pOutroCue->setSource(Cue::AUTOMATIC);
     }
     if (pOutroCue->getSource() != Cue::MANUAL) {
-        pOutroCue->setPosition(-1.0);
+        pOutroCue->setIsEnabled(false);
         pOutroCue->setLength(outroEnd);
     }
 }

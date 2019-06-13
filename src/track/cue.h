@@ -110,7 +110,7 @@ class CuePosition {
   public:
     CuePosition()
         : m_position(0.0), m_bEnabled(true), m_source(Cue::UNKNOWN) {}
-    CuePosition(double position, bool enabled = true, Cue::CueSource source)
+    CuePosition(double position, Cue::CueSource source, bool enabled = true)
         : m_position(position), m_bEnabled(enabled), m_source(source) {}
 
     double getPosition() const {

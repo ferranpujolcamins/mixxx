@@ -1047,7 +1047,7 @@ bool setTrackCuePoint(const QSqlRecord& record, const int column,
         position = record.value(column).toDouble();
         enabled = true;
     }
-    pTrack->setCuePoint(CuePosition(position, enabled, Cue::MANUAL));
+    pTrack->setCuePoint(CuePosition(position, Cue::MANUAL, enabled));
     return false;
 }
 

@@ -544,6 +544,7 @@ void CueControl::hotcueSet(HotcueControl* pControl, double v) {
             (m_pQuantizeEnabled->toBool() && closestBeat != -1) ?
                     closestBeat : getSampleOfTrack().current;
     pCue->setPosition(cuePosition);
+    pCue->setIsEnabled(true);
     pCue->setHotCue(hotcue);
     pCue->setLabel("");
     pCue->setType(Cue::CUE);
@@ -753,6 +754,7 @@ void CueControl::hotcuePositionChanged(HotcueControl* pControl, double newPositi
             detachCue(pControl->getHotcueNumber());
         } else if (newPosition > 0 && newPosition < m_pTrackSamples->get()) {
             pCue->setPosition(newPosition);
+            pCue->setIsEnabled(true);
         }
     }
 }
@@ -1117,6 +1119,7 @@ void CueControl::introStartSet(double v) {
         }
         pCue->setSource(Cue::MANUAL);
         pCue->setPosition(position);
+        pCue->setIsEnabled(true);
         pCue->setLength(introEnd != -1.0 ? introEnd - position : 0.0);
     }
 }
@@ -1134,7 +1137,7 @@ void CueControl::introStartClear(double v) {
     if (pLoadedTrack) {
         CuePointer pCue = pLoadedTrack->findCueByType(Cue::INTRO);
         if (introEnd != -1.0) {
-            pCue->setPosition(-1.0);
+            pCue->setIsEnabled(false);
             pCue->setLength(introEnd);
         } else if (pCue) {
             pLoadedTrack->removeCue(pCue);
@@ -1197,9 +1200,10 @@ void CueControl::introEndSet(double v) {
         pCue->setSource(Cue::MANUAL);
         if (introStart != -1.0) {
             pCue->setPosition(introStart);
+            pCue->setIsEnabled(true);
             pCue->setLength(position - introStart);
         } else {
-            pCue->setPosition(-1.0);
+            pCue->setIsEnabled(false);
             pCue->setLength(position);
         }
     }
@@ -1219,6 +1223,7 @@ void CueControl::introEndClear(double v) {
         CuePointer pCue = pLoadedTrack->findCueByType(Cue::INTRO);
         if (introStart != -1.0) {
             pCue->setPosition(introStart);
+            pCue->setIsEnabled(true);
             pCue->setLength(0.0);
         } else if (pCue) {
             pLoadedTrack->removeCue(pCue);
@@ -1280,6 +1285,7 @@ void CueControl::outroStartSet(double v) {
         }
         pCue->setSource(Cue::MANUAL);
         pCue->setPosition(position);
+        pCue->setIsEnabled(true);
         pCue->setLength(outroEnd != -1.0 ? outroEnd - position : 0.0);
     }
 }
@@ -1297,7 +1303,7 @@ void CueControl::outroStartClear(double v) {
     if (pLoadedTrack) {
         CuePointer pCue = pLoadedTrack->findCueByType(Cue::OUTRO);
         if (outroEnd != -1.0) {
-            pCue->setPosition(-1.0);
+            pCue->setIsEnabled(false);
             pCue->setLength(outroEnd);
         } else if (pCue) {
             pLoadedTrack->removeCue(pCue);
@@ -1360,9 +1366,10 @@ void CueControl::outroEndSet(double v) {
         pCue->setSource(Cue::MANUAL);
         if (outroStart != -1.0) {
             pCue->setPosition(outroStart);
+            pCue->setIsEnabled(true);
             pCue->setLength(position - outroStart);
         } else {
-            pCue->setPosition(-1.0);
+            pCue->setIsEnabled(false);
             pCue->setLength(position);
         }
     }
@@ -1382,6 +1389,7 @@ void CueControl::outroEndClear(double v) {
         CuePointer pCue = pLoadedTrack->findCueByType(Cue::OUTRO);
         if (outroStart != -1.0) {
             pCue->setPosition(outroStart);
+            pCue->setIsEnabled(true);
             pCue->setLength(0.0);
         } else if (pCue) {
             pLoadedTrack->removeCue(pCue);

@@ -230,6 +230,7 @@ TrackPointer BaseTrackPlayerImpl::unloadTrack() {
             pLoopCue->setType(Cue::LOOP);
         }
         pLoopCue->setPosition(loopStart);
+        pLoopCue->setIsEnabled(true);
         pLoopCue->setLength(loopEnd - loopStart);
     }
 

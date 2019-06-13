@@ -744,6 +744,7 @@ void Track::setCuePoint(CuePosition cue) {
             m_cuePoints.push_back(pLoadCue);
         }
         pLoadCue->setPosition(position);
+        pLoadCue->setIsEnabled(true);
         pLoadCue->setSource(source);
     } else {
         disconnect(pLoadCue.get(), 0, this, 0);
@@ -844,7 +845,7 @@ void Track::setCuePoints(const QList<CuePointer>& cuePoints) {
                 this, SLOT(slotCueUpdated()));
         // update main cue point
         if (pCue->getType() == Cue::LOAD) {
-            m_record.setCuePoint(CuePosition(pCue->getPosition(), pCue->isEnabled(), pCue->getSource()));
+            m_record.setCuePoint(CuePosition(pCue->getPosition(), pCue->getSource(), pCue->isEnabled()));
         }
     }
     markDirtyAndUnlock(&lock);
