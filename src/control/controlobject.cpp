@@ -20,17 +20,20 @@
 #include <QSet>
 #include <QMutexLocker>
 
+#include "control/control.h"
 #include "control/controlobject.h"
 #include "control/controlpushbutton.h"
-#include "control/control.h"
 #include "util/stat.h"
 #include "util/timer.h"
 
 ControlObject::ControlObject() {
 }
 
-ControlObject::ControlObject(ConfigKey key, bool bIgnoreNops, bool bTrack,
-                             bool bPersist, double defaultValue)
+ControlObject::ControlObject(ConfigKey key,
+        bool bIgnoreNops,
+        bool bTrack,
+        bool bPersist,
+        double defaultValue)
         : m_key(key), m_bPersist(bPersist) {
     // Don't bother looking up the control if key is NULL. Prevents log spew.
     if (!m_key.isNull()) {
@@ -56,8 +59,7 @@ void ControlObject::createEnabledCO() {
     m_pCOEnabled = std::make_unique<ControlPushButton>(
             ConfigKey(m_key.group, QString(m_key.item) + "_enabled"),
             m_bPersist,
-            true
-    );
+            true);
     m_pCOEnabled->setButtonMode(ControlPushButton::ButtonMode::TOGGLE);
 }
 

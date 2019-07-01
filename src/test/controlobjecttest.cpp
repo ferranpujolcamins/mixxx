@@ -119,5 +119,4 @@ TEST_F(ControlObjectTest, No_Enabled_CO) {
     co->disable();
     EXPECT_EQ(true, co->isEnabled());
 }
-
 }

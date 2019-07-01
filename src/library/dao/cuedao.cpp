@@ -257,7 +257,7 @@ void CueDAO::saveTrackCues(TrackId trackId, const QList<CuePointer>& cueList) {
     // Delete cues that are no longer on the track.
     QSqlQuery query(m_database);
     query.prepare(QString("DELETE FROM " CUE_TABLE " WHERE track_id=:track_id and not id in (%1)")
-                  .arg(list));
+                          .arg(list));
     query.bindValue(":track_id", trackId.toVariant());
 
     if (!query.exec()) {

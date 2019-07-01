@@ -34,8 +34,16 @@ Cue::Cue(TrackId trackId)
     DEBUG_ASSERT(!m_label.isNull());
 }
 
-Cue::Cue(int id, TrackId trackId, Cue::CueSource source, Cue::CueType type, double position, double length,
-         bool enabled, int hotCue, QString label, PredefinedColorPointer color)
+Cue::Cue(int id,
+        TrackId trackId,
+        Cue::CueSource source,
+        Cue::CueType type,
+        double position,
+        double length,
+        bool enabled,
+        int hotCue,
+        QString label,
+        PredefinedColorPointer color)
         : m_bDirty(false),
           m_iId(id),
           m_trackId(trackId),

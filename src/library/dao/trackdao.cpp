@@ -409,9 +409,10 @@ namespace {
         pTrackLibraryQuery->bindValue(":rating", track.getRating());
         pTrackLibraryQuery->bindValue(":bitrate", track.getBitrate());
         pTrackLibraryQuery->bindValue(":samplerate", track.getSampleRate());
-        pTrackLibraryQuery->bindValue(":cuepoint", track.getCuePoint().isEnabled()
-                                                   ? track.getCuePoint().getPosition()
-                                                   : QVariant());
+        pTrackLibraryQuery->bindValue(":cuepoint",
+                track.getCuePoint().isEnabled()
+                        ? track.getCuePoint().getPosition()
+                        : QVariant());
         pTrackLibraryQuery->bindValue(":bpm_lock", track.isBpmLocked()? 1 : 0);
         pTrackLibraryQuery->bindValue(":replaygain", track.getReplayGain().getRatio());
         pTrackLibraryQuery->bindValue(":replaygain_peak", track.getReplayGain().getPeak());

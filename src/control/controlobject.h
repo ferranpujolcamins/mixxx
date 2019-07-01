@@ -22,9 +22,9 @@
 #include <QEvent>
 #include <QMutex>
 
-#include "preferences/usersettings.h"
-#include "controllers/midi/midimessage.h"
 #include "control/control.h"
+#include "controllers/midi/midimessage.h"
+#include "preferences/usersettings.h"
 #include "util/memory.h"
 
 class ControlPushButton;

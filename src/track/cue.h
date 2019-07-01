@@ -71,8 +71,16 @@ class Cue : public QObject {
 
   private:
     explicit Cue(TrackId trackId);
-    Cue(int id, TrackId trackId, CueSource source, CueType type, double position, double length,
-        bool enabled, int hotCue, QString label, PredefinedColorPointer color);
+    Cue(int id,
+            TrackId trackId,
+            CueSource source,
+            CueType type,
+            double position,
+            double length,
+            bool enabled,
+            int hotCue,
+            QString label,
+            PredefinedColorPointer color);
     void setDirty(bool dirty);
     void setId(int id);
     void setTrackId(TrackId trackId);
@@ -109,9 +117,11 @@ class CuePointer: public std::shared_ptr<Cue> {
 class CuePosition {
   public:
     CuePosition()
-        : m_position(0.0), m_bEnabled(true), m_source(Cue::UNKNOWN) {}
+            : m_position(0.0), m_bEnabled(true), m_source(Cue::UNKNOWN) {
+    }
     CuePosition(double position, Cue::CueSource source, bool enabled = true)
-        : m_position(position), m_bEnabled(enabled), m_source(source) {}
+            : m_position(position), m_bEnabled(enabled), m_source(source) {
+    }
 
     double getPosition() const {
         return m_position;
