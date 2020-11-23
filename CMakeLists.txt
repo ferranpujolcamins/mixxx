@@ -1951,6 +1951,12 @@ target_link_libraries(mixxx-lib PUBLIC Reverb)
 find_package(Rubberband REQUIRED)
 target_link_libraries(mixxx-lib PUBLIC Rubberband::Rubberband)
 
+# RxCpp
+target_include_directories(mixxx-lib INTERFACE lib/rxcpp/Rx/v2/src)
+
+# RxQt
+target_include_directories(mixxx-lib INTERFACE lib/rxqt/include)
+
 # SndFile
 find_package(SndFile REQUIRED)
 target_link_libraries(mixxx-lib PUBLIC SndFile::SndFile)
