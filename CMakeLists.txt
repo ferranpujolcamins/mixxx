@@ -1952,10 +1952,10 @@ find_package(Rubberband REQUIRED)
 target_link_libraries(mixxx-lib PUBLIC Rubberband::Rubberband)
 
 # RxCpp
-target_include_directories(mixxx-lib INTERFACE lib/rxcpp/Rx/v2/src)
+target_include_directories(mixxx-lib PUBLIC lib/rxcpp/Rx/v2/src)
 
 # RxQt
-target_include_directories(mixxx-lib INTERFACE lib/rxqt/include)
+target_include_directories(mixxx-lib PUBLIC lib/rxqt/include)
 
 # SndFile
 find_package(SndFile REQUIRED)

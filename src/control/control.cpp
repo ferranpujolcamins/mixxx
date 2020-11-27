@@ -33,6 +33,7 @@ ControlDoublePrivate::ControlDoublePrivate(
           m_trackFlags(Stat::COUNT | Stat::SUM | Stat::AVERAGE |
                   Stat::SAMPLE_VARIANCE | Stat::MIN | Stat::MAX),
           m_confirmRequired(false) {
+    valueChangeRequestObservable = rxqt::from_signal(this, &ControlDoublePrivate::valueChangeRequest);
     initialize(defaultValue);
 }
 
@@ -202,6 +203,7 @@ void ControlDoublePrivate::set(double value, QObject* pSender) {
     if (!pBehavior.isNull() && !pBehavior->setFilter(&value)) {
         return;
     }
+    setValuesSubject.get_subscriber().on_next(value);
     if (m_confirmRequired) {
         emit valueChangeRequest(value);
     } else {

@@ -6,6 +6,9 @@
 #include <QSharedPointer>
 #include <QString>
 
+#include "rxcpp/Rx/v2/src/rxcpp/rx.hpp"
+#include "rxqt/include/rxqt.hpp"
+
 #include "control/controlbehavior.h"
 #include "control/controlvalue.h"
 #include "preferences/usersettings.h"
@@ -152,6 +155,23 @@ class ControlDoublePrivate : public QObject {
         return m_confirmRequired;
     }
 
+    template<typename Filter> // std::optional<double>(double)
+    void f(Filter filter) {
+        valueChangeRequestObservable = valueChangeRequestObservable
+                                               // Perform the filtering on the filter's thread ↓
+                                               .observe_on(their_thread)
+                                               .map(filter)
+                                               .flatMap([](std::optional<double> v) {
+                                                   if (v.has_value()) {
+                                                       return rxcpp::observable<>::just(v.value());
+                                                   } else {
+                                                        return rxcpp::observable<>::empty<double>();
+                                                   }
+                                               });
+                                               // Continue on our thread ↓
+                                               //.observe_on(rxcpp::observe_on_event_loop());
+    }
+
   signals:
     // Emitted when the ControlDoublePrivate value changes. pSender is a
     // pointer to the setter of the value (potentially NULL).
@@ -205,6 +225,9 @@ class ControlDoublePrivate : public QObject {
     ControlValueAtomic<double> m_defaultValue;
 
     QSharedPointer<ControlNumericBehavior> m_pBehavior;
+
+    rxcpp::subjects::subject<double> setValuesSubject;
+    rxcpp::observable<double> valueChangeRequestObservable;
 
     // Hack to implement persistent controls. This is a pointer to the current
     // user configuration object (if one exists). In general, we do not want the
