@@ -1865,6 +1865,10 @@ target_link_libraries(mixxx-lib PUBLIC mixxx-proto)
 # https://github.com/rigtorp/SPSCQueue
 target_include_directories(mixxx-lib SYSTEM PUBLIC lib/rigtorp/SPSCQueue/include)
 
+# Rigtorp MPMC Queue
+# https://github.com/rigtorp/MPMCQueue
+target_include_directories(mixxx-lib SYSTEM PUBLIC lib/rigtorp/MPMCQueue/include)
+
 # Qt
 find_package(Qt5
   COMPONENTS
