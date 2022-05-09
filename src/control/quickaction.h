@@ -3,7 +3,7 @@
 #include <QObject>
 
 #include "control/controlpushbutton.h"
-#include "rigtorp/MPMCQueue.h"
+#include "util/mutex.h"
 
 class ConfigKey;
 
@@ -30,9 +30,9 @@ class QuickAction : public QObject {
     ControlPushButton m_coClear;
     int m_iIndex;
 
-    class QueueElement {
+    class KeyAndValue {
       public:
-        QueueElement(ConfigKey key, double dValue) noexcept
+        KeyAndValue(ConfigKey key, double dValue) noexcept
                 : m_key(key),
                   m_dValue(dValue) {
         }
@@ -41,5 +41,6 @@ class QuickAction : public QObject {
         double m_dValue;
     };
 
-    rigtorp::MPMCQueue<QueueElement> m_recordedValues;
+    MReadWriteLock m_recordedValuesLock;
+    QList<KeyAndValue> m_recordedValues GUARDED_BY(m_recordedValuesLock);
 };

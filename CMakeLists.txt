@@ -2111,9 +2111,6 @@ target_link_libraries(mixxx-lib PRIVATE mixxx-proto)
 # https://github.com/rigtorp/SPSCQueue
 target_include_directories(mixxx-lib SYSTEM PUBLIC lib/rigtorp/SPSCQueue/include)
 
-# Fork of Rigtorp's MPMC Queue
-target_include_directories(mixxx-lib SYSTEM PUBLIC lib/ferranpujolcamins/MPMCQueue/include)
-
 # Qt
 if(QT6)
   find_package(QT 6.2 NAMES Qt6 COMPONENTS Core REQUIRED)

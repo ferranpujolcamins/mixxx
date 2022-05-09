@@ -9,7 +9,7 @@ QuickAction::QuickAction(int iIndex)
           m_coTrigger(ConfigKey(QString("[QuickAction%1]").arg(iIndex), "trigger")),
           m_coClear(ConfigKey(QString("[QuickAction%1]").arg(iIndex), "clear")),
           m_iIndex(iIndex),
-          m_recordedValues(100) {
+          m_recordedValues() {
     m_coRecording.setButtonMode(ControlPushButton::TOGGLE);
     m_coTrigger.setButtonMode(ControlPushButton::TRIGGER);
     m_coClear.setButtonMode(ControlPushButton::TRIGGER);
@@ -26,25 +26,25 @@ QuickAction::QuickAction(int iIndex)
 
 bool QuickAction::recordCOValue(const ConfigKey& key, double value) {
     if (m_coRecording.toBool()) {
-        return m_recordedValues.try_emplace(key, value);
+        MWriteLocker lock(&m_recordedValuesLock);
+        m_recordedValues.append({key, value});
+        return true;
     }
     return false;
 }
 
 void QuickAction::trigger() {
-    std::vector<std::pair<ConfigKey, double>> values;
+    MWriteLocker lock(&m_recordedValuesLock);
     QHash<ConfigKey, unsigned int> validValue;
 
-    m_recordedValues.try_consume_until_current_head(
-            [&values, &validValue](QueueElement&& recordedValue) noexcept {
-                values.emplace_back(
-                        recordedValue.m_key, recordedValue.m_dValue);
-                validValue[recordedValue.m_key] = values.size() - 1;
-            });
+    int numValues = m_recordedValues.size();
+    for (int i = 0; i < numValues; ++i) {
+        validValue[m_recordedValues[i].m_key] = i;
+    }
 
-    for (unsigned int i = 0; i < values.size(); ++i) {
-        ConfigKey key = values[i].first;
-        double value = values[i].second;
+    for (int i = 0; i < numValues; ++i) {
+        const ConfigKey& key = m_recordedValues[i].m_key;
+        double value = m_recordedValues[i].m_dValue;
         if (validValue[key] == i) {
             ControlProxy(key).set(value);
         }
@@ -52,10 +52,8 @@ void QuickAction::trigger() {
 }
 
 void QuickAction::clear() {
-    m_recordedValues.try_consume_until_current_head(
-            [](QueueElement&& recordedValue) noexcept {
-                Q_UNUSED(recordedValue);
-            });
+    MWriteLocker lock(&m_recordedValuesLock);
+    m_recordedValues.clear();
 }
 
 void QuickAction::slotTriggered(double d) {
