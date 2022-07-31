@@ -24,7 +24,7 @@ ControlPotmeter::ControlPotmeter(const ConfigKey& key,
     //qDebug() << "" << this << ", min " << dMinValue << ", max " << dMaxValue << ", default " << default_value;
 
     if (m_pControl) {
-        connect(m_pControl.data(),
+        connect(m_pControl.get(),
                 &ControlDoublePrivate::valueChanged,
                 this,
                 &ControlPotmeter::privateValueChanged,

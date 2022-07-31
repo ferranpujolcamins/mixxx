@@ -47,7 +47,7 @@ class ControlDoublePrivate : public QObject {
     // Gets the ControlDoublePrivate matching the given ConfigKey. If pCreatorCO
     // is non-NULL, allocates a new ControlDoublePrivate for the ConfigKey if
     // one does not exist.
-    static QSharedPointer<ControlDoublePrivate> getControl(
+    static std::shared_ptr<ControlDoublePrivate> getControl(
             const ConfigKey& key,
             ControlFlags flags = ControlFlag::None,
             ControlObject* pCreatorCO = nullptr,
@@ -55,12 +55,12 @@ class ControlDoublePrivate : public QObject {
             bool bTrack = false,
             bool bPersist = false,
             double defaultValue = 0.0);
-    static QSharedPointer<ControlDoublePrivate> getDefaultControl();
+    static std::shared_ptr<ControlDoublePrivate> getDefaultControl();
 
     // Returns a list of all existing instances.
-    static QList<QSharedPointer<ControlDoublePrivate>> getAllInstances();
+    static QList<std::shared_ptr<ControlDoublePrivate>> getAllInstances();
     // Clears all existing instances and returns them as a list.
-    static QList<QSharedPointer<ControlDoublePrivate>> takeAllInstances();
+    static QList<std::shared_ptr<ControlDoublePrivate>> takeAllInstances();
 
     static QHash<ConfigKey, ConfigKey> getControlAliases();
 

@@ -16,7 +16,7 @@ bool ControlObjectScript::addScriptConnection(const ScriptConnection& conn) {
         // by script connections.
         m_skipSuperseded = conn.skipSuperseded;
         if (conn.skipSuperseded) {
-            connect(m_pControl.data(),
+            connect(m_pControl.get(),
                     &ControlDoublePrivate::valueChanged,
                     &m_proxy,
                     &CompressingProxy::slotValueChanged,
@@ -27,7 +27,7 @@ bool ControlObjectScript::addScriptConnection(const ScriptConnection& conn) {
                     &ControlObjectScript::slotValueChanged,
                     Qt::DirectConnection);
         } else {
-            connect(m_pControl.data(),
+            connect(m_pControl.get(),
                     &ControlDoublePrivate::valueChanged,
                     this,
                     &ControlObjectScript::slotValueChanged,
@@ -48,7 +48,7 @@ bool ControlObjectScript::addScriptConnection(const ScriptConnection& conn) {
                             "differing state of the skipSuperseded. Disable "
                             "skipping of superseded events for all these "
                             "callback functions.";
-            disconnect(m_pControl.data(),
+            disconnect(m_pControl.get(),
                     &ControlDoublePrivate::valueChanged,
                     &m_proxy,
                     &CompressingProxy::slotValueChanged);
@@ -56,7 +56,7 @@ bool ControlObjectScript::addScriptConnection(const ScriptConnection& conn) {
                     &CompressingProxy::signalValueChanged,
                     this,
                     &ControlObjectScript::slotValueChanged);
-            connect(m_pControl.data(),
+            connect(m_pControl.get(),
                     &ControlDoublePrivate::valueChanged,
                     this,
                     &ControlObjectScript::slotValueChanged,
@@ -95,7 +95,7 @@ bool ControlObjectScript::removeScriptConnection(const ScriptConnection& conn) {
     if (m_scriptConnections.isEmpty()) {
         // no ScriptConnections left, so disconnect signals
         if (m_skipSuperseded) {
-            disconnect(m_pControl.data(),
+            disconnect(m_pControl.get(),
                     &ControlDoublePrivate::valueChanged,
                     &m_proxy,
                     &CompressingProxy::slotValueChanged);
@@ -104,7 +104,7 @@ bool ControlObjectScript::removeScriptConnection(const ScriptConnection& conn) {
                     this,
                     &ControlObjectScript::slotValueChanged);
         } else {
-            disconnect(m_pControl.data(),
+            disconnect(m_pControl.get(),
                     &ControlDoublePrivate::valueChanged,
                     this,
                     &ControlObjectScript::slotValueChanged);

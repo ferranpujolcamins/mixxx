@@ -17,7 +17,7 @@ UserSettingsPointer s_pUserConfig;
 MMutex s_qCOHashMutex;
 
 /// Hash of ControlDoublePrivate instantiations.
-QHash<ConfigKey, QWeakPointer<ControlDoublePrivate>> s_qCOHash
+QHash<ConfigKey, std::weak_ptr<ControlDoublePrivate>> s_qCOHash
         GUARDED_BY(s_qCOHashMutex);
 
 /// Hash of aliases between ConfigKeys. Solely used for looking up the first
@@ -26,7 +26,7 @@ QHash<ConfigKey, ConfigKey> s_qCOAliasHash
         GUARDED_BY(s_qCOHashMutex);
 
 /// is used instead of a nullptr, helps to omit null checks everywhere
-QWeakPointer<ControlDoublePrivate> s_pDefaultCO;
+std::weak_ptr<ControlDoublePrivate> s_pDefaultCO;
 } // namespace
 
 ControlDoublePrivate::ControlDoublePrivate()
@@ -114,8 +114,8 @@ void ControlDoublePrivate::insertAlias(const ConfigKey& alias, const ConfigKey& 
         return;
     }
 
-    QSharedPointer<ControlDoublePrivate> pControl = it.value();
-    VERIFY_OR_DEBUG_ASSERT(!pControl.isNull()) {
+    std::shared_ptr<ControlDoublePrivate> pControl = it.value().lock();
+    VERIFY_OR_DEBUG_ASSERT(!pControl) {
         qWarning() << "cannot create alias for expired control" << key;
         return;
     }
@@ -125,7 +125,7 @@ void ControlDoublePrivate::insertAlias(const ConfigKey& alias, const ConfigKey& 
 }
 
 // static
-QSharedPointer<ControlDoublePrivate> ControlDoublePrivate::getControl(
+std::shared_ptr<ControlDoublePrivate> ControlDoublePrivate::getControl(
         const ConfigKey& key,
         ControlFlags flags,
         ControlObject* pCreatorCO,
@@ -167,7 +167,7 @@ QSharedPointer<ControlDoublePrivate> ControlDoublePrivate::getControl(
     }
 
     if (pCreatorCO) {
-        auto pControl = QSharedPointer<ControlDoublePrivate>(
+        auto pControl = std::shared_ptr<ControlDoublePrivate>(
                 new ControlDoublePrivate(key,
                         pCreatorCO,
                         bIgnoreNops,
@@ -189,7 +189,7 @@ QSharedPointer<ControlDoublePrivate> ControlDoublePrivate::getControl(
 }
 
 //static
-QSharedPointer<ControlDoublePrivate> ControlDoublePrivate::getDefaultControl() {
+std::shared_ptr<ControlDoublePrivate> ControlDoublePrivate::getDefaultControl() {
     auto defaultCO = s_pDefaultCO.lock();
     if (!defaultCO) {
         // Try again with the mutex locked to protect against creating two
@@ -198,7 +198,7 @@ QSharedPointer<ControlDoublePrivate> ControlDoublePrivate::getDefaultControl() {
         MMutexLocker locker(&s_qCOHashMutex);
         defaultCO = s_pDefaultCO.lock();
         if (!defaultCO) {
-            defaultCO = QSharedPointer<ControlDoublePrivate>(new ControlDoublePrivateConst());
+            defaultCO = std::shared_ptr<ControlDoublePrivate>(new ControlDoublePrivateConst());
             s_pDefaultCO = defaultCO;
         }
     }
@@ -206,8 +206,8 @@ QSharedPointer<ControlDoublePrivate> ControlDoublePrivate::getDefaultControl() {
 }
 
 // static
-QList<QSharedPointer<ControlDoublePrivate>> ControlDoublePrivate::getAllInstances() {
-    QList<QSharedPointer<ControlDoublePrivate>> result;
+QList<std::shared_ptr<ControlDoublePrivate>> ControlDoublePrivate::getAllInstances() {
+    QList<std::shared_ptr<ControlDoublePrivate>> result;
     MMutexLocker locker(&s_qCOHashMutex);
     result.reserve(s_qCOHash.size());
     for (auto it = s_qCOHash.begin(); it != s_qCOHash.end(); ++it) {
@@ -223,8 +223,8 @@ QList<QSharedPointer<ControlDoublePrivate>> ControlDoublePrivate::getAllInstance
 }
 
 // static
-QList<QSharedPointer<ControlDoublePrivate>> ControlDoublePrivate::takeAllInstances() {
-    QList<QSharedPointer<ControlDoublePrivate>> result;
+QList<std::shared_ptr<ControlDoublePrivate>> ControlDoublePrivate::takeAllInstances() {
+    QList<std::shared_ptr<ControlDoublePrivate>> result;
     MMutexLocker locker(&s_qCOHashMutex);
     result.reserve(s_qCOHash.size());
     for (auto it = s_qCOHash.begin(); it != s_qCOHash.end(); ++it) {

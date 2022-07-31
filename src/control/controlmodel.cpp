@@ -13,12 +13,12 @@ ControlModel::ControlModel(QObject* pParent)
     setHeaderData(CONTROL_COLUMN_DESCRIPTION, Qt::Horizontal, tr("Description"));
 
     // Add all controls to Model
-    const QList<QSharedPointer<ControlDoublePrivate>> controlsList =
+    const QList<std::shared_ptr<ControlDoublePrivate>> controlsList =
             ControlDoublePrivate::getAllInstances();
     const QHash<ConfigKey, ConfigKey> controlAliases =
             ControlDoublePrivate::getControlAliases();
 
-    for (const QSharedPointer<ControlDoublePrivate>& pControl : controlsList) {
+    for (const std::shared_ptr<ControlDoublePrivate>& pControl : controlsList) {
         if (!pControl) {
             continue;
         }

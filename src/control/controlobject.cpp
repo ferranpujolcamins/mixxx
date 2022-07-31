@@ -32,7 +32,7 @@ ControlObject::ControlObject(const ConfigKey& key,
 
     // getControl can fail and return a NULL control even with the create flag.
     if (m_pControl) {
-        connect(m_pControl.data(),
+        connect(m_pControl.get(),
                 &ControlDoublePrivate::valueChanged,
                 this,
                 &ControlObject::privateValueChanged,
@@ -60,7 +60,7 @@ void ControlObject::privateValueChanged(double dValue, QObject* pSender) {
 // static
 ControlObject* ControlObject::getControl(const ConfigKey& key, ControlFlags flags) {
     //qDebug() << "ControlObject::getControl for (" << key.group << "," << key.item << ")";
-    QSharedPointer<ControlDoublePrivate> pCDP = ControlDoublePrivate::getControl(key, flags);
+    std::shared_ptr<ControlDoublePrivate> pCDP = ControlDoublePrivate::getControl(key, flags);
     if (pCDP) {
         return pCDP->getCreatorCO();
     }
@@ -77,7 +77,7 @@ double ControlObject::getMidiParameter() const {
 
 // static
 double ControlObject::get(const ConfigKey& key) {
-    QSharedPointer<ControlDoublePrivate> pCop = ControlDoublePrivate::getControl(key);
+    std::shared_ptr<ControlDoublePrivate> pCop = ControlDoublePrivate::getControl(key);
     return pCop ? pCop->get() : 0.0;
 }
 
@@ -103,7 +103,7 @@ void ControlObject::setParameterFrom(double v, QObject* pSender) {
 
 // static
 void ControlObject::set(const ConfigKey& key, const double& value) {
-    QSharedPointer<ControlDoublePrivate> pCop = ControlDoublePrivate::getControl(key);
+    std::shared_ptr<ControlDoublePrivate> pCop = ControlDoublePrivate::getControl(key);
     if (pCop) {
         pCop->set(value, nullptr);
     }

@@ -150,7 +150,7 @@ CoreServices::~CoreServices() {
 
     // Check for leaked ControlObjects and give warnings.
     {
-        const QList<QSharedPointer<ControlDoublePrivate>> leakedControls =
+        const QList<std::shared_ptr<ControlDoublePrivate>> leakedControls =
                 ControlDoublePrivate::takeAllInstances();
         if (!leakedControls.isEmpty()) {
             qWarning()

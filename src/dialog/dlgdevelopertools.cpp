@@ -119,10 +119,10 @@ void DlgDeveloperTools::slotControlDump() {
         return;
     }
 
-    const QList<QSharedPointer<ControlDoublePrivate>> controlsList =
+    const QList<std::shared_ptr<ControlDoublePrivate>> controlsList =
             ControlDoublePrivate::getAllInstances();
     for (auto it = controlsList.constBegin(); it != controlsList.constEnd(); ++it) {
-        const QSharedPointer<ControlDoublePrivate>& pControl = *it;
+        const std::shared_ptr<ControlDoublePrivate>& pControl = *it;
         if (pControl) {
             QString line = pControl->getKey().group + "," +
                            pControl->getKey().item + "," +
