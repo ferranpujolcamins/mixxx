@@ -565,6 +565,40 @@
    </item>
 
    <item>
+     <widget class="QGroupBox" name="GroupBoxEQButtonMode">
+      <property name="title">
+       <string>EQ Buttons Mode</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0" colspan="2">
+        <layout class="QVBoxLayout">
+         <item>
+          <widget class="QRadioButton" name="radioButtonKillMode">
+           <property name="text">
+            <string>Kill</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">eqButtonModebuttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButtonBypassMode">
+           <property name="text">
+            <string>Bypass</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">eqButtonModebuttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+   </item>
+
+   <item>
     <widget class="QGroupBox" name="MainMainEQ">
      <property name="title">
       <string>Main EQ</string>
@@ -659,4 +693,7 @@
  </tabstops>
  <resources/>
  <connections/>
+ <buttongroups>
+   <buttongroup name="eqButtonModebuttonGroup"/>
+  </buttongroups>
 </ui>

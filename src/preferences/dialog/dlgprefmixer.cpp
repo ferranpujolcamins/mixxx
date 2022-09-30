@@ -60,8 +60,10 @@ DlgPrefMixer::DlgPrefMixer(
           m_xFaderReverse(false),
           m_COLoFreq(kConfigGroup, QStringLiteral("LoEQFrequency")),
           m_COHiFreq(kConfigGroup, QStringLiteral("HiEQFrequency")),
+          m_COButtonMode(kConfigGroup, QStringLiteral("EQButtonMode")),
           m_lowEqFreq(0.0),
           m_highEqFreq(0.0),
+          m_buttonMode(0),
           m_pChainPresetManager(pEffectsManager->getChainPresetManager()),
           m_pEffectsManager(pEffectsManager),
           m_pBackendManager(pEffectsManager->getBackendManager()),
@@ -117,6 +119,19 @@ DlgPrefMixer::DlgPrefMixer(
             &QCheckBox::stateChanged,
             this,
             &DlgPrefMixer::slotUpdateEqAutoReset);
+
+    if (m_COButtonMode.get() == 0) {
+        radioButtonKillMode->setChecked(true);
+    } else {
+        radioButtonBypassMode->setChecked(true);
+    }
+
+    connect(eqButtonModebuttonGroup,
+            QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked),
+            this,
+            QOverload<QAbstractButton*>::of(
+                    &DlgPrefMixer::slotUpdateEqButtonMode));
+
     connect(CheckBoxGainAutoReset,
             &QCheckBox::stateChanged,
             this,
@@ -673,6 +688,14 @@ void DlgPrefMixer::slotUpdateLoEQ() {
     slotApply();
 }
 
+void DlgPrefMixer::slotUpdateEqButtonMode(QAbstractButton* selectedButton) {
+    if (selectedButton == radioButtonKillMode) {
+        m_buttonMode = 0;
+    } else {
+        m_buttonMode = 1;
+    }
+}
+
 void DlgPrefMixer::slotApplyMainEQParameter(int value) {
     EffectSlotPointer pEffectSlot(m_pEffectMainEQ);
     if (!pEffectSlot.isNull()) {
@@ -725,6 +748,7 @@ void DlgPrefMixer::slotApply() {
     // EQ ////////////////////////////////////////
     m_COLoFreq.set(m_lowEqFreq);
     m_COHiFreq.set(m_highEqFreq);
+    m_COButtonMode.set(m_buttonMode);
     m_pConfig->set(ConfigKey(kConfigGroup, "EqAutoReset"),
             ConfigValue(m_bEqAutoReset ? 1 : 0));
     m_pConfig->set(ConfigKey(kConfigGroup, "GainAutoReset"),
@@ -745,6 +769,7 @@ void DlgPrefMixer::slotUpdate() {
 
     slotUpdateLoEQ();
     slotUpdateHiEQ();
+    slotUpdateEqButtonMode(eqButtonModebuttonGroup->checkedButton());
     slotPopulateDeckEffectSelectors();
     CheckBoxEqAutoReset->setChecked(m_bEqAutoReset);
     CheckBoxGainAutoReset->setChecked(m_bGainAutoReset);

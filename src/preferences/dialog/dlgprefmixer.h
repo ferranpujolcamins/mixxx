@@ -36,10 +36,9 @@ class DlgPrefMixer : public DlgPreferencePage, public Ui::DlgPrefMixerDlg {
     void slotSingleEqCheckboxChanged(int checked);
     // Slot for toggling between advanced and basic views
     void slotPopulateDeckEffectSelectors();
-    // Update Hi EQ
     void slotUpdateHiEQ();
-    // Update Lo EQ
     void slotUpdateLoEQ();
+    void slotUpdateEqButtonMode(QAbstractButton* selectedButton);
 
     void slotUpdateEqAutoReset(int);
     void slotUpdateGainAutoReset(int);
@@ -91,7 +90,9 @@ class DlgPrefMixer : public DlgPreferencePage, public Ui::DlgPrefMixerDlg {
 
     ControlProxy m_COLoFreq;
     ControlProxy m_COHiFreq;
+    ControlProxy m_COButtonMode;
     double m_lowEqFreq, m_highEqFreq;
+    int m_buttonMode;
 
     EffectChainPresetManagerPointer m_pChainPresetManager;
     std::shared_ptr<EffectsManager> m_pEffectsManager;
