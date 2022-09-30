@@ -98,4 +98,5 @@ class BiquadFullKillEQEffect : public EffectProcessorImpl<BiquadFullKillEQEffect
 
     std::unique_ptr<ControlProxy> m_pLoFreqCorner;
     std::unique_ptr<ControlProxy> m_pHiFreqCorner;
+    std::unique_ptr<ControlProxy> m_pEQButtonMode;
 };
