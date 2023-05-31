@@ -103,7 +103,6 @@ void EqualizerEffectChain::setupAliasesForGroup(const QString& group) {
     EffectSlotPointer pEffectSlot = getEffectSlot(0);
     if (pEffectSlot) {
         const QString& effectSlotGroup = pEffectSlot->getGroup();
-        PollingControlProxy eqButtonMode(ConfigKey("[Mixer Profile]", "EQButtonMode"));
 
         ControlDoublePrivate::insertAlias(ConfigKey(group, "filterLow"),
                 ConfigKey(effectSlotGroup, "parameter1"));
