@@ -871,7 +871,7 @@ void DlgPrefMixer::slotBypassEqChanged(int state) {
     for (const auto& box : std::as_const(m_deckEqEffectSelectors)) {
         QString group = EqualizerEffectChain::formatEffectSlotGroup(
                 PlayerManager::groupForDeck(deck));
-        ControlObject::set(ConfigKey(group, "enabled"), bypass ? 0 : 1);
+        PollingControlProxy(group, "enabled").set(bypass ? 0 : 1);
         deck++;
         box->setEnabled(!bypass);
     }

@@ -1,6 +1,7 @@
 #include "util/dnd.h"
 
 #include "control/controlobject.h"
+#include "control/pollingcontrolproxy.h"
 #include "library/parserm3u.h"
 #include "library/parserpls.h"
 #include "mixer/playermanager.h"
@@ -77,7 +78,7 @@ bool allowLoadToPlayer(
     }
 
     // Allow if deck is not playing
-    if (ControlObject::get(ConfigKey(group, "play")) <= 0.0) {
+    if (PollingControlProxy(group, "play").get() <= 0.0) {
         return true;
     }
 

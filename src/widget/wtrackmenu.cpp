@@ -14,6 +14,7 @@
 #include "analyzer/analyzertrack.h"
 #include "control/controlobject.h"
 #include "control/controlproxy.h"
+#include "control/pollingcontrolproxy.h"
 #include "library/coverartutils.h"
 #include "library/dao/trackdao.h"
 #include "library/dao/trackschema.h"
@@ -773,8 +774,9 @@ void WTrackMenu::updateMenus() {
             for (int i = 1; i <= iNumDecks; ++i) {
                 // PlayerManager::groupForDeck is 0-indexed.
                 QString deckGroup = PlayerManager::groupForDeck(i - 1);
-                bool deckPlaying = ControlObject::get(
-                                           ConfigKey(deckGroup, "play")) > 0.0;
+                bool deckPlaying = PollingControlProxy(
+                                           deckGroup, "play")
+                                           .get() > 0.0;
                 bool allowLoadTrackIntoPlayingDeck = false;
                 if (m_pConfig->exists(kConfigKeyLoadWhenDeckPlaying)) {
                     int loadWhenDeckPlaying =
@@ -808,8 +810,7 @@ void WTrackMenu::updateMenus() {
             for (int i = 1; i <= iNumSamplers; ++i) {
                 // PlayerManager::groupForSampler is 0-indexed.
                 QString samplerGroup = PlayerManager::groupForSampler(i - 1);
-                bool samplerPlaying = ControlObject::get(
-                                              ConfigKey(samplerGroup, "play")) > 0.0;
+                bool samplerPlaying = PollingControlProxy(samplerGroup, "play").get() > 0.0;
                 bool samplerEnabled = !samplerPlaying && singleTrackSelected;
                 QAction* pAction = new QAction(tr("Sampler %1").arg(i), m_pSamplerMenu);
                 pAction->setEnabled(samplerEnabled);
@@ -1132,7 +1133,7 @@ void WTrackMenu::slotUpdateReplayGainFromPregain() {
         return;
     }
 
-    const double gain = ControlObject::get(ConfigKey(m_deckGroup, "pregain"));
+    const double gain = PollingControlProxy(m_deckGroup, "pregain").get();
     // Gain is at unity already, ignore and return.
     if (gain == 1.0) {
         return;
@@ -1565,7 +1566,7 @@ void WTrackMenu::loadSelectionToGroup(const QString& group, bool play) {
                         .toInt())) {
         // TODO(XXX): Check for other than just the first preview deck.
         if (group != "[PreviewDeck1]" &&
-                ControlObject::get(ConfigKey(group, "play")) > 0.0) {
+                PollingControlProxy(group, "play").get() > 0.0) {
             return;
         }
     }
@@ -2063,8 +2064,8 @@ void WTrackMenu::slotRemoveFromDisk() {
     // If the operation was initiated from a deck's track menu
     // we'll first stop the deck and eject the track.
     if (m_pTrack) {
-        ControlObject::set(ConfigKey(m_deckGroup, "stop"), 1.0);
-        ControlObject::set(ConfigKey(m_deckGroup, "eject"), 1.0);
+        PollingControlProxy(m_deckGroup, "stop").set(1.0);
+        PollingControlProxy(m_deckGroup, "eject").set(1.0);
     }
 
     // Set up and initiate the track batch operation

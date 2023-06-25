@@ -6,6 +6,7 @@
 #include <QStylePainter>
 #include <QtDebug>
 
+#include "control/pollingcontrolproxy.h"
 #include "effects/chains/quickeffectchain.h"
 #include "effects/effectsmanager.h"
 #include "library/library_decl.h"
@@ -89,8 +90,8 @@ void WEffectChainPresetSelector::slotEffectChainPresetSelected(int index) {
     // After selecting an effect move focus to the tracks table in order
     // to immediately allow keyboard shortcuts again.
     // TODO(ronso0) switch to previously focused (library?) widget instead
-    ControlObject::set(ConfigKey("[Library]", "focused_widget"),
-            static_cast<double>(FocusWidget::TracksTable));
+    PollingControlProxy("[Library]", "focused_widget")
+            .set(static_cast<double>(FocusWidget::TracksTable));
 }
 
 void WEffectChainPresetSelector::slotChainPresetChanged(const QString& name) {

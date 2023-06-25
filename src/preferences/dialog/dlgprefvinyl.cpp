@@ -410,7 +410,7 @@ void DlgPrefVinyl::slotVinylGainApply() {
     config->set(ConfigKey(VINYL_PREF_KEY, "gain"), ConfigValue(QString::number(ratioGain)));
 
     // Update the ControlObject...
-    ControlObject::set(ConfigKey(VINYL_PREF_KEY, "gain"), ratioGain);
+    PollingControlProxy(VINYL_PREF_KEY, "gain").set(ratioGain);
 }
 
 void DlgPrefVinyl::slotUpdateVinylGain() {

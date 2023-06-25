@@ -1,17 +1,19 @@
 // Tests for enginebuffer.cpp
 
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <QtDebug>
-#include <QTest>
+#include <gtest/gtest.h>
 
+#include <QTest>
+#include <QtDebug>
+
+#include "control/controlobject.h"
+#include "control/pollingcontrolproxy.h"
+#include "engine/controls/ratecontrol.h"
 #include "mixer/basetrackplayer.h"
 #include "preferences/usersettings.h"
-#include "control/controlobject.h"
-#include "test/mockedenginebackendtest.h"
 #include "test/mixxxtest.h"
+#include "test/mockedenginebackendtest.h"
 #include "test/signalpathtest.h"
-#include "engine/controls/ratecontrol.h"
 
 // In case any of the test in this file fail. You can use the audioplot.py tool
 // in the tools folder to visually compare the results of the enginebuffer
@@ -24,71 +26,67 @@ class EngineBufferE2ETest : public SignalPathTest {};
 TEST_F(EngineBufferTest, DisableKeylockResetsPitch) {
     // To prevent one-slider users from getting stuck on a key, unsetting
     // keylock resets the musical pitch.
-    ControlObject::set(ConfigKey(m_sGroup1, "keylockMode"),
-                       1.0);  // kLockCurrentKey;
-    ControlObject::set(ConfigKey(m_sGroup1, "file_bpm"), 128.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "keylock"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "pitch"), 0.5);
+    PollingControlProxy(m_sGroup1, "keylockMode").set(1.0); // kLockCurrentKey;
+    PollingControlProxy(m_sGroup1, "file_bpm").set(128.0);
+    PollingControlProxy(m_sGroup1, "keylock").set(1.0);
+    PollingControlProxy(m_sGroup1, "pitch").set(0.5);
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "keylock"), 0.0);
+    PollingControlProxy(m_sGroup1, "keylock").set(0.0);
     // We require a buffer process to see that the keylock state has changed.
     ProcessBuffer();
-    ASSERT_EQ(0.0, ControlObject::get(ConfigKey(m_sGroup1, "pitch")));
+    ASSERT_EQ(0.0, PollingControlProxy(m_sGroup1, "pitch").get());
 }
 
 TEST_F(EngineBufferTest, TrackLoadResetsPitch) {
     // When a new track is loaded, the pitch value should be reset.
     config()->set(ConfigKey("[Controls]","SpeedAutoReset"),
                   ConfigValue(BaseTrackPlayer::RESET_PITCH));
-    ControlObject::set(ConfigKey(m_sGroup1, "file_bpm"), 128.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "pitch_adjust"), 0.5);
+    PollingControlProxy(m_sGroup1, "file_bpm").set(128.0);
+    PollingControlProxy(m_sGroup1, "pitch_adjust").set(0.5);
     ProcessBuffer();
-    ASSERT_NEAR(0.5, ControlObject::get(ConfigKey(m_sGroup1, "pitch_adjust")), 1e-10);
+    ASSERT_NEAR(0.5, PollingControlProxy(m_sGroup1, "pitch_adjust").get(), 1e-10);
 
     m_pMixerDeck1->loadFakeTrack(false, 0.0);
-    ASSERT_NEAR(0.0, ControlObject::get(ConfigKey(m_sGroup1, "pitch_adjust")), 1e-10);
+    ASSERT_NEAR(0.0, PollingControlProxy(m_sGroup1, "pitch_adjust").get(), 1e-10);
 }
 
 TEST_F(EngineBufferTest, PitchRoundtrip) {
-    ControlObject::set(ConfigKey(m_sGroup1, "keylock"), 0.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "keylockMode"),
-                       0.0);  // kLockOriginalKey;
+    PollingControlProxy(m_sGroup1, "keylock").set(0.0);
+    PollingControlProxy(m_sGroup1, "keylockMode").set(0.0); // kLockOriginalKey;
     ProcessBuffer();
     // we are in kPakmOffsetScaleReseting mode
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), 0.5);
+    PollingControlProxy(m_sGroup1, "rate").set(0.5);
     ProcessBuffer();
     // pitch must not change
     ASSERT_DOUBLE_EQ(0.0,
-                     ControlObject::get(ConfigKey(m_sGroup1, "pitch_adjust")));
+            PollingControlProxy(m_sGroup1, "pitch_adjust").get());
 
-    ControlObject::set(ConfigKey(m_sGroup1, "pitch_adjust"), 0.5);
+    PollingControlProxy(m_sGroup1, "pitch_adjust").set(0.5);
     ProcessBuffer();
     // rate must not change
-    ASSERT_DOUBLE_EQ(0.5, ControlObject::get(ConfigKey(m_sGroup1, "rate")));
+    ASSERT_DOUBLE_EQ(0.5, PollingControlProxy(m_sGroup1, "rate").get());
 
-    ControlObject::set(ConfigKey(m_sGroup1, "keylock"), 1.0);
+    PollingControlProxy(m_sGroup1, "keylock").set(1.0);
     ProcessBuffer();
     // pitch and speed must not change
     ASSERT_DOUBLE_EQ(0.5,
-                     ControlObject::get(ConfigKey(m_sGroup1, "pitch_adjust")));
-    ASSERT_DOUBLE_EQ(0.5, ControlObject::get(ConfigKey(m_sGroup1, "rate")));
+            PollingControlProxy(m_sGroup1, "pitch_adjust").get());
+    ASSERT_DOUBLE_EQ(0.5, PollingControlProxy(m_sGroup1, "rate").get());
 
-    ControlObject::set(ConfigKey(m_sGroup1, "keylockMode"),
-                       1.0);  // kLockCurrentKey;
+    PollingControlProxy(m_sGroup1, "keylockMode").set(1.0); // kLockCurrentKey;
     ProcessBuffer();
     // rate must not change
-    ASSERT_DOUBLE_EQ(0.5, ControlObject::get(ConfigKey(m_sGroup1, "rate")));
+    ASSERT_DOUBLE_EQ(0.5, PollingControlProxy(m_sGroup1, "rate").get());
     // pitch must reflect the absolute pitch
-    ASSERT_NEAR(0.5, ControlObject::get(ConfigKey(m_sGroup1, "pitch")), 1e-10);
+    ASSERT_NEAR(0.5, PollingControlProxy(m_sGroup1, "pitch").get(), 1e-10);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "keylockMode"),
-                       0.0);  // kLockOriginalKey;
+    PollingControlProxy(m_sGroup1, "keylockMode").set(0.0); // kLockOriginalKey;
     ProcessBuffer();
     // rate must not change
-    ASSERT_NEAR(0.5, ControlObject::get(ConfigKey(m_sGroup1, "pitch")), 1e-10);
+    ASSERT_NEAR(0.5, PollingControlProxy(m_sGroup1, "pitch").get(), 1e-10);
     // pitch must reflect the pitch shift only
-    ASSERT_DOUBLE_EQ(0.5, ControlObject::get(ConfigKey(m_sGroup1, "rate")));
+    ASSERT_DOUBLE_EQ(0.5, PollingControlProxy(m_sGroup1, "rate").get());
 }
 
 TEST_F(EngineBufferTest, SlowRubberBand) {
@@ -96,29 +94,30 @@ TEST_F(EngineBufferTest, SlowRubberBand) {
     // this
     // is done in the engine thread it can be a major party-stopper.
     // Make sure slow speeds still use the linear scaler.
-    ControlObject::set(ConfigKey(m_sGroup1, "pitch"), 2.8);
+    PollingControlProxy(m_sGroup1, "pitch").set(2.8);
 
     // Hack to get a slow, non-scratching direct speed
-    ControlObject::set(ConfigKey(m_sGroup1, "rateSearch"), 0.0072);
+    PollingControlProxy(m_sGroup1, "rateSearch").set(0.0072);
 
     // With Soundtouch, it should switch the scaler as well
-    ControlObject::set(ConfigKey("[Master]", "keylock_engine"),
-            static_cast<double>(EngineBuffer::KeylockEngine::SoundTouch));
+    PollingControlProxy("[Master]", "keylock_engine")
+            .set(static_cast<double>(EngineBuffer::KeylockEngine::SoundTouch));
     ProcessBuffer();
     EXPECT_EQ(m_pMockScaleVinyl1, m_pChannel1->getEngineBuffer()->m_pScale);
 
     // Back to full speed
-    ControlObject::set(ConfigKey(m_sGroup1, "rateSearch"), 1);
+    PollingControlProxy(m_sGroup1, "rateSearch").set(1);
     ProcessBuffer();
 
     // With Rubberband, and transport stopped it should be still keylock
-    ControlObject::set(ConfigKey("[Master]", "keylock_engine"),
-            static_cast<double>(EngineBuffer::KeylockEngine::RubberBandFaster));
-    ControlObject::set(ConfigKey(m_sGroup1, "rateSearch"), 0.0);
+    PollingControlProxy("[Master]", "keylock_engine")
+            .set(static_cast<double>(
+                    EngineBuffer::KeylockEngine::RubberBandFaster));
+    PollingControlProxy(m_sGroup1, "rateSearch").set(0.0);
     ProcessBuffer();
     EXPECT_EQ(m_pMockScaleKeylock1, m_pChannel1->getEngineBuffer()->m_pScale);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rateSearch"), 0.0072);
+    PollingControlProxy(m_sGroup1, "rateSearch").set(0.0072);
 
     // Playing at low rate, the vinyl scaler should be used
     ProcessBuffer();
@@ -127,37 +126,37 @@ TEST_F(EngineBufferTest, SlowRubberBand) {
 
 TEST_F(EngineBufferTest, ScalerNoTransport) {
     // normally use the Vinyl scaler
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
     EXPECT_EQ(m_pMockScaleVinyl1, m_pChannel1->getEngineBuffer()->m_pScale);
 
     // switch to keylock scaler
-    ControlObject::set(ConfigKey(m_sGroup1, "keylock"), 1.0);
+    PollingControlProxy(m_sGroup1, "keylock").set(1.0);
     ProcessBuffer();
     EXPECT_EQ(m_pMockScaleKeylock1, m_pChannel1->getEngineBuffer()->m_pScale);
 
     // Stop and disable keylock: do not change scaler
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "keylock"), 0.0);
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
+    PollingControlProxy(m_sGroup1, "keylock").set(0.0);
     ProcessBuffer();
     EXPECT_EQ(m_pMockScaleKeylock1, m_pChannel1->getEngineBuffer()->m_pScale);
 
     // play: we need to use vinyl scaler
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
     EXPECT_EQ(m_pMockScaleVinyl1, m_pChannel1->getEngineBuffer()->m_pScale);
 }
 
 TEST_F(EngineBufferTest, VinylScalerRampZero) {
     // scratch in play mode
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2_enable"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2"), 1.0);
+    PollingControlProxy(m_sGroup1, "scratch2_enable").set(1.0);
+    PollingControlProxy(m_sGroup1, "scratch2").set(1.0);
 
     ProcessBuffer();
     EXPECT_EQ(m_pMockScaleVinyl1, m_pChannel1->getEngineBuffer()->m_pScale);
     EXPECT_EQ(m_pMockScaleVinyl1->getProcessedTempo(), 1.0);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2"), 0.0);
+    PollingControlProxy(m_sGroup1, "scratch2").set(0.0);
 
     // we are in scratching mode so a zero rate has to be processed
     ProcessBuffer();
@@ -167,14 +166,14 @@ TEST_F(EngineBufferTest, VinylScalerRampZero) {
 
 TEST_F(EngineBufferTest, ReadFadeOut) {
     // Start playing
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
 
     ProcessBuffer();
     EXPECT_EQ(m_pMockScaleVinyl1, m_pChannel1->getEngineBuffer()->m_pScale);
     EXPECT_EQ(m_pMockScaleVinyl1->getProcessedTempo(), 1.0);
 
     // pause
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
 
     // The scaler need to be processed with the old rate to
     // prepare the crossfade buffer
@@ -188,15 +187,15 @@ TEST_F(EngineBufferTest, ResetPitchAdjustUsesLinear) {
     // reset, then the engine should be using the linear scaler.
 
     // First, we should be using the keylock scaler here.
-    ControlObject::set(ConfigKey(m_sGroup1, "pitch"), 1.2);
+    PollingControlProxy(m_sGroup1, "pitch").set(1.2);
     // Remember that a rate of "0" is "regular playback speed".
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), 0.05);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "rate").set(0.05);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
     EXPECT_EQ(m_pMockScaleKeylock1, m_pChannel1->getEngineBuffer()->m_pScale);
 
     // Reset pitch adjust, and we should be back to the linear scaler.
-    ControlObject::set(ConfigKey(m_sGroup1, "pitch_adjust_set_default"), 1.0);
+    PollingControlProxy(m_sGroup1, "pitch_adjust_set_default").set(1.0);
     ProcessBuffer();
     EXPECT_EQ(m_pMockScaleVinyl1, m_pChannel1->getEngineBuffer()->m_pScale);
 }
@@ -204,17 +203,17 @@ TEST_F(EngineBufferTest, ResetPitchAdjustUsesLinear) {
 TEST_F(EngineBufferE2ETest, SoundTouchCrashTest) {
     // Soundtouch has a bug where a pitch value of zero causes an infinite loop
     // and crash.
-    ControlObject::set(ConfigKey("[Master]", "keylock_engine"),
-            static_cast<double>(EngineBuffer::KeylockEngine::SoundTouch));
-    ControlObject::set(ConfigKey(m_sGroup1, "pitch"), 1.2);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), 0.05);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy("[Master]", "keylock_engine")
+            .set(static_cast<double>(EngineBuffer::KeylockEngine::SoundTouch));
+    PollingControlProxy(m_sGroup1, "pitch").set(1.2);
+    PollingControlProxy(m_sGroup1, "rate").set(0.05);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     // Start by playing with soundtouch enabled.
     ProcessBuffer();
     // Pause the buffer.  This causes the pitch to be set to 0.
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "rateSearch"), -0.05);
+    PollingControlProxy(m_sGroup1, "rateSearch").set(-0.05);
     // Should not crash
     ProcessBuffer();
 }
@@ -222,15 +221,15 @@ TEST_F(EngineBufferE2ETest, SoundTouchCrashTest) {
 TEST_F(EngineBufferE2ETest, BasicProcessingTest) {
     // Confirm that playing ramps from silence, pausing ramps to silence,
     // and also just confirm that playing works as predicted.
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), 0.05);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "rate").set(0.05);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
     assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                  kProcessBufferSize, "BasicProcessingTestPlay");
     ProcessBuffer();
     assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                  kProcessBufferSize, "BasicProcessingTestPlaying");
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
     ProcessBuffer();
     assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                  kProcessBufferSize, "BasicProcessingTestPause");
@@ -239,12 +238,12 @@ TEST_F(EngineBufferE2ETest, BasicProcessingTest) {
 TEST_F(EngineBufferE2ETest, ScratchTest) {
     // Confirm that vinyl scratching smoothly transitions from one direction
     // to the other.
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2_enable"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2"), 1.1);
+    PollingControlProxy(m_sGroup1, "scratch2_enable").set(1.0);
+    PollingControlProxy(m_sGroup1, "scratch2").set(1.1);
     m_pChannel1->getEngineBuffer()->queueNewPlaypos(
             mixxx::audio::FramePos(225), EngineBuffer::SEEK_EXACT);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2"), -1.1);
+    PollingControlProxy(m_sGroup1, "scratch2").set(-1.1);
     ProcessBuffer();
     assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                  kProcessBufferSize, "ScratchTestMaster");
@@ -253,12 +252,12 @@ TEST_F(EngineBufferE2ETest, ScratchTest) {
 TEST_F(EngineBufferE2ETest, ScratchTestStart) {
     // Confirm that vinyl scratching smoothly transitions from zero speed
     // to an the other speed above the 0.07 threshold.
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2_enable"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2"), 1);
+    PollingControlProxy(m_sGroup1, "scratch2_enable").set(1.0);
+    PollingControlProxy(m_sGroup1, "scratch2").set(1);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2"), 0);
+    PollingControlProxy(m_sGroup1, "scratch2").set(0);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2"), 0.5);
+    PollingControlProxy(m_sGroup1, "scratch2").set(0.5);
     ProcessBuffer();
     assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                  kProcessBufferSize, "ScratchTestStart");
@@ -266,10 +265,10 @@ TEST_F(EngineBufferE2ETest, ScratchTestStart) {
 
 TEST_F(EngineBufferE2ETest, ReverseTest) {
     // Confirm that pushing the reverse button smoothly transitions.
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), 0.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "rate").set(0.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "reverse"), 1.0);
+    PollingControlProxy(m_sGroup1, "reverse").set(1.0);
     ProcessBuffer();
     assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                  kProcessBufferSize, "ReverseTest");
@@ -278,24 +277,24 @@ TEST_F(EngineBufferE2ETest, ReverseTest) {
 // DISABLED: This test is too dependent on the sound touch library version.
 TEST_F(EngineBufferE2ETest, DISABLED_SoundTouchToggleTest) {
    // Test various cases where SoundTouch toggles on and off.
-   ControlObject::set(ConfigKey("[Master]", "keylock_engine"),
-           static_cast<double>(EngineBuffer::KeylockEngine::SoundTouch));
-   ControlObject::set(ConfigKey(m_sGroup1, "rate"), 0.5);
-   ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+   PollingControlProxy("[Master]", "keylock_engine")
+           .set(static_cast<double>(EngineBuffer::KeylockEngine::SoundTouch));
+   PollingControlProxy(m_sGroup1, "rate").set(0.5);
+   PollingControlProxy(m_sGroup1, "play").set(1.0);
    ProcessBuffer();
    // Test transition from vinyl to keylock
-   ControlObject::set(ConfigKey(m_sGroup1, "keylock"), 1.0);
+   PollingControlProxy(m_sGroup1, "keylock").set(1.0);
    ProcessBuffer();
    assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                 kProcessBufferSize, "SoundTouchTest");
    // Test transition from keylock to vinyl due to slow speed.
-   ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
-   ControlObject::set(ConfigKey(m_sGroup1, "rateSearch"), 0.0072);
+   PollingControlProxy(m_sGroup1, "play").set(0.0);
+   PollingControlProxy(m_sGroup1, "rateSearch").set(0.0072);
    ProcessBuffer();
    assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                 kProcessBufferSize, "SoundTouchTestSlow");
    // Test transition back to keylock due to regular speed.
-   ControlObject::set(ConfigKey(m_sGroup1, "rateSearch"), 1.0);
+   PollingControlProxy(m_sGroup1, "rateSearch").set(1.0);
    ProcessBuffer();
    assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                 kProcessBufferSize, "SoundTouchTestRegular");
@@ -304,24 +303,25 @@ TEST_F(EngineBufferE2ETest, DISABLED_SoundTouchToggleTest) {
 // DISABLED: This test is too dependent on the rubber band library version.
 TEST_F(EngineBufferE2ETest, DISABLED_RubberbandToggleTest) {
    // Test various cases where Rubberband toggles on and off.
-   ControlObject::set(ConfigKey("[Master]", "keylock_engine"),
-           static_cast<double>(EngineBuffer::KeylockEngine::RubberBandFaster));
-   ControlObject::set(ConfigKey(m_sGroup1, "rate"), 0.5);
-   ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+   PollingControlProxy("[Master]", "keylock_engine")
+           .set(static_cast<double>(
+                   EngineBuffer::KeylockEngine::RubberBandFaster));
+   PollingControlProxy(m_sGroup1, "rate").set(0.5);
+   PollingControlProxy(m_sGroup1, "play").set(1.0);
    ProcessBuffer();
    // Test transition from vinyl to keylock
-   ControlObject::set(ConfigKey(m_sGroup1, "keylock"), 1.0);
+   PollingControlProxy(m_sGroup1, "keylock").set(1.0);
    ProcessBuffer();
    assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                 kProcessBufferSize, "RubberbandTest");
    // Test transition from keylock to vinyl due to slow speed.
-   ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
-   ControlObject::set(ConfigKey(m_sGroup1, "rateSearch"), 0.0072);
+   PollingControlProxy(m_sGroup1, "play").set(0.0);
+   PollingControlProxy(m_sGroup1, "rateSearch").set(0.0072);
    ProcessBuffer();
    assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                 kProcessBufferSize, "RubberbandTestSlow");
    // Test transition back to keylock due to regular speed.
-   ControlObject::set(ConfigKey(m_sGroup1, "rateSearch"), 1.0);
+   PollingControlProxy(m_sGroup1, "rateSearch").set(1.0);
    ProcessBuffer();
    assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                 kProcessBufferSize, "RubberbandTestRegular");
@@ -335,15 +335,14 @@ TEST_F(EngineBufferE2ETest, DISABLED_RubberbandToggleTest) {
 TEST_F(EngineBufferE2ETest, DISABLED_KeylockReverseTest) {
     // Confirm that when toggling reverse while keylock is on, interpolation
     // is smooth.
-    ControlObject::set(ConfigKey("[Master]", "keylock_engine"),
-            static_cast<double>(EngineBuffer::KeylockEngine::SoundTouch));
-    ControlObject::set(ConfigKey(m_sGroup1, "keylockMode"),
-                       0.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), 0.5);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "keylock"), 1.0);
+    PollingControlProxy("[Master]", "keylock_engine")
+            .set(static_cast<double>(EngineBuffer::KeylockEngine::SoundTouch));
+    PollingControlProxy(m_sGroup1, "keylockMode").set(0.0);
+    PollingControlProxy(m_sGroup1, "rate").set(0.5);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
+    PollingControlProxy(m_sGroup1, "keylock").set(1.0);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "reverse"), 1.0);
+    PollingControlProxy(m_sGroup1, "reverse").set(1.0);
     ProcessBuffer();
     assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                  kProcessBufferSize, "KeylockReverseTest");
@@ -351,8 +350,8 @@ TEST_F(EngineBufferE2ETest, DISABLED_KeylockReverseTest) {
 
 TEST_F(EngineBufferE2ETest, SeekTest) {
     // Confirm that seeking to a new position smoothly transitions.
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), 0.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "rate").set(0.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
     m_pChannel1->getEngineBuffer()->queueNewPlaypos(
             mixxx::audio::FramePos(500), EngineBuffer::SEEK_EXACT);
@@ -364,12 +363,12 @@ TEST_F(EngineBufferE2ETest, SeekTest) {
 TEST_F(EngineBufferE2ETest, SoundTouchReverseTest) {
     // This test must not crash when changing to reverse while pitch is tweaked
     // Testing issue #8061
-    ControlObject::set(ConfigKey("[Master]", "keylock_engine"),
-            static_cast<double>(EngineBuffer::KeylockEngine::SoundTouch));
-    ControlObject::set(ConfigKey(m_sGroup1, "pitch"), -1);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy("[Master]", "keylock_engine")
+            .set(static_cast<double>(EngineBuffer::KeylockEngine::SoundTouch));
+    PollingControlProxy(m_sGroup1, "pitch").set(-1);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "reverse"), 1.0);
+    PollingControlProxy(m_sGroup1, "reverse").set(1.0);
     ProcessBuffer();
     // Note: we cannot compare a golden buffer here, because the result depends
     // on the uses library version
@@ -378,12 +377,13 @@ TEST_F(EngineBufferE2ETest, SoundTouchReverseTest) {
 TEST_F(EngineBufferE2ETest, RubberbandReverseTest) {
     // This test must not crash when changing to reverse while pitch is tweaked
     // Testing issue #8061
-    ControlObject::set(ConfigKey("[Master]", "keylock_engine"),
-            static_cast<double>(EngineBuffer::KeylockEngine::RubberBandFaster));
-    ControlObject::set(ConfigKey(m_sGroup1, "pitch"), -1);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy("[Master]", "keylock_engine")
+            .set(static_cast<double>(
+                    EngineBuffer::KeylockEngine::RubberBandFaster));
+    PollingControlProxy(m_sGroup1, "pitch").set(-1);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "reverse"), 1.0);
+    PollingControlProxy(m_sGroup1, "reverse").set(1.0);
     ProcessBuffer();
     // Note: we cannot compare a golden buffer here, because the result depends
     // on the uses library version
@@ -392,9 +392,9 @@ TEST_F(EngineBufferE2ETest, RubberbandReverseTest) {
 TEST_F(EngineBufferE2ETest, CueGotoAndStopTest) {
     // Be sure, that the Crossfade buffer is processed only once
     // Issue #8251
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "cue_gotoandstop"), 1.0);
+    PollingControlProxy(m_sGroup1, "cue_gotoandstop").set(1.0);
     ProcessBuffer();
     assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                  kProcessBufferSize, "CueGotoAndStopTest");
@@ -403,12 +403,12 @@ TEST_F(EngineBufferE2ETest, CueGotoAndStopTest) {
 TEST_F(EngineBufferE2ETest, CueGotoAndPlayTest) {
     // Be sure, cue seek is not overwritten by quantization seek
     // Issue #8249
-    ControlObject::set(ConfigKey(m_sGroup1, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "cue_point"), 0.0);
+    PollingControlProxy(m_sGroup1, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup1, "cue_point").set(0.0);
     m_pChannel1->getEngineBuffer()->queueNewPlaypos(
             mixxx::audio::FramePos(500), EngineBuffer::SEEK_EXACT);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "cue_gotoandplay"), 1.0);
+    PollingControlProxy(m_sGroup1, "cue_gotoandplay").set(1.0);
     ProcessBuffer();
     assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                  kProcessBufferSize, "CueGotoAndPlayTest");
@@ -417,9 +417,9 @@ TEST_F(EngineBufferE2ETest, CueGotoAndPlayTest) {
 TEST_F(EngineBufferE2ETest, CueStartPlayTest) {
     // Be sure, cue seek is not overwritten by quantization seek
     // Issue #8252
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "start_play"), 1.0);
+    PollingControlProxy(m_sGroup1, "start_play").set(1.0);
     ProcessBuffer();
     assertBufferMatchesReference(m_pEngineMaster->masterBuffer(),
                                  kProcessBufferSize, "StartPlayTest");
@@ -428,82 +428,82 @@ TEST_F(EngineBufferE2ETest, CueStartPlayTest) {
 TEST_F(EngineBufferE2ETest, CueGotoAndPlayDenon) {
     // Be sure, cue point is not moved
     // enable Denon mode issue #8254
-    ControlObject::set(ConfigKey(m_sGroup1, "cue_mode"), 2.0); // CUE_MODE_DENON
+    PollingControlProxy(m_sGroup1, "cue_mode").set(2.0); // CUE_MODE_DENON
     m_pChannel1->getEngineBuffer()->queueNewPlaypos(
             mixxx::audio::FramePos(500), EngineBuffer::SEEK_EXACT);
     ProcessBuffer();
-    double cueBefore = ControlObject::get(ConfigKey(m_sGroup1, "cue_point"));
-    ControlObject::set(ConfigKey(m_sGroup1, "cue_gotoandplay"), 1.0);
+    double cueBefore = PollingControlProxy(m_sGroup1, "cue_point").get();
+    PollingControlProxy(m_sGroup1, "cue_gotoandplay").set(1.0);
     ProcessBuffer();
-    EXPECT_EQ(cueBefore, ControlObject::get(ConfigKey(m_sGroup1, "cue_point")));
+    EXPECT_EQ(cueBefore, PollingControlProxy(m_sGroup1, "cue_point").get());
 }
 
 TEST_F(EngineBufferTest, RateTempTest) {
     RateControl::setTemporaryRateChangeCoarseAmount(4);
     RateControl::setTemporaryRateChangeFineAmount(2);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_dir"), 1);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "rate_dir").set(1);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
     EXPECT_EQ(1.0, m_pChannel1->getEngineBuffer()->m_speed_old);
 
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_up"), 1);
+    PollingControlProxy(m_sGroup1, "rate_temp_up").set(1);
     ProcessBuffer();
     EXPECT_EQ(1.04, m_pChannel1->getEngineBuffer()->m_speed_old);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_up"), 0);
+    PollingControlProxy(m_sGroup1, "rate_temp_up").set(0);
 
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_up_small"), 1);
+    PollingControlProxy(m_sGroup1, "rate_temp_up_small").set(1);
     ProcessBuffer();
     EXPECT_EQ(1.02, m_pChannel1->getEngineBuffer()->m_speed_old);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_up_small"), 0);
+    PollingControlProxy(m_sGroup1, "rate_temp_up_small").set(0);
 
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_down"), 1);
+    PollingControlProxy(m_sGroup1, "rate_temp_down").set(1);
     ProcessBuffer();
     EXPECT_EQ(0.96, m_pChannel1->getEngineBuffer()->m_speed_old);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_down"), 0);
+    PollingControlProxy(m_sGroup1, "rate_temp_down").set(0);
 
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_down_small"), 1);
+    PollingControlProxy(m_sGroup1, "rate_temp_down_small").set(1);
     ProcessBuffer();
     EXPECT_EQ(0.98, m_pChannel1->getEngineBuffer()->m_speed_old);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_down_small"), 0);
+    PollingControlProxy(m_sGroup1, "rate_temp_down_small").set(0);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_dir"), -1);
+    PollingControlProxy(m_sGroup1, "rate_dir").set(-1);
 
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_up"), 1);
+    PollingControlProxy(m_sGroup1, "rate_temp_up").set(1);
     ProcessBuffer();
     EXPECT_EQ(1.04, m_pChannel1->getEngineBuffer()->m_speed_old);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_up"), 0);
+    PollingControlProxy(m_sGroup1, "rate_temp_up").set(0);
 
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_up_small"), 1);
+    PollingControlProxy(m_sGroup1, "rate_temp_up_small").set(1);
     ProcessBuffer();
     EXPECT_EQ(1.02, m_pChannel1->getEngineBuffer()->m_speed_old);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_up_small"), 0);
+    PollingControlProxy(m_sGroup1, "rate_temp_up_small").set(0);
 
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_down"), 1);
+    PollingControlProxy(m_sGroup1, "rate_temp_down").set(1);
     ProcessBuffer();
     EXPECT_EQ(0.96, m_pChannel1->getEngineBuffer()->m_speed_old);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_down"), 0);
+    PollingControlProxy(m_sGroup1, "rate_temp_down").set(0);
 
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_down_small"), 1);
+    PollingControlProxy(m_sGroup1, "rate_temp_down_small").set(1);
     ProcessBuffer();
     EXPECT_EQ(0.98, m_pChannel1->getEngineBuffer()->m_speed_old);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_down_small"), 0);
+    PollingControlProxy(m_sGroup1, "rate_temp_down_small").set(0);
 }
 
 
@@ -511,18 +511,18 @@ TEST_F(EngineBufferTest, RatePermTest) {
     RateControl::setPermanentRateChangeCoarseAmount(4);
     RateControl::setPermanentRateChangeFineAmount(2);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_dir"), 1);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "rate_dir").set(1);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
     EXPECT_EQ(1.0, m_pChannel1->getEngineBuffer()->m_speed_old);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_perm_up"), 1);
+    PollingControlProxy(m_sGroup1, "rate_perm_up").set(1);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_perm_up"), 0);
+    PollingControlProxy(m_sGroup1, "rate_perm_up").set(0);
     EXPECT_EQ(1.04, m_pChannel1->getEngineBuffer()->m_speed_old);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_perm_up_small"), 1);
+    PollingControlProxy(m_sGroup1, "rate_perm_up_small").set(1);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_perm_up_small"), 0);
+    PollingControlProxy(m_sGroup1, "rate_perm_up_small").set(0);
     EXPECT_EQ(1.06, m_pChannel1->getEngineBuffer()->m_speed_old);
 }

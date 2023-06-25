@@ -467,13 +467,13 @@ TEST_F(EngineSyncTest, InternalClockFollowsFirstPlayingDeck) {
     mixxx::BeatsPointer pBeats1 = mixxx::Beats::fromConstTempo(
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(100));
     m_pTrack1->trySetBeats(pBeats1);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.0));
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     mixxx::BeatsPointer pBeats2 = mixxx::Beats::fromConstTempo(
             m_pTrack2->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(130));
     m_pTrack2->trySetBeats(pBeats2);
-    ControlObject::set(ConfigKey(m_sGroup2, "rate"), getRateSliderValue(1.0));
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 0.0);
+    PollingControlProxy(m_sGroup2, "rate").set(getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup2, "play").set(0.0);
     ProcessBuffer();
 
     // Set channel 1 to be enabled
@@ -483,7 +483,7 @@ TEST_F(EngineSyncTest, InternalClockFollowsFirstPlayingDeck) {
     // The sync lock should now be deck 1.
     EXPECT_TRUE(isSoftLeader(m_sGroup1));
     EXPECT_DOUBLE_EQ(130.0,
-            ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 
     // Set channel 2 to be enabled.
     pButtonSyncEnabled2->set(1);
@@ -499,8 +499,8 @@ TEST_F(EngineSyncTest, InternalClockFollowsFirstPlayingDeck) {
             ControlObject::getControl(ConfigKey(m_sGroup1, "rate"))->get());
 
     // Reset channel 2 rate, set channel 2 to play, and process a buffer.
-    ControlObject::set(ConfigKey(m_sGroup2, "rate"), getRateSliderValue(1.0));
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup2, "rate").set(getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
     ProcessBuffer();
     // Deck 1 still leader
     EXPECT_TRUE(isFollower(m_sInternalClockGroup));
@@ -517,7 +517,7 @@ TEST_F(EngineSyncTest, InternalClockFollowsFirstPlayingDeck) {
 
     // Rate should now match channel 2.
     EXPECT_DOUBLE_EQ(
-            130.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            130.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 }
 
 TEST_F(EngineSyncTest, SetExplicitLeaderByLights) {
@@ -544,8 +544,8 @@ TEST_F(EngineSyncTest, SetExplicitLeaderByLights) {
             m_pTrack2->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(150));
     m_pTrack2->trySetBeats(pBeats2);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
 
     // Set channel 1 to be explicit leader.
     pButtonSyncLeader1->set(1.0);
@@ -623,32 +623,32 @@ TEST_F(EngineSyncTest, RateChangeTest) {
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(160));
     m_pTrack1->trySetBeats(pBeats1);
     EXPECT_DOUBLE_EQ(
-            160.0, ControlObject::get(ConfigKey(m_sGroup1, "file_bpm")));
+            160.0, PollingControlProxy(m_sGroup1, "file_bpm").get());
     ProcessBuffer();
     EXPECT_DOUBLE_EQ(
-            160.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            160.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 
     // Set the rate of channel 1 to 1.2.
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.2));
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.2));
     EXPECT_DOUBLE_EQ(getRateSliderValue(1.2),
-            ControlObject::get(ConfigKey(m_sGroup1, "rate")));
-    EXPECT_DOUBLE_EQ(192.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
+            PollingControlProxy(m_sGroup1, "rate").get());
+    EXPECT_DOUBLE_EQ(192.0, PollingControlProxy(m_sGroup1, "bpm").get());
 
     // Internal leader should also be 192.
     EXPECT_DOUBLE_EQ(
-            192.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            192.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 
     // Set the file bpm of channel 2 to 120bpm.
     mixxx::BeatsPointer pBeats2 = mixxx::Beats::fromConstTempo(
             m_pTrack2->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(120));
     m_pTrack2->trySetBeats(pBeats2);
     EXPECT_DOUBLE_EQ(
-            120.0, ControlObject::get(ConfigKey(m_sGroup2, "file_bpm")));
+            120.0, PollingControlProxy(m_sGroup2, "file_bpm").get());
 
     // rate slider for channel 2 should now be 1.6 = 160 * 1.2 / 120.
     EXPECT_DOUBLE_EQ(getRateSliderValue(1.6),
-            ControlObject::get(ConfigKey(m_sGroup2, "rate")));
-    EXPECT_DOUBLE_EQ(192.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+            PollingControlProxy(m_sGroup2, "rate").get());
+    EXPECT_DOUBLE_EQ(192.0, PollingControlProxy(m_sGroup2, "bpm").get());
 }
 
 TEST_F(EngineSyncTest, RateChangeTestWeirdOrder) {
@@ -666,7 +666,7 @@ TEST_F(EngineSyncTest, RateChangeTestWeirdOrder) {
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(160));
     m_pTrack1->trySetBeats(pBeats1);
     EXPECT_DOUBLE_EQ(
-            160.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            160.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 
     // Set the file bpm of channel 2 to 120bpm.
     mixxx::BeatsPointer pBeats2 = mixxx::Beats::fromConstTempo(
@@ -674,16 +674,16 @@ TEST_F(EngineSyncTest, RateChangeTestWeirdOrder) {
     m_pTrack2->trySetBeats(pBeats2);
 
     // Set the rate slider of channel 1 to 1.2.
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.2));
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.2));
 
     // Rate slider for channel 2 should now be 1.6 = (160 * 1.2 / 120) - 1.0.
     EXPECT_DOUBLE_EQ(getRateSliderValue(1.6),
-            ControlObject::get(ConfigKey(m_sGroup2, "rate")));
-    EXPECT_DOUBLE_EQ(192.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+            PollingControlProxy(m_sGroup2, "rate").get());
+    EXPECT_DOUBLE_EQ(192.0, PollingControlProxy(m_sGroup2, "bpm").get());
 
     // Internal Leader BPM should read the same.
     EXPECT_DOUBLE_EQ(
-            192.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            192.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 }
 
 TEST_F(EngineSyncTest, RateChangeTestOrder3) {
@@ -692,14 +692,14 @@ TEST_F(EngineSyncTest, RateChangeTestOrder3) {
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(160));
     m_pTrack1->trySetBeats(pBeats1);
     EXPECT_DOUBLE_EQ(
-            160.0, ControlObject::get(ConfigKey(m_sGroup1, "file_bpm")));
+            160.0, PollingControlProxy(m_sGroup1, "file_bpm").get());
 
     // Set the file bpm of channel 2 to 120bpm.
     mixxx::BeatsPointer pBeats2 = mixxx::Beats::fromConstTempo(
             m_pTrack2->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(120));
     m_pTrack2->trySetBeats(pBeats2);
     EXPECT_DOUBLE_EQ(
-            120.0, ControlObject::get(ConfigKey(m_sGroup2, "file_bpm")));
+            120.0, PollingControlProxy(m_sGroup2, "file_bpm").get());
 
     // Turn on Leader. Even though it is explicit leader, it still matches the other deck.
     auto pButtonLeaderSync1 =
@@ -707,7 +707,7 @@ TEST_F(EngineSyncTest, RateChangeTestOrder3) {
     pButtonLeaderSync1->set(static_cast<double>(SyncMode::LeaderExplicit));
     ProcessBuffer();
     EXPECT_TRUE(isExplicitLeader(m_sGroup1));
-    EXPECT_DOUBLE_EQ(120.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
+    EXPECT_DOUBLE_EQ(120.0, PollingControlProxy(m_sGroup1, "bpm").get());
 
     // Turn on follower.
     auto pButtonLeaderSync2 =
@@ -717,11 +717,11 @@ TEST_F(EngineSyncTest, RateChangeTestOrder3) {
 
     // Follower should immediately set its slider.
     EXPECT_NEAR(getRateSliderValue(0.75),
-            ControlObject::get(ConfigKey(m_sGroup1, "rate")),
+            PollingControlProxy(m_sGroup1, "rate").get(),
             kMaxFloatingPointErrorLowPrecision);
-    EXPECT_DOUBLE_EQ(120.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_DOUBLE_EQ(120.0, PollingControlProxy(m_sGroup2, "bpm").get());
     EXPECT_DOUBLE_EQ(
-            120.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            120.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 }
 
 TEST_F(EngineSyncTest, FollowerRateChange) {
@@ -745,12 +745,12 @@ TEST_F(EngineSyncTest, FollowerRateChange) {
     m_pTrack2->trySetBeats(pBeats2);
 
     // Set the rate slider of channel 1 to 1.2.
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.2));
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.2));
 
     // Rate slider for channel 2 should now be 1.6 = (160 * 1.2 / 120).
     EXPECT_DOUBLE_EQ(getRateSliderValue(1.6),
-            ControlObject::get(ConfigKey(m_sGroup2, "rate")));
-    EXPECT_DOUBLE_EQ(192.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+            PollingControlProxy(m_sGroup2, "rate").get());
+    EXPECT_DOUBLE_EQ(192.0, PollingControlProxy(m_sGroup2, "bpm").get());
 
     // Try to twiddle the rate slider on channel 2.
     auto pSlider2 = std::make_unique<ControlProxy>(m_sGroup2, "rate");
@@ -759,11 +759,11 @@ TEST_F(EngineSyncTest, FollowerRateChange) {
 
     // Rates should still be changed even though it's a follower.
     EXPECT_DOUBLE_EQ(getRateSliderValue(0.8),
-            ControlObject::get(ConfigKey(m_sGroup2, "rate")));
-    EXPECT_DOUBLE_EQ(96.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+            PollingControlProxy(m_sGroup2, "rate").get());
+    EXPECT_DOUBLE_EQ(96.0, PollingControlProxy(m_sGroup2, "bpm").get());
     EXPECT_DOUBLE_EQ(getRateSliderValue(0.6),
-            ControlObject::get(ConfigKey(m_sGroup1, "rate")));
-    EXPECT_DOUBLE_EQ(96.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
+            PollingControlProxy(m_sGroup1, "rate").get());
+    EXPECT_DOUBLE_EQ(96.0, PollingControlProxy(m_sGroup1, "bpm").get());
 }
 
 TEST_F(EngineSyncTest, InternalRateChangeTest) {
@@ -862,24 +862,24 @@ TEST_F(EngineSyncTest, LeaderStopSliderCheck) {
 
     ProcessBuffer();
 
-    EXPECT_DOUBLE_EQ(120.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_DOUBLE_EQ(120.0, PollingControlProxy(m_sGroup2, "bpm").get());
     EXPECT_DOUBLE_EQ(getRateSliderValue(0.9375),
-            ControlObject::get(ConfigKey(m_sGroup2, "rate")));
+            PollingControlProxy(m_sGroup2, "rate").get());
 
     pChannel1Play->set(0.0);
 
     ProcessBuffer();
 
-    EXPECT_DOUBLE_EQ(120.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_DOUBLE_EQ(120.0, PollingControlProxy(m_sGroup2, "bpm").get());
     EXPECT_DOUBLE_EQ(getRateSliderValue(0.9375),
-            ControlObject::get(ConfigKey(m_sGroup2, "rate")));
+            PollingControlProxy(m_sGroup2, "rate").get());
 }
 
 TEST_F(EngineSyncTest, EnableOneDeckInitsLeader) {
     // If Internal is leader, and we turn sync on a playing deck, the playing deck sets the
     // internal leader and the beat distances are now aligned.
-    ControlObject::set(ConfigKey(m_sInternalClockGroup, "bpm"), 124.0);
-    ControlObject::set(ConfigKey(m_sInternalClockGroup, "beat_distance"), 0.5);
+    PollingControlProxy(m_sInternalClockGroup, "bpm").set(124.0);
+    PollingControlProxy(m_sInternalClockGroup, "beat_distance").set(0.5);
     ProcessBuffer();
 
     // Set up the deck to play.
@@ -902,13 +902,12 @@ TEST_F(EngineSyncTest, EnableOneDeckInitsLeader) {
 
     // Internal clock rate and beat distance should match that deck.
     EXPECT_DOUBLE_EQ(
-            130.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
-    EXPECT_DOUBLE_EQ(130.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
+            130.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
+    EXPECT_DOUBLE_EQ(130.0, PollingControlProxy(m_sGroup1, "bpm").get());
     EXPECT_DOUBLE_EQ(
-            0.2, ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")));
+            0.2, PollingControlProxy(m_sGroup1, "beat_distance").get());
     EXPECT_DOUBLE_EQ(0.2,
-            ControlObject::get(
-                    ConfigKey(m_sInternalClockGroup, "beat_distance")));
+            PollingControlProxy(m_sInternalClockGroup, "beat_distance").get());
 
     // Enable second deck, bpm and beat distance should still match original setting.
     mixxx::BeatsPointer pBeats2 = mixxx::Beats::fromConstTempo(
@@ -927,13 +926,12 @@ TEST_F(EngineSyncTest, EnableOneDeckInitsLeader) {
     EXPECT_TRUE(isFollower(m_sGroup2));
 
     EXPECT_DOUBLE_EQ(
-            130.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
-    EXPECT_DOUBLE_EQ(130.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+            130.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
+    EXPECT_DOUBLE_EQ(130.0, PollingControlProxy(m_sGroup2, "bpm").get());
     EXPECT_DOUBLE_EQ(
-            0.2, ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")));
+            0.2, PollingControlProxy(m_sGroup2, "beat_distance").get());
     EXPECT_DOUBLE_EQ(0.2,
-            ControlObject::get(
-                    ConfigKey(m_sInternalClockGroup, "beat_distance")));
+            PollingControlProxy(m_sInternalClockGroup, "beat_distance").get());
 }
 
 TEST_F(EngineSyncTest, MomentarySyncAlgorithmTwo) {
@@ -956,7 +954,7 @@ TEST_F(EngineSyncTest, MomentarySyncAlgorithmTwo) {
 
     ProcessBuffer();
 
-    EXPECT_DOUBLE_EQ(128.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
+    EXPECT_DOUBLE_EQ(128.0, PollingControlProxy(m_sGroup1, "bpm").get());
 }
 
 TEST_F(EngineSyncTest, EnableOneDeckInitializesLeader) {
@@ -1071,48 +1069,48 @@ TEST_F(EngineSyncTest, LoadTrackResetTempoOption) {
     TrackPointer track1 = m_pMixerDeck1->loadFakeTrack(false, 140.0);
 
     EXPECT_DOUBLE_EQ(
-            140.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
-    EXPECT_DOUBLE_EQ(140.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
+            140.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
+    EXPECT_DOUBLE_EQ(140.0, PollingControlProxy(m_sGroup1, "bpm").get());
     EXPECT_TRUE(isSoftLeader(m_sGroup1));
 
     // If sync is on two decks and we load a track while one is playing,
     // that should not change the playing deck.
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
 
     TrackPointer track2 = m_pMixerDeck2->loadFakeTrack(false, 128.0);
 
     EXPECT_DOUBLE_EQ(
-            140.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
-    EXPECT_DOUBLE_EQ(140.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(140.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+            140.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
+    EXPECT_DOUBLE_EQ(140.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(140.0, PollingControlProxy(m_sGroup2, "bpm").get());
 
     // Repeat with RESET_PITCH_AND_SPEED
     m_pConfig->set(ConfigKey("[Controls]", "SpeedAutoReset"),
             ConfigValue(BaseTrackPlayer::RESET_PITCH_AND_SPEED));
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.0));
     track1 = m_pMixerDeck1->loadFakeTrack(false, 140.0);
     ControlObject::getControl(ConfigKey(m_sGroup1, "play"))->set(1.0);
     track2 = m_pMixerDeck2->loadFakeTrack(false, 128.0);
     EXPECT_DOUBLE_EQ(
-            140.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
-    EXPECT_DOUBLE_EQ(140.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(140.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+            140.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
+    EXPECT_DOUBLE_EQ(140.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(140.0, PollingControlProxy(m_sGroup2, "bpm").get());
 
     // Even when RESET_NONE is on, sync lock is more important -- do not change
     // the speed of the playing deck.
     EXPECT_TRUE(isSoftLeader(m_sGroup1));
     m_pConfig->set(ConfigKey("[Controls]", "SpeedAutoReset"),
             ConfigValue(BaseTrackPlayer::RESET_NONE));
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
     track1 = m_pMixerDeck1->loadFakeTrack(false, 124.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.0));
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     track2 = m_pMixerDeck2->loadFakeTrack(false, 128.0);
     EXPECT_DOUBLE_EQ(
-            124.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
-    EXPECT_DOUBLE_EQ(124.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(124.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+            124.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
+    EXPECT_DOUBLE_EQ(124.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(124.0, PollingControlProxy(m_sGroup2, "bpm").get());
 
     // Load two tracks with sync off and RESET_SPEED
     m_pConfig->set(ConfigKey("[Controls]", "SpeedAutoReset"),
@@ -1125,10 +1123,10 @@ TEST_F(EngineSyncTest, LoadTrackResetTempoOption) {
     pButtonSyncEnabled1->set(0.0);
     pButtonSyncEnabled2->set(0.0);
     track1 = m_pMixerDeck1->loadFakeTrack(false, 140.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     track2 = m_pMixerDeck2->loadFakeTrack(false, 128.0);
-    EXPECT_DOUBLE_EQ(140.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(128.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_DOUBLE_EQ(140.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(128.0, PollingControlProxy(m_sGroup2, "bpm").get());
 
     // Load two tracks with sync off and RESET_PITCH_AND_SPEED
     m_pConfig->set(ConfigKey("[Controls]", "SpeedAutoReset"),
@@ -1186,15 +1184,15 @@ TEST_F(EngineSyncTest, SyncToNonSyncDeck) {
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(130));
     m_pTrack1->trySetBeats(pBeats1);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.0));
     mixxx::BeatsPointer pBeats2 = mixxx::Beats::fromConstTempo(
             m_pTrack2->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(100));
     m_pTrack2->trySetBeats(pBeats2);
     ControlObject::getControl(ConfigKey(m_sGroup2, "rate"))
             ->set(getRateSliderValue(1.0));
 
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
     ProcessBuffer();
 
     pButtonSyncEnabled2->set(1.0);
@@ -1205,13 +1203,13 @@ TEST_F(EngineSyncTest, SyncToNonSyncDeck) {
     // updated with the value, however.
     assertNoLeader();
     EXPECT_DOUBLE_EQ(
-            130.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            130.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
     assertSyncOff(m_sGroup2);
     EXPECT_DOUBLE_EQ(getRateSliderValue(1.3),
-            ControlObject::get(ConfigKey(m_sGroup2, "rate")));
+            PollingControlProxy(m_sGroup2, "rate").get());
 
     // Reset the pitch of deck 2.
-    ControlObject::set(ConfigKey(m_sGroup2, "rate"), getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup2, "rate").set(getRateSliderValue(1.0));
 
     // The same should work in reverse.
     pButtonSyncEnabled1->set(1.0);
@@ -1220,24 +1218,23 @@ TEST_F(EngineSyncTest, SyncToNonSyncDeck) {
 
     // There should be no leader, and deck2 should match rate of deck1.
     EXPECT_EQ(0,
-            ControlObject::get(
-                    ConfigKey(m_sInternalClockGroup, "sync_leader")));
+            PollingControlProxy(m_sInternalClockGroup, "sync_leader").get());
     EXPECT_DOUBLE_EQ(
-            100.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            100.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
     EXPECT_EQ(nullptr, m_pEngineSync->getLeaderChannel());
     EXPECT_EQ(NULL, m_pEngineSync->getLeaderSyncable());
     EXPECT_EQ(static_cast<double>(SyncMode::None),
-            ControlObject::get(ConfigKey(m_sGroup1, "sync_mode")));
-    EXPECT_EQ(0, ControlObject::get(ConfigKey(m_sGroup1, "sync_enabled")));
-    EXPECT_EQ(0, ControlObject::get(ConfigKey(m_sGroup1, "sync_leader")));
+            PollingControlProxy(m_sGroup1, "sync_mode").get());
+    EXPECT_EQ(0, PollingControlProxy(m_sGroup1, "sync_enabled").get());
+    EXPECT_EQ(0, PollingControlProxy(m_sGroup1, "sync_leader").get());
     EXPECT_DOUBLE_EQ(getRateSliderValue(100.0 / 130.0),
-            ControlObject::get(ConfigKey(m_sGroup1, "rate")));
+            PollingControlProxy(m_sGroup1, "rate").get());
 
     // Reset again.
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.0));
 
     // If deck 1 is not playing, however, deck 2 should stay at the same rate.
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
 
     // The same should work in reverse.
     pButtonSyncEnabled1->set(1.0);
@@ -1246,18 +1243,17 @@ TEST_F(EngineSyncTest, SyncToNonSyncDeck) {
 
     // There should be no leader, and deck2 should match rate of deck1.
     EXPECT_EQ(0,
-            ControlObject::get(
-                    ConfigKey(m_sInternalClockGroup, "sync_leader")));
+            PollingControlProxy(m_sInternalClockGroup, "sync_leader").get());
     EXPECT_DOUBLE_EQ(
-            100.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            100.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
     EXPECT_EQ(nullptr, m_pEngineSync->getLeaderChannel());
     EXPECT_EQ(NULL, m_pEngineSync->getLeaderSyncable());
     EXPECT_EQ(static_cast<double>(SyncMode::None),
-            ControlObject::get(ConfigKey(m_sGroup2, "sync_mode")));
-    EXPECT_EQ(0, ControlObject::get(ConfigKey(m_sGroup2, "sync_enabled")));
-    EXPECT_EQ(0, ControlObject::get(ConfigKey(m_sGroup2, "sync_leader")));
+            PollingControlProxy(m_sGroup2, "sync_mode").get());
+    EXPECT_EQ(0, PollingControlProxy(m_sGroup2, "sync_enabled").get());
+    EXPECT_EQ(0, PollingControlProxy(m_sGroup2, "sync_leader").get());
     EXPECT_DOUBLE_EQ(getRateSliderValue(1.0),
-            ControlObject::get(ConfigKey(m_sGroup2, "rate")));
+            PollingControlProxy(m_sGroup2, "rate").get());
 }
 
 TEST_F(EngineSyncTest, MomentarySyncDependsOnPlayingStates) {
@@ -1273,13 +1269,13 @@ TEST_F(EngineSyncTest, MomentarySyncDependsOnPlayingStates) {
     mixxx::BeatsPointer pBeats1 = mixxx::Beats::fromConstTempo(
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(100));
     m_pTrack1->trySetBeats(pBeats1);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.0));
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     mixxx::BeatsPointer pBeats2 = mixxx::Beats::fromConstTempo(
             m_pTrack2->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(130));
     m_pTrack2->trySetBeats(pBeats2);
-    ControlObject::set(ConfigKey(m_sGroup2, "rate"), getRateSliderValue(1.0));
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup2, "rate").set(getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
     ProcessBuffer();
     ProcessBuffer();
 
@@ -1293,12 +1289,12 @@ TEST_F(EngineSyncTest, MomentarySyncDependsOnPlayingStates) {
     assertSyncOff(m_sGroup1);
     assertSyncOff(m_sGroup2);
     EXPECT_DOUBLE_EQ(
-            130.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            130.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 
     // Also works if deck 1 is not playing.
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.0));
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
     ProcessBuffer();
     pButtonSyncEnabled1->set(1.0);
     pButtonSyncEnabled1->set(0.0);
@@ -1307,12 +1303,12 @@ TEST_F(EngineSyncTest, MomentarySyncDependsOnPlayingStates) {
     assertSyncOff(m_sGroup1);
     assertSyncOff(m_sGroup2);
     EXPECT_DOUBLE_EQ(
-            130.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            130.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 
     // Also works if neither deck is playing.
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.0));
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 0.0);
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
+    PollingControlProxy(m_sGroup2, "play").set(0.0);
     ProcessBuffer();
     pButtonSyncEnabled1->set(1.0);
     pButtonSyncEnabled1->set(0.0);
@@ -1321,13 +1317,13 @@ TEST_F(EngineSyncTest, MomentarySyncDependsOnPlayingStates) {
     assertSyncOff(m_sGroup1);
     assertSyncOff(m_sGroup2);
     EXPECT_DOUBLE_EQ(
-            130.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            130.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 
     // But it doesn't work if deck 2 isn't playing and deck 1 is. (This would
     // cause deck1 to suddenly change bpm while playing back).
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), getRateSliderValue(1.0));
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 0.0);
+    PollingControlProxy(m_sGroup1, "rate").set(getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
+    PollingControlProxy(m_sGroup2, "play").set(0.0);
     ProcessBuffer();
     pButtonSyncEnabled1->set(1.0);
     pButtonSyncEnabled1->set(0.0);
@@ -1336,7 +1332,7 @@ TEST_F(EngineSyncTest, MomentarySyncDependsOnPlayingStates) {
     assertSyncOff(m_sGroup1);
     assertSyncOff(m_sGroup2);
     EXPECT_DOUBLE_EQ(
-            100.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            100.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 }
 
 TEST_F(EngineSyncTest, EjectTrackSyncRemains) {
@@ -1417,9 +1413,9 @@ TEST_F(EngineSyncTest, FileBpmChangesDontAffectLeader) {
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(160));
     m_pTrack1->trySetBeats(pBeats1);
     EXPECT_DOUBLE_EQ(
-            160.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
+            160.0, PollingControlProxy(m_sGroup1, "bpm").get());
     EXPECT_DOUBLE_EQ(
-            160.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            160.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 
     EXPECT_TRUE(isSoftLeader(m_sGroup1));
 
@@ -1428,7 +1424,7 @@ TEST_F(EngineSyncTest, FileBpmChangesDontAffectLeader) {
             m_pTrack2->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(140));
     m_pTrack2->trySetBeats(pBeats2);
     EXPECT_DOUBLE_EQ(
-            160.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+            160.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 }
 
 TEST_F(EngineSyncTest, ExplicitLeaderPostProcessed) {
@@ -1503,7 +1499,7 @@ TEST_F(EngineSyncTest, BeatDistanceBeforeStart) {
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(128));
     m_pTrack1->trySetBeats(pBeats1);
     ControlObject::getControl(ConfigKey(m_sGroup1, "quantize"))->set(1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "playposition"), -.05);
+    PollingControlProxy(m_sGroup1, "playposition").set(-.05);
     ProcessBuffer();
     ControlObject::getControl(ConfigKey(m_sGroup1, "play"))->set(1.0);
     ProcessBuffer();
@@ -1530,7 +1526,7 @@ TEST_F(EngineSyncTest, ZeroLatencyRateChangeNoQuant) {
     ControlObject::getControl(ConfigKey(m_sGroup1, "sync_mode"))
             ->set(static_cast<double>(SyncMode::Follower));
     // Exaggerate the effect with a high rate.
-    ControlObject::set(ConfigKey(m_sGroup2, "rate_ratio"), 10.0);
+    PollingControlProxy(m_sGroup2, "rate_ratio").set(10.0);
 
     ControlObject::getControl(ConfigKey(m_sGroup1, "play"))->set(1.0);
     ControlObject::getControl(ConfigKey(m_sGroup2, "play"))->set(1.0);
@@ -1544,7 +1540,7 @@ TEST_F(EngineSyncTest, ZeroLatencyRateChangeNoQuant) {
         ProcessBuffer();
         // Keep messing with the rate
         double rate = i % 2 == 0 ? i / 10.0 : i / -10.0;
-        ControlObject::set(ConfigKey(m_sGroup2, "rate_ratio"), rate);
+        PollingControlProxy(m_sGroup2, "rate_ratio").set(rate);
 
         // Buffers should be in sync.
         EXPECT_NEAR(
@@ -1583,7 +1579,7 @@ TEST_F(EngineSyncTest, ZeroLatencyRateChangeQuant) {
     ControlObject::getControl(ConfigKey(m_sGroup1, "sync_mode"))
             ->set(static_cast<double>(SyncMode::Follower));
     // Exaggerate the effect with a high rate.
-    ControlObject::set(ConfigKey(m_sGroup2, "rate_ratio"), 10.0);
+    PollingControlProxy(m_sGroup2, "rate_ratio").set(10.0);
 
     ControlObject::getControl(ConfigKey(m_sGroup1, "play"))->set(1.0);
     ControlObject::getControl(ConfigKey(m_sGroup2, "play"))->set(1.0);
@@ -1599,7 +1595,7 @@ TEST_F(EngineSyncTest, ZeroLatencyRateChangeQuant) {
         ProcessBuffer();
         // Keep messing with the rate
         double rate = i % 2 == 0 ? i / 10.0 : i / -10.0;
-        ControlObject::set(ConfigKey(m_sGroup2, "rate_ratio"), rate);
+        PollingControlProxy(m_sGroup2, "rate_ratio").set(rate);
 
         // Buffers should be in sync.
         EXPECT_NEAR(
@@ -1637,7 +1633,7 @@ TEST_F(EngineSyncTest, ZeroLatencyRateDiffQuant) {
     ControlObject::getControl(ConfigKey(m_sGroup1, "sync_mode"))
             ->set(static_cast<double>(SyncMode::Follower));
     // Exaggerate the effect with a high rate.
-    ControlObject::set(ConfigKey(m_sGroup2, "rate_ratio"), 10.0);
+    PollingControlProxy(m_sGroup2, "rate_ratio").set(10.0);
 
     ControlObject::getControl(ConfigKey(m_sGroup1, "play"))->set(1.0);
     ControlObject::getControl(ConfigKey(m_sGroup2, "play"))->set(1.0);
@@ -1653,7 +1649,7 @@ TEST_F(EngineSyncTest, ZeroLatencyRateDiffQuant) {
         ProcessBuffer();
         // Keep messing with the rate
         double rate = i % 2 == 0 ? i / 10.0 : i / -10.0;
-        ControlObject::set(ConfigKey(m_sGroup2, "rate_ratio"), rate);
+        PollingControlProxy(m_sGroup2, "rate_ratio").set(rate);
 
         // Buffers should be in sync.
         EXPECT_NEAR(
@@ -1756,10 +1752,10 @@ TEST_F(EngineSyncTest, HalfDoubleBpmTest) {
     EXPECT_DOUBLE_EQ(
             m_pChannel1->getEngineBuffer()->m_pSyncControl->getBeatDistance(),
             m_pChannel2->getEngineBuffer()->m_pSyncControl->getBeatDistance());
-    EXPECT_EQ(0, ControlObject::get(ConfigKey(m_sGroup1, "rate")));
-    EXPECT_EQ(70, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_EQ(0, ControlObject::get(ConfigKey(m_sGroup2, "rate")));
-    EXPECT_EQ(140, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_EQ(0, PollingControlProxy(m_sGroup1, "rate").get());
+    EXPECT_EQ(70, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_EQ(0, PollingControlProxy(m_sGroup2, "rate").get());
+    EXPECT_EQ(140, PollingControlProxy(m_sGroup2, "bpm").get());
 
     // Do lots of processing to make sure we get over the 0.5 beat_distance barrier.
     for (int i = 0; i < 50; ++i) {
@@ -2096,7 +2092,7 @@ TEST_F(EngineSyncTest, SyncPhaseToPlayingNonSyncDeck) {
 
     auto pButtonSyncEnabled2 =
             std::make_unique<ControlProxy>(m_sGroup2, "sync_enabled");
-    ControlObject::set(ConfigKey(m_sGroup2, "rate_ratio"), 1.0);
+    PollingControlProxy(m_sGroup2, "rate_ratio").set(1.0);
     mixxx::BeatsPointer pBeats2 = mixxx::Beats::fromConstTempo(
             m_pTrack2->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(100));
     m_pTrack2->trySetBeats(pBeats2);
@@ -2168,19 +2164,19 @@ TEST_F(EngineSyncTest, SyncPhaseToPlayingNonSyncDeck) {
             ControlObject::getControl(ConfigKey(m_sInternalClockGroup, "beat_distance"))->get(),
             kMaxFloatingPointErrorLowPrecision);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
     pButtonSyncEnabled1->set(0.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_ratio"), 1.0);
+    PollingControlProxy(m_sGroup1, "rate_ratio").set(1.0);
 
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 0.0);
+    PollingControlProxy(m_sGroup2, "play").set(0.0);
     pButtonSyncEnabled2->set(0.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "rate_ratio"), 1.0);
+    PollingControlProxy(m_sGroup2, "rate_ratio").set(1.0);
 
     // If we enable sync on the third deck, it will match the first, which has been reset to 130.
     auto pButtonSyncEnabled3 =
             std::make_unique<ControlProxy>(m_sGroup3, "sync_enabled");
-    ControlObject::set(ConfigKey(m_sGroup3, "beat_distance"), 0.6);
-    ControlObject::set(ConfigKey(m_sGroup2, "rate_ratio"), 1.0);
+    PollingControlProxy(m_sGroup3, "beat_distance").set(0.6);
+    PollingControlProxy(m_sGroup2, "rate_ratio").set(1.0);
     mixxx::BeatsPointer pBeats3 = mixxx::Beats::fromConstTempo(
             m_pTrack3->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(140));
     m_pTrack3->trySetBeats(pBeats3);
@@ -2188,11 +2184,11 @@ TEST_F(EngineSyncTest, SyncPhaseToPlayingNonSyncDeck) {
     pButtonSyncEnabled3->set(1.0);
     EXPECT_TRUE(isSoftLeader(m_sGroup3));
     ProcessBuffer();
-    EXPECT_DOUBLE_EQ(130.0, ControlObject::get(ConfigKey(m_sGroup3, "bpm")));
+    EXPECT_DOUBLE_EQ(130.0, PollingControlProxy(m_sGroup3, "bpm").get());
     // revert that
-    ControlObject::set(ConfigKey(m_sGroup3, "rate_ratio"), 1.0);
+    PollingControlProxy(m_sGroup3, "rate_ratio").set(1.0);
     ProcessBuffer();
-    EXPECT_DOUBLE_EQ(140.0, ControlObject::get(ConfigKey(m_sGroup3, "bpm")));
+    EXPECT_DOUBLE_EQ(140.0, PollingControlProxy(m_sGroup3, "bpm").get());
     // now we have Deck 3 with 140 bpm and sync enabled
 
     pButtonSyncEnabled1->set(1.0);
@@ -2289,10 +2285,10 @@ TEST_F(EngineSyncTest, UserTweakPreservedInSeek) {
 
     ControlObject::getControl(ConfigKey(m_sGroup2, "sync_enabled"))->set(1);
     ControlObject::getControl(ConfigKey(m_sGroup1, "sync_enabled"))->set(1);
-    ControlObject::set(ConfigKey(m_sGroup1, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup2, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
 
     ProcessBuffer();
     EXPECT_DOUBLE_EQ(kDivisibleBpm,
@@ -2301,32 +2297,32 @@ TEST_F(EngineSyncTest, UserTweakPreservedInSeek) {
             ControlObject::getControl(ConfigKey(m_sGroup2, "bpm"))->get());
 
     EXPECT_NEAR(0.024806201,
-            ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")),
+            PollingControlProxy(m_sGroup1, "beat_distance").get(),
             kMaxFloatingPointErrorLowPrecision);
     EXPECT_NEAR(0.0023219956,
-            ControlObject::get(ConfigKey(m_sGroup1, "playposition")),
+            PollingControlProxy(m_sGroup1, "playposition").get(),
             kMaxFloatingPointErrorLowPrecision);
 
-    ControlObject::set(ConfigKey(m_sGroup2, "playposition"), 0.2);
+    PollingControlProxy(m_sGroup2, "playposition").set(0.2);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "playposition"), 0.2);
+    PollingControlProxy(m_sGroup1, "playposition").set(0.2);
     ProcessBuffer();
 
     // We are a few buffers past the seeked position.  It's less than 0.2 because
     // of quantizing.  The playpositions are different because the tracks are at
     // different bpms.
     EXPECT_NEAR(0.19417687,
-            ControlObject::get(ConfigKey(m_sGroup1, "playposition")),
+            PollingControlProxy(m_sGroup1, "playposition").get(),
             kMaxFloatingPointErrorLowPrecision);
     EXPECT_NEAR(0.19148479,
-            ControlObject::get(ConfigKey(m_sGroup2, "playposition")),
+            PollingControlProxy(m_sGroup2, "playposition").get(),
             kMaxFloatingPointErrorLowPrecision);
     // The beat distances are identical though.
     EXPECT_NEAR(0.074418604,
-            ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")),
+            PollingControlProxy(m_sGroup1, "beat_distance").get(),
             kMaxFloatingPointErrorLowPrecision);
     EXPECT_NEAR(0.074418604,
-            ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")),
+            PollingControlProxy(m_sGroup2, "beat_distance").get(),
             kMaxFloatingPointErrorLowPrecision);
 
     // Apply user tweak offset.
@@ -2334,24 +2330,24 @@ TEST_F(EngineSyncTest, UserTweakPreservedInSeek) {
             ->m_pBpmControl->m_dUserOffset.setValue(0.3);
 
     // Seek back to 0.2
-    ControlObject::set(ConfigKey(m_sGroup2, "playposition"), 0.2);
+    PollingControlProxy(m_sGroup2, "playposition").set(0.2);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "playposition"), 0.2);
+    PollingControlProxy(m_sGroup1, "playposition").set(0.2);
     ProcessBuffer();
 
     // Now, the locations are much more different - but the beat distance appears
     // to be the same because beat distance CO hides the user offset.
     EXPECT_NEAR(0.1990531,
-            ControlObject::get(ConfigKey(m_sGroup1, "playposition")),
+            PollingControlProxy(m_sGroup1, "playposition").get(),
             kMaxFloatingPointErrorLowPrecision);
     EXPECT_NEAR(0.1686011,
-            ControlObject::get(ConfigKey(m_sGroup2, "playposition")),
+            PollingControlProxy(m_sGroup2, "playposition").get(),
             kMaxFloatingPointErrorLowPrecision);
     EXPECT_NEAR(0.82651163,
-            ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")),
+            PollingControlProxy(m_sGroup1, "beat_distance").get(),
             kMaxFloatingPointErrorLowPrecision);
     EXPECT_NEAR(0.82651163,
-            ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")),
+            PollingControlProxy(m_sGroup2, "beat_distance").get(),
             kMaxFloatingPointErrorLowPrecision);
 }
 
@@ -2370,13 +2366,13 @@ TEST_F(EngineSyncTest, FollowerUserTweakPreservedInLeaderChange) {
 
     ControlObject::getControl(ConfigKey(m_sGroup1, "sync_leader"))->set(1);
     ControlObject::getControl(ConfigKey(m_sGroup2, "sync_enabled"))->set(1);
-    ControlObject::set(ConfigKey(m_sGroup1, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "quantize"), 1.0);
+    PollingControlProxy(m_sGroup1, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup2, "quantize").set(1.0);
     // Apply user tweak offset to follower
     m_pChannel2->getEngineBuffer()
             ->m_pBpmControl->m_dUserOffset.setValue(0.3);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
 
     EXPECT_TRUE(isExplicitLeader(m_sGroup1));
     EXPECT_TRUE(isFollower(m_sGroup2));
@@ -2389,8 +2385,8 @@ TEST_F(EngineSyncTest, FollowerUserTweakPreservedInLeaderChange) {
 
     for (int i = 0; i < 5; ++i) {
         ProcessBuffer();
-        EXPECT_NEAR(ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")),
-                ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")),
+        EXPECT_NEAR(PollingControlProxy(m_sGroup1, "beat_distance").get(),
+                PollingControlProxy(m_sGroup2, "beat_distance").get(),
                 kMaxFloatingPointErrorLowPrecision);
     }
 
@@ -2402,8 +2398,8 @@ TEST_F(EngineSyncTest, FollowerUserTweakPreservedInLeaderChange) {
 
     for (int i = 0; i < 10; ++i) {
         ProcessBuffer();
-        EXPECT_NEAR(ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")),
-                ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")),
+        EXPECT_NEAR(PollingControlProxy(m_sGroup1, "beat_distance").get(),
+                PollingControlProxy(m_sGroup2, "beat_distance").get(),
                 kMaxFloatingPointErrorLowPrecision);
     }
 }
@@ -2421,10 +2417,10 @@ TEST_F(EngineSyncTest, FollowerUserTweakPreservedInSyncDisable) {
 
     ControlObject::getControl(ConfigKey(m_sGroup1, "sync_leader"))->set(1);
     ControlObject::getControl(ConfigKey(m_sGroup2, "sync_enabled"))->set(1);
-    ControlObject::set(ConfigKey(m_sGroup1, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup2, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
     ProcessBuffer();
 
     // Apply user tweak offset to follower
@@ -2457,10 +2453,10 @@ TEST_F(EngineSyncTest, LeaderUserTweakPreservedInLeaderChange) {
 
     ControlObject::getControl(ConfigKey(m_sGroup2, "sync_enabled"))->set(1);
     ControlObject::getControl(ConfigKey(m_sGroup1, "sync_leader"))->set(1);
-    ControlObject::set(ConfigKey(m_sGroup1, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup2, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
 
     EXPECT_TRUE(isExplicitLeader(m_sGroup1));
     EXPECT_TRUE(isFollower(m_sGroup2));
@@ -2473,14 +2469,14 @@ TEST_F(EngineSyncTest, LeaderUserTweakPreservedInLeaderChange) {
 
     // Apply user tweak offset to leader -- to test the bug we found, we need
     // to apply it indirectly.
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_up"), 1);
+    PollingControlProxy(m_sGroup1, "rate_temp_up").set(1);
     for (int i = 0; i < 5; ++i) {
         ProcessBuffer();
-        EXPECT_NEAR(ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")),
-                ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")),
+        EXPECT_NEAR(PollingControlProxy(m_sGroup1, "beat_distance").get(),
+                PollingControlProxy(m_sGroup2, "beat_distance").get(),
                 kMaxFloatingPointErrorLowPrecision);
     }
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_temp_up"), 0);
+    PollingControlProxy(m_sGroup1, "rate_temp_up").set(0);
 
     // Switch leader
     ControlObject::getControl(ConfigKey(m_sGroup2, "sync_leader"))->set(1);
@@ -2490,8 +2486,8 @@ TEST_F(EngineSyncTest, LeaderUserTweakPreservedInLeaderChange) {
 
     for (int i = 0; i < 10; ++i) {
         ProcessBuffer();
-        EXPECT_NEAR(ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")),
-                ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")),
+        EXPECT_NEAR(PollingControlProxy(m_sGroup1, "beat_distance").get(),
+                PollingControlProxy(m_sGroup2, "beat_distance").get(),
                 kMaxFloatingPointErrorLowPrecision);
     }
 }
@@ -2535,142 +2531,142 @@ TEST_F(EngineSyncTest, QuantizeImpliesSyncPhase) {
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(130));
     m_pTrack1->trySetBeats(pBeats1);
 
-    ControlObject::set(ConfigKey(m_sGroup2, "rate"), getRateSliderValue(1.0));
+    PollingControlProxy(m_sGroup2, "rate").set(getRateSliderValue(1.0));
     mixxx::BeatsPointer pBeats2 = mixxx::Beats::fromConstTempo(
             m_pTrack2->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(100));
     m_pTrack2->trySetBeats(pBeats2);
 
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
     ProcessBuffer();
 
     // Beat length: 40707.692307692; Buffer size is 1024
     // Expected beat_distance = 1024/40707 = 0.025155
-    EXPECT_DOUBLE_EQ(130, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(0.025154950869236584, ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")));
+    EXPECT_DOUBLE_EQ(130, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(0.025154950869236584, PollingControlProxy(m_sGroup1, "beat_distance").get());
 
     // Beat length: 52920; Buffer size is 1024
     // Expected beat_distance = 0.01935
-    EXPECT_DOUBLE_EQ(100, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
-    EXPECT_DOUBLE_EQ(0.019349962207105064, ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")));
+    EXPECT_DOUBLE_EQ(100, PollingControlProxy(m_sGroup2, "bpm").get());
+    EXPECT_DOUBLE_EQ(0.019349962207105064, PollingControlProxy(m_sGroup2, "beat_distance").get());
 
     // first test without quantization
     pButtonSyncEnabled1->set(1.0);
     ProcessBuffer();
 
     // Deck 1 continues with 100 bpm
-    EXPECT_DOUBLE_EQ(100, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
-    EXPECT_DOUBLE_EQ(100, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(0.044504913076341648, ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")));
+    EXPECT_DOUBLE_EQ(100, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
+    EXPECT_DOUBLE_EQ(100, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(0.044504913076341648, PollingControlProxy(m_sGroup1, "beat_distance").get());
 
     // Deck 2 continues normally
-    EXPECT_DOUBLE_EQ(100, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
-    EXPECT_DOUBLE_EQ(0.038699924414210128, ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")));
+    EXPECT_DOUBLE_EQ(100, PollingControlProxy(m_sGroup2, "bpm").get());
+    EXPECT_DOUBLE_EQ(0.038699924414210128, PollingControlProxy(m_sGroup2, "beat_distance").get());
 
     pButtonSyncEnabled1->set(0.0);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "quantize"), 1.0);
+    PollingControlProxy(m_sGroup1, "quantize").set(1.0);
     ProcessBuffer();
 
     // Quantize only has no effect here, both decks are running freely.
 
-    EXPECT_DOUBLE_EQ(100, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(0.063854875283446716, ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")));
+    EXPECT_DOUBLE_EQ(100, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(0.063854875283446716, PollingControlProxy(m_sGroup1, "beat_distance").get());
 
     // Deck 2 continues normally
-    EXPECT_DOUBLE_EQ(100, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
-    EXPECT_DOUBLE_EQ(0.058049886621315196, ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")));
+    EXPECT_DOUBLE_EQ(100, PollingControlProxy(m_sGroup2, "bpm").get());
+    EXPECT_DOUBLE_EQ(0.058049886621315196, PollingControlProxy(m_sGroup2, "beat_distance").get());
     pButtonSyncEnabled1->set(1.0);
     ProcessBuffer();
 
     // normally the deck would be at 0.083204837, due to quantize it has been seeked
     // in phase of deck 2
-    EXPECT_DOUBLE_EQ(100, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(100, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_DOUBLE_EQ(100, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(100, PollingControlProxy(m_sGroup2, "bpm").get());
 
     EXPECT_NEAR(
-            ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")),
-            ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")),
+            PollingControlProxy(m_sGroup1, "beat_distance").get(),
+            PollingControlProxy(m_sGroup2, "beat_distance").get(),
             1e-15);
 
     // Reset Deck 1 Tempo
     pButtonSyncEnabled1->set(0.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "quantize"), 0.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "rate_ratio"), 1.0);
+    PollingControlProxy(m_sGroup1, "quantize").set(0.0);
+    PollingControlProxy(m_sGroup1, "rate_ratio").set(1.0);
     ProcessBuffer();
 
     // Now the deck should be running normally
-    EXPECT_DOUBLE_EQ(130, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
+    EXPECT_DOUBLE_EQ(130, PollingControlProxy(m_sGroup1, "bpm").get());
     EXPECT_NEAR(
             0.10255479969765675,
-            ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")),
+            PollingControlProxy(m_sGroup1, "beat_distance").get(),
             1e-15);
 
-    EXPECT_DOUBLE_EQ(100, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
-    EXPECT_DOUBLE_EQ(0.096749811035525324, ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")));
+    EXPECT_DOUBLE_EQ(100, PollingControlProxy(m_sGroup2, "bpm").get());
+    EXPECT_DOUBLE_EQ(0.096749811035525324, PollingControlProxy(m_sGroup2, "beat_distance").get());
 
     pButtonBeatsyncPhase1->set(1.0);
     ProcessBuffer();
 
     // check if the next beat will be aligned:
 
-    EXPECT_DOUBLE_EQ(130, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(100, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_DOUBLE_EQ(130, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(100, PollingControlProxy(m_sGroup2, "bpm").get());
 
     // we align here to the past beat, because beat_distance < 1.0/8
     EXPECT_NEAR(
-            ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")) / 130 * 100,
-            ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")),
+            PollingControlProxy(m_sGroup1, "beat_distance").get() / 130 * 100,
+            PollingControlProxy(m_sGroup2, "beat_distance").get(),
             1e-15);
 }
 
 TEST_F(EngineSyncTest, SeekStayInPhase) {
-    ControlObject::set(ConfigKey(m_sGroup1, "quantize"), 1.0);
+    PollingControlProxy(m_sGroup1, "quantize").set(1.0);
 
     mixxx::BeatsPointer pBeats1 = mixxx::Beats::fromConstTempo(
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(130));
     m_pTrack1->trySetBeats(pBeats1);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
 
-    EXPECT_DOUBLE_EQ(0.025154950869236584, ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")));
-    EXPECT_DOUBLE_EQ(0.0023219954648526077, ControlObject::get(ConfigKey(m_sGroup1, "playposition")));
+    EXPECT_DOUBLE_EQ(0.025154950869236584, PollingControlProxy(m_sGroup1, "beat_distance").get());
+    EXPECT_DOUBLE_EQ(0.0023219954648526077, PollingControlProxy(m_sGroup1, "playposition").get());
 
-    ControlObject::set(ConfigKey(m_sGroup1, "playposition"), 0.2);
+    PollingControlProxy(m_sGroup1, "playposition").set(0.2);
     ProcessBuffer();
 
     // We expect to be two buffers ahead in a beat near 0.2
     EXPECT_DOUBLE_EQ(0.050309901738473162,
-            ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")));
-    EXPECT_DOUBLE_EQ(0.18925937554508981, ControlObject::get(ConfigKey(m_sGroup1, "playposition")));
+            PollingControlProxy(m_sGroup1, "beat_distance").get());
+    EXPECT_DOUBLE_EQ(0.18925937554508981, PollingControlProxy(m_sGroup1, "playposition").get());
 
     // The same again with a stopped track loaded in Channel 2
-    ControlObject::set(ConfigKey(m_sGroup1, "playposition"), 0.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
+    PollingControlProxy(m_sGroup1, "playposition").set(0.0);
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
     ProcessBuffer();
 
     mixxx::BeatsPointer pBeats2 = mixxx::Beats::fromConstTempo(
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(130));
     m_pTrack2->trySetBeats(pBeats2);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
 
     EXPECT_DOUBLE_EQ(0.025154950869236584,
-            ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")));
+            PollingControlProxy(m_sGroup1, "beat_distance").get());
     EXPECT_DOUBLE_EQ(0.0023219954648526077,
-            ControlObject::get(ConfigKey(m_sGroup1, "playposition")));
+            PollingControlProxy(m_sGroup1, "playposition").get());
 
-    ControlObject::set(ConfigKey(m_sGroup1, "playposition"), 0.2);
+    PollingControlProxy(m_sGroup1, "playposition").set(0.2);
     ProcessBuffer();
 
     // We expect to be two buffers ahead in a beat near 0.2
     EXPECT_DOUBLE_EQ(0.050309901738473162,
-            ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")));
-    EXPECT_DOUBLE_EQ(0.18925937554508981, ControlObject::get(ConfigKey(m_sGroup1, "playposition")));
+            PollingControlProxy(m_sGroup1, "beat_distance").get());
+    EXPECT_DOUBLE_EQ(0.18925937554508981, PollingControlProxy(m_sGroup1, "playposition").get());
 }
 
 TEST_F(EngineSyncTest, ScratchEndOtherStoppedTrackStayInPhase) {
@@ -2681,29 +2677,29 @@ TEST_F(EngineSyncTest, ScratchEndOtherStoppedTrackStayInPhase) {
                     mixxx::audio::kStartFramePos,
                     mixxx::Bpm(130));
     m_pTrack1->trySetBeats(pBeats1);
-    ControlObject::set(ConfigKey(m_sGroup1, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "sync_enabled"), 1);
+    PollingControlProxy(m_sGroup1, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup1, "sync_enabled").set(1);
 
     mixxx::BeatsPointer pBeats2 =
             mixxx::Beats::fromConstTempo(m_pTrack2->getSampleRate(),
                     mixxx::audio::kStartFramePos,
                     mixxx::Bpm(125));
     m_pTrack2->trySetBeats(pBeats2);
-    ControlObject::set(ConfigKey(m_sGroup2, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "sync_enabled"), 1);
+    PollingControlProxy(m_sGroup2, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup2, "sync_enabled").set(1);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2_enable"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2"), 20.0);
+    PollingControlProxy(m_sGroup1, "scratch2_enable").set(1.0);
+    PollingControlProxy(m_sGroup1, "scratch2").set(20.0);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2_enable"), 0.0);
+    PollingControlProxy(m_sGroup1, "scratch2_enable").set(0.0);
     ProcessBuffer();
     ProcessBuffer();
 
-    EXPECT_NEAR(ControlObject::get(ConfigKey(m_sInternalClockGroup, "beat_distance")),
-            ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")),
+    EXPECT_NEAR(PollingControlProxy(m_sInternalClockGroup, "beat_distance").get(),
+            PollingControlProxy(m_sGroup1, "beat_distance").get(),
             1e-8);
 }
 
@@ -2715,30 +2711,30 @@ TEST_F(EngineSyncTest, ScratchEndOtherPlayingTrackStayInPhase) {
                     mixxx::audio::kStartFramePos,
                     mixxx::Bpm(130));
     m_pTrack1->trySetBeats(pBeats1);
-    ControlObject::set(ConfigKey(m_sGroup1, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "sync_enabled"), 1);
+    PollingControlProxy(m_sGroup1, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup1, "sync_enabled").set(1);
 
     mixxx::BeatsPointer pBeats2 =
             mixxx::Beats::fromConstTempo(m_pTrack2->getSampleRate(),
                     mixxx::audio::kStartFramePos,
                     mixxx::Bpm(125));
     m_pTrack2->trySetBeats(pBeats2);
-    ControlObject::set(ConfigKey(m_sGroup2, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "sync_enabled"), 1);
+    PollingControlProxy(m_sGroup2, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup2, "sync_enabled").set(1);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
     ProcessBuffer();
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2_enable"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2"), 20.0);
+    PollingControlProxy(m_sGroup1, "scratch2_enable").set(1.0);
+    PollingControlProxy(m_sGroup1, "scratch2").set(20.0);
     ProcessBuffer();
-    ControlObject::set(ConfigKey(m_sGroup1, "scratch2_enable"), 0.0);
+    PollingControlProxy(m_sGroup1, "scratch2_enable").set(0.0);
     ProcessBuffer();
     ProcessBuffer();
 
-    EXPECT_NEAR(ControlObject::get(ConfigKey(m_sInternalClockGroup, "beat_distance")),
-            ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")),
+    EXPECT_NEAR(PollingControlProxy(m_sInternalClockGroup, "beat_distance").get(),
+            PollingControlProxy(m_sGroup1, "beat_distance").get(),
             1e-8);
 }
 
@@ -2749,17 +2745,17 @@ TEST_F(EngineSyncTest, SyncWithoutBeatgrid) {
     m_pTrack1->trySetBeats(pBeats1);
     m_pTrack2->trySetBeats(mixxx::BeatsPointer());
 
-    ControlObject::set(ConfigKey(m_sGroup1, "rate"), 0.5);
+    PollingControlProxy(m_sGroup1, "rate").set(0.5);
 
     // Play a buffer, which is enough to see if the beat distances align.
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "sync_enabled"), 1);
+    PollingControlProxy(m_sGroup1, "sync_enabled").set(1);
 
     ProcessBuffer();
 
     EXPECT_DOUBLE_EQ(0.5,
-            ControlObject::get(ConfigKey(m_sGroup1, "rate")));
+            PollingControlProxy(m_sGroup1, "rate").get());
 }
 
 TEST_F(EngineSyncTest, QuantizeHotCueActivate) {
@@ -2775,7 +2771,7 @@ TEST_F(EngineSyncTest, QuantizeHotCueActivate) {
 
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
 
     // store a hot cue at 0:00
     pHotCue2Activate->set(1.0);
@@ -2783,24 +2779,24 @@ TEST_F(EngineSyncTest, QuantizeHotCueActivate) {
     pHotCue2Activate->set(0.0);
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup2, "quantize"), 0.0);
+    PollingControlProxy(m_sGroup2, "quantize").set(0.0);
     // preview a hot cue without quantize
     pHotCue2Activate->set(1.0);
     ProcessBuffer();
 
     // Expect that the track has advanced by one buffer starting from the hot cue at 0:00
-    EXPECT_DOUBLE_EQ(0.019349962207105064, ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")));
+    EXPECT_DOUBLE_EQ(0.019349962207105064, PollingControlProxy(m_sGroup2, "beat_distance").get());
 
     pHotCue2Activate->set(0.0);
     ProcessBuffer();
 
     // Expect that the track was set back to 0:00
-    EXPECT_DOUBLE_EQ(0, ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")));
+    EXPECT_DOUBLE_EQ(0, PollingControlProxy(m_sGroup2, "beat_distance").get());
 
     // Expect that the first track has advanced 4 buffers in the mean time
-    EXPECT_DOUBLE_EQ(0.10061980347694634, ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")));
+    EXPECT_DOUBLE_EQ(0.10061980347694634, PollingControlProxy(m_sGroup1, "beat_distance").get());
 
-    ControlObject::set(ConfigKey(m_sGroup2, "quantize"), 1.0);
+    PollingControlProxy(m_sGroup2, "quantize").set(1.0);
     // preview a hot cue with quantize seeks back to 0:00 and adjust beat distance to match the first track
     pHotCue2Activate->set(1.0);
     ProcessBuffer();
@@ -2809,18 +2805,18 @@ TEST_F(EngineSyncTest, QuantizeHotCueActivate) {
     // We compare here the distance to the next beat (1 - beat_distance) and
     // scale it by the different tempos.
     EXPECT_NEAR(
-            (1 - ControlObject::get(ConfigKey(m_sGroup1, "beat_distance"))) / 130 * 100,
-            (1 - ControlObject::get(ConfigKey(m_sGroup2, "beat_distance"))),
+            (1 - PollingControlProxy(m_sGroup1, "beat_distance").get()) / 130 * 100,
+            (1 - PollingControlProxy(m_sGroup2, "beat_distance").get()),
             1e-15);
 
     pHotCue2Activate->set(0.0);
     ProcessBuffer();
 
     // Expect that the track is back to 0:00
-    EXPECT_DOUBLE_EQ(0, ControlObject::get(ConfigKey(m_sGroup2, "beat_distance")));
+    EXPECT_DOUBLE_EQ(0, PollingControlProxy(m_sGroup2, "beat_distance").get());
 
     // Expect that the first track has advanced 6 buffers in the mean time
-    EXPECT_DOUBLE_EQ(0.15092970521541951, ControlObject::get(ConfigKey(m_sGroup1, "beat_distance")));
+    EXPECT_DOUBLE_EQ(0.15092970521541951, PollingControlProxy(m_sGroup1, "beat_distance").get());
 }
 
 TEST_F(EngineSyncTest, ChangeBeatGrid) {
@@ -2834,29 +2830,29 @@ TEST_F(EngineSyncTest, ChangeBeatGrid) {
             m_pTrack1->getSampleRate(), mixxx::audio::kStartFramePos, mixxx::Bpm(130));
     m_pTrack1->trySetBeats(pBeats1);
     pButtonSyncEnabled1->set(1.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
 
     ProcessBuffer();
 
     EXPECT_TRUE(isSoftLeader(m_sGroup1));
-    EXPECT_DOUBLE_EQ(130.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(130.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+    EXPECT_DOUBLE_EQ(130.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(130.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 
     // deck 2 has not beats, so it will sync 0 bpm track to the first one
     pButtonSyncEnabled2->set(1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
 
     ProcessBuffer();
 
     // expect no change in Deck 1
     EXPECT_TRUE(isSoftLeader(m_sGroup1));
     EXPECT_TRUE(isFollower(m_sGroup2));
-    EXPECT_DOUBLE_EQ(130.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
-    EXPECT_DOUBLE_EQ(130.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+    EXPECT_DOUBLE_EQ(130.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(0, PollingControlProxy(m_sGroup2, "bpm").get());
+    EXPECT_DOUBLE_EQ(130.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 
     // deck 1 is stopped.
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 0.0);
+    PollingControlProxy(m_sGroup1, "play").set(0.0);
 
     ProcessBuffer();
     // Group1 remains leader because it is the only one with a tempo.
@@ -2876,12 +2872,12 @@ TEST_F(EngineSyncTest, ChangeBeatGrid) {
     EXPECT_TRUE(isSoftLeader(m_sGroup2));
     EXPECT_TRUE(isFollower(m_sGroup1));
     EXPECT_TRUE(isFollower(m_sInternalClockGroup));
-    EXPECT_DOUBLE_EQ(140.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(140.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
-    EXPECT_DOUBLE_EQ(140.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+    EXPECT_DOUBLE_EQ(140.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(140.0, PollingControlProxy(m_sGroup2, "bpm").get());
+    EXPECT_DOUBLE_EQ(140.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 
     // Play Both Tracks.
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
 
     EXPECT_TRUE(isFollower(m_sInternalClockGroup));
@@ -2897,10 +2893,10 @@ TEST_F(EngineSyncTest, ChangeBeatGrid) {
 
     // We expect that the second deck is still playing at unity -- it was the leader
     // and it should not change speed just because it reloaded and the bpm changed.
-    EXPECT_DOUBLE_EQ(75.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
+    EXPECT_DOUBLE_EQ(75.0, PollingControlProxy(m_sGroup1, "bpm").get());
     // Expect to sync on half beats
-    EXPECT_DOUBLE_EQ(75.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
-    EXPECT_DOUBLE_EQ(75.0, ControlObject::get(ConfigKey(m_sInternalClockGroup, "bpm")));
+    EXPECT_DOUBLE_EQ(75.0, PollingControlProxy(m_sGroup2, "bpm").get());
+    EXPECT_DOUBLE_EQ(75.0, PollingControlProxy(m_sInternalClockGroup, "bpm").get());
 }
 
 TEST_F(EngineSyncTest, BeatMapQuantizePlay) {
@@ -2920,8 +2916,8 @@ TEST_F(EngineSyncTest, BeatMapQuantizePlay) {
                                     static_cast<double>(kSampleRate))}));
     m_pTrack2->trySetBeats(pBeats2);
 
-    ControlObject::set(ConfigKey(m_sGroup1, "quantize"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "quantize"), 1.0);
+    PollingControlProxy(m_sGroup1, "quantize").set(1.0);
+    PollingControlProxy(m_sGroup2, "quantize").set(1.0);
 
     ControlObject::getControl(ConfigKey(m_sGroup1, "sync_mode"))
             ->set(static_cast<double>(SyncMode::LeaderExplicit));
@@ -2935,8 +2931,8 @@ TEST_F(EngineSyncTest, BeatMapQuantizePlay) {
     // This was fixed in https://github.com/mixxxdj/mixxx/issues/10358
     EXPECT_DOUBLE_EQ(m_pChannel2->getEngineBuffer()->m_pSyncControl->getBeatDistance(), 0);
     EXPECT_DOUBLE_EQ(
-            ControlObject::get(ConfigKey(m_sGroup1, "playposition")),
-            ControlObject::get(ConfigKey(m_sGroup2, "playposition")));
+            PollingControlProxy(m_sGroup1, "playposition").get(),
+            PollingControlProxy(m_sGroup2, "playposition").get());
 }
 
 TEST_F(EngineSyncTest, BpmAdjustFactor) {
@@ -2946,35 +2942,35 @@ TEST_F(EngineSyncTest, BpmAdjustFactor) {
     m_pMixerDeck2->loadFakeTrack(false, 150.0);
     ProcessBuffer();
 
-    EXPECT_DOUBLE_EQ(40.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(150.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_DOUBLE_EQ(40.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(150.0, PollingControlProxy(m_sGroup2, "bpm").get());
 
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup2, "sync_enabled"), 1.0);
+    PollingControlProxy(m_sGroup2, "sync_enabled").set(1.0);
     ProcessBuffer();
 
     // group 2 should be synced to the first playing deck and becomes leader
-    EXPECT_DOUBLE_EQ(40.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(80.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_DOUBLE_EQ(40.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(80.0, PollingControlProxy(m_sGroup2, "bpm").get());
     EXPECT_TRUE(isSoftLeader(m_sGroup2));
     assertSyncOff(m_sGroup1);
 
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
     ProcessBuffer();
     EXPECT_TRUE(isSoftLeader(m_sGroup2));
     // Pretend a changing beatgrid
     static_cast<SyncControl*>(m_pEngineSync->getLeaderSyncable())->setLocalBpm(mixxx::Bpm{152});
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "sync_enabled"), 1.0);
+    PollingControlProxy(m_sGroup1, "sync_enabled").set(1.0);
     ProcessBuffer();
 
     // Group 1 should be already in sync, it must not change due to sync
     // and Group 2 must also remain.
-    EXPECT_DOUBLE_EQ(40.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(80.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_DOUBLE_EQ(40.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(80.0, PollingControlProxy(m_sGroup2, "bpm").get());
     EXPECT_TRUE(isFollower(m_sGroup1));
     EXPECT_TRUE(isSoftLeader(m_sGroup2));
     EXPECT_TRUE(isFollower(m_sInternalClockGroup));
@@ -2985,35 +2981,35 @@ TEST_F(EngineSyncTest, ImplicitLeaderToInternalClock) {
     m_pMixerDeck2->loadFakeTrack(false, 125.0);
     ProcessBuffer();
 
-    EXPECT_DOUBLE_EQ(100.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(125.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_DOUBLE_EQ(100.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(125.0, PollingControlProxy(m_sGroup2, "bpm").get());
 
     // During cue-ing volume is 0.0
-    ControlObject::set(ConfigKey(m_sGroup1, "volume"), 0.0);
-    ControlObject::set(ConfigKey(m_sGroup1, "play"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "play"), 1.0);
+    PollingControlProxy(m_sGroup1, "volume").set(0.0);
+    PollingControlProxy(m_sGroup1, "play").set(1.0);
+    PollingControlProxy(m_sGroup2, "play").set(1.0);
     ProcessBuffer();
 
-    ControlObject::set(ConfigKey(m_sGroup1, "sync_enabled"), 1.0);
-    ControlObject::set(ConfigKey(m_sGroup2, "sync_enabled"), 1.0);
+    PollingControlProxy(m_sGroup1, "sync_enabled").set(1.0);
+    PollingControlProxy(m_sGroup2, "sync_enabled").set(1.0);
     ProcessBuffer();
 
     // group 2 should be synced to the first playing deck and becomes leader
-    EXPECT_DOUBLE_EQ(125.0, ControlObject::get(ConfigKey(m_sGroup1, "bpm")));
-    EXPECT_DOUBLE_EQ(125.0, ControlObject::get(ConfigKey(m_sGroup2, "bpm")));
+    EXPECT_DOUBLE_EQ(125.0, PollingControlProxy(m_sGroup1, "bpm").get());
+    EXPECT_DOUBLE_EQ(125.0, PollingControlProxy(m_sGroup2, "bpm").get());
     ASSERT_FALSE(isSoftLeader(m_sGroup1));
     ASSERT_TRUE(isSoftLeader(m_sGroup2));
     ASSERT_FALSE(isSoftLeader(m_sInternalClockGroup));
     ProcessBuffer();
 
     // Drop Track, no change
-    ControlObject::set(ConfigKey(m_sGroup1, "volume"), 1.0);
+    PollingControlProxy(m_sGroup1, "volume").set(1.0);
     ASSERT_FALSE(isSoftLeader(m_sGroup1));
     ASSERT_TRUE(isSoftLeader(m_sGroup2));
     ASSERT_FALSE(isSoftLeader(m_sInternalClockGroup));
 
     // Other track stops, leader switches to deck 1
-    ControlObject::set(ConfigKey(m_sGroup2, "volume"), 0.0);
+    PollingControlProxy(m_sGroup2, "volume").set(0.0);
     ProcessBuffer();
     ProcessBuffer();
 
@@ -3031,14 +3027,13 @@ TEST_F(EngineSyncTest, BeatContextRounding) {
     // This playposition is was able to fail a DEBUG_ASSERT before
     // https://github.com/mixxxdj/mixxx/pull/11263 It was not possible to pass
     // it as one double literal
-    ControlObject::set(ConfigKey(m_sGroup1, "playposition"),
-            (-5167.0 - 0.33333333333393966313) / 220500);
+    PollingControlProxy(m_sGroup1, "playposition").set((-5167.0 - 0.33333333333393966313) / 220500);
     ProcessBuffer();
     ControlObject::getControl(ConfigKey(m_sGroup1, "play"))->set(1.0);
     // this must not abort due to the assertion in Beats::iteratorFrom()
     ProcessBuffer();
 
     EXPECT_NEAR(-0.021112622826908536,
-            ControlObject::get(ConfigKey(m_sGroup1, "playposition")),
+            PollingControlProxy(m_sGroup1, "playposition").get(),
             kMaxFloatingPointErrorHighPrecision);
 }

@@ -870,7 +870,7 @@ void MixxxMainWindow::slotFileLoadSongPlayer(int deck) {
             .arg(QString::number(deck));
     QString areYouSure = tr("Are you sure you want to load a new track?");
 
-    if (ControlObject::get(ConfigKey(group, "play")) > 0.0) {
+    if (PollingControlProxy(group, "play").get() > 0.0) {
         int ret = QMessageBox::warning(this,
                 VersionStore::applicationName(),
                 deckWarningMessage + "\n" + areYouSure,
@@ -1210,15 +1210,13 @@ bool MixxxMainWindow::confirmExit() {
     unsigned int deckCount = pPlayerManager->numDecks();
     unsigned int samplerCount = pPlayerManager->numSamplers();
     for (unsigned int i = 0; i < deckCount; ++i) {
-        if (ControlObject::toBool(
-                    ConfigKey(PlayerManager::groupForDeck(i), "play"))) {
+        if (PollingControlProxy(PlayerManager::groupForDeck(i), "play").toBool()) {
             playing = true;
             break;
         }
     }
     for (unsigned int i = 0; i < samplerCount; ++i) {
-        if (ControlObject::toBool(
-                    ConfigKey(PlayerManager::groupForSampler(i), "play"))) {
+        if (PollingControlProxy(PlayerManager::groupForSampler(i), "play").toBool()) {
             playingSampler = true;
             break;
         }

@@ -393,7 +393,7 @@ QWidget* LegacySkinParser::parseSkin(const QString& skinPath, QWidget* pParent) 
             if (!attribute.persist()) {
                 // Set the value using the static function, so the
                 // value changes signal is transmitted to the owner.
-                ControlObject::set(configKey, value);
+                PollingControlProxy(configKey).set(value);
             }
         }
     }

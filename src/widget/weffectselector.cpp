@@ -3,6 +3,7 @@
 #include <QAbstractItemView>
 #include <QtDebug>
 
+#include "control/pollingcontrolproxy.h"
 #include "effects/effectsmanager.h"
 #include "effects/visibleeffectslist.h"
 #include "library/library_decl.h"
@@ -92,8 +93,8 @@ void WEffectSelector::slotEffectSelected(int newIndex) {
     // After selecting an effect send Shift+Tab to move focus to tracks table
     // in order to immediately allow keyboard shortcuts again.
     // TODO(ronso0) switch to previously focused (library?) widget instead
-    ControlObject::set(ConfigKey("[Library]", "focused_widget"),
-            static_cast<double>(FocusWidget::TracksTable));
+    PollingControlProxy("[Library]", "focused_widget")
+            .set(static_cast<double>(FocusWidget::TracksTable));
 }
 
 void WEffectSelector::slotEffectUpdated() {

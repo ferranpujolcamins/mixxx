@@ -1,6 +1,6 @@
 #include "control/controlindicatortimer.h"
 
-#include "control/controlobject.h"
+#include "control/pollingcontrolproxy.h"
 #include "moc_controlindicatortimer.cpp"
 #include "util/math.h"
 
@@ -58,7 +58,7 @@ void ControlIndicatorTimer::slotGuiTick50ms(double cpuTime) {
     }
 
     constexpr double duration = 0.25;
-    const double tickTime = ControlObject::get(ConfigKey("[Master]", "guiTickTime"));
+    const double tickTime = PollingControlProxy("[Master]", "guiTickTime").get();
     const double toggles = floor(tickTime / duration);
     m_nextSwitchTime = (toggles + 1) * duration;
     slotTimeout();

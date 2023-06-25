@@ -5,6 +5,7 @@
 
 #include "control/controlobject.h"
 #include "control/controlproxy.h"
+#include "control/pollingcontrolproxy.h"
 #include "library/library_decl.h"
 #include "moc_wbeatspinbox.cpp"
 #include "util/math.h"
@@ -293,8 +294,8 @@ void WBeatSpinBox::keyPressEvent(QKeyEvent* pEvent) {
             pEvent->key() == Qt::Key_Enter ||
             pEvent->key() == Qt::Key_Escape) {
         QDoubleSpinBox::keyPressEvent(pEvent);
-        ControlObject::set(ConfigKey("[Library]", "focused_widget"),
-                static_cast<double>(FocusWidget::TracksTable));
+        PollingControlProxy("[Library]", "focused_widget")
+                .set(static_cast<double>(FocusWidget::TracksTable));
         return;
     }
     return QDoubleSpinBox::keyPressEvent(pEvent);

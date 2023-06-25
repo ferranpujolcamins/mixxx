@@ -698,7 +698,7 @@ void PlayerManager::slotLoadLocationToPlayerMaybePlay(
     case LoadWhenDeckPlaying::Reject:
         break;
     case LoadWhenDeckPlaying::Allow:
-        if (ControlObject::get(ConfigKey(group, "play")) > 0.0) {
+        if (PollingControlProxy(group, "play").get() > 0.0) {
             // deck is currently playing, so immediately play new track
             play = true;
         }

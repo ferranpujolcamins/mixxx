@@ -308,10 +308,12 @@ void BaseTrackPlayerImpl::loadTrack(TrackPointer pTrack) {
     } else {
         // copy loop in and out points from other deck because any new loops
         // won't be saved yet
-        m_pLoopInPoint->set(ControlObject::get(
-                ConfigKey(m_pChannelToCloneFrom->getGroup(), "loop_start_position")));
-        m_pLoopOutPoint->set(ControlObject::get(
-                ConfigKey(m_pChannelToCloneFrom->getGroup(), "loop_end_position")));
+        m_pLoopInPoint->set(PollingControlProxy(
+                m_pChannelToCloneFrom->getGroup(), "loop_start_position")
+                                    .get());
+        m_pLoopOutPoint->set(PollingControlProxy(
+                m_pChannelToCloneFrom->getGroup(), "loop_end_position")
+                                     .get());
     }
 
     connectLoadedTrack();
@@ -569,23 +571,29 @@ void BaseTrackPlayerImpl::slotTrackLoaded(TrackPointer pNewTrack,
             // perform a clone of the given channel
 
             // copy rate
-            m_pRateRatio->set(ControlObject::get(ConfigKey(
-                    m_pChannelToCloneFrom->getGroup(), "rate_ratio")));
+            m_pRateRatio->set(PollingControlProxy(
+                    m_pChannelToCloneFrom->getGroup(), "rate_ratio")
+                                      .get());
 
             // copy pitch
-            m_pPitchAdjust->set(ControlObject::get(ConfigKey(
-                    m_pChannelToCloneFrom->getGroup(), "pitch_adjust")));
+            m_pPitchAdjust->set(PollingControlProxy(
+                    m_pChannelToCloneFrom->getGroup(), "pitch_adjust")
+                                        .get());
 
             // copy play state
-            ControlObject::set(ConfigKey(getGroup(), "play"),
-                    ControlObject::get(ConfigKey(m_pChannelToCloneFrom->getGroup(), "play")));
+            PollingControlProxy(getGroup(), "play")
+                    .set(PollingControlProxy(
+                            m_pChannelToCloneFrom->getGroup(), "play")
+                                    .get());
 
             // copy the play position
             m_pChannel->getEngineBuffer()->requestClonePosition(m_pChannelToCloneFrom);
 
             // copy the loop state
-            if (ControlObject::get(ConfigKey(m_pChannelToCloneFrom->getGroup(), "loop_enabled")) == 1.0) {
-                ControlObject::set(ConfigKey(getGroup(), "reloop_toggle"), 1.0);
+            if (PollingControlProxy(
+                        m_pChannelToCloneFrom->getGroup(), "loop_enabled")
+                            .get() == 1.0) {
+                PollingControlProxy(getGroup(), "reloop_toggle").set(1.0);
             }
         }
 

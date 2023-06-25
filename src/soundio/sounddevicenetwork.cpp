@@ -87,9 +87,8 @@ SoundDeviceStatus SoundDeviceNetwork::open(bool isClkRefDevice, int syncBuffers)
 
         // Update the samplerate and latency ControlObjects, which allow the
         // waveform view to properly correct for the latency.
-        ControlObject::set(ConfigKey("[Master]", "latency"),
-                requestedBufferTime.toDoubleMillis());
-        ControlObject::set(ConfigKey("[Master]", "samplerate"), m_dSampleRate);
+        PollingControlProxy("[Master]", "latency").set(requestedBufferTime.toDoubleMillis());
+        PollingControlProxy("[Master]", "samplerate").set(m_dSampleRate);
 
         // Network stream was just started above so we have to wait until
         // we can pass one chunk.

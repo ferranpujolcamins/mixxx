@@ -957,7 +957,7 @@ void WTrackTableView::loadSelectedTrackToGroup(const QString& group, bool play) 
     if (!allowLoadTrackIntoPlayingDeck) {
         // TODO(XXX): Check for other than just the first preview deck.
         if (group != "[PreviewDeck1]" &&
-                ControlObject::get(ConfigKey(group, "play")) > 0.0) {
+                PollingControlProxy(group, "play").get() > 0.0) {
             return;
         }
     }

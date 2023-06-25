@@ -1,5 +1,6 @@
 #include "controllers/controlpickermenu.h"
 
+#include "control/pollingcontrolproxy.h"
 #include "effects/chains/equalizereffectchain.h"
 #include "effects/chains/standardeffectchain.h"
 #include "effects/defs.h"
@@ -116,7 +117,7 @@ ControlPickerMenu::ControlPickerMenu(QWidget* pParent)
     // EQs
     QMenu* eqMenu = addSubmenu(tr("Equalizers"), mixerMenu);
     constexpr int kNumEqRacks = 1;
-    const int iNumDecks = static_cast<int>(ControlObject::get(ConfigKey("[Master]", "num_decks")));
+    const int iNumDecks = static_cast<int>(PollingControlProxy("[Master]", "num_decks").get());
     for (int iRackNumber = 0; iRackNumber < kNumEqRacks; ++iRackNumber) {
         // TODO: Although there is a mode with 4-band EQs, it's not feasible
         // right now to add support for learning both it and regular 3-band eqs.
@@ -914,8 +915,9 @@ ControlPickerMenu::ControlPickerMenu(QWidget* pParent)
                     groupDescriptionPrefix);
         }
 
-        const int iNumSamplers = static_cast<int>(ControlObject::get(
-                ConfigKey("[Master]", "num_samplers")));
+        const int iNumSamplers = static_cast<int>(PollingControlProxy(
+                "[Master]", "num_samplers")
+                                                          .get());
         for (int iSamplerNumber = 1; iSamplerNumber <= iNumSamplers;
                 ++iSamplerNumber) {
             // PlayerManager::groupForSampler is 0-indexed.
@@ -930,8 +932,9 @@ ControlPickerMenu::ControlPickerMenu(QWidget* pParent)
                     groupDescriptionPrefix);
         }
 
-        const int iNumMicrophones = static_cast<int>(ControlObject::get(
-                ConfigKey("[Master]", "num_microphones")));
+        const int iNumMicrophones = static_cast<int>(PollingControlProxy(
+                "[Master]", "num_microphones")
+                                                             .get());
         for (int iMicrophoneNumber = 1; iMicrophoneNumber <= iNumMicrophones;
                 ++iMicrophoneNumber) {
             QString micGroup = PlayerManager::groupForMicrophone(iMicrophoneNumber - 1);
@@ -945,8 +948,9 @@ ControlPickerMenu::ControlPickerMenu(QWidget* pParent)
                     groupDescriptionPrefix);
         }
 
-        const int iNumAuxiliaries = static_cast<int>(ControlObject::get(
-                ConfigKey("[Master]", "num_auxiliaries")));
+        const int iNumAuxiliaries = static_cast<int>(PollingControlProxy(
+                "[Master]", "num_auxiliaries")
+                                                             .get());
         for (int iAuxiliaryNumber = 1; iAuxiliaryNumber <= iNumAuxiliaries;
                 ++iAuxiliaryNumber) {
             QString auxGroup = PlayerManager::groupForAuxiliary(iAuxiliaryNumber - 1);
@@ -960,8 +964,9 @@ ControlPickerMenu::ControlPickerMenu(QWidget* pParent)
                     groupDescriptionPrefix);
         }
 
-        const int numEffectSlots = static_cast<int>(ControlObject::get(
-                ConfigKey(effectUnitGroup, "num_effectslots")));
+        const int numEffectSlots = static_cast<int>(PollingControlProxy(
+                effectUnitGroup, "num_effectslots")
+                                                            .get());
         for (int iEffectSlotNumber = 1; iEffectSlotNumber <= numEffectSlots;
                 ++iEffectSlotNumber) {
             const QString effectSlotGroup =
@@ -1019,8 +1024,9 @@ ControlPickerMenu::ControlPickerMenu(QWidget* pParent)
                     slotDescriptionPrefix);
 
             // Effect parameter knobs
-            const int numParameterSlots = static_cast<int>(ControlObject::get(
-                    ConfigKey(effectSlotGroup, "num_parameterslots")));
+            const int numParameterSlots = static_cast<int>(PollingControlProxy(
+                    effectSlotGroup, "num_parameterslots")
+                                                                   .get());
             for (int iParameterSlotNumber = 1; iParameterSlotNumber <= numParameterSlots;
                     ++iParameterSlotNumber) {
                 // The parameter slot group is the same as the effect slot
@@ -1065,8 +1071,9 @@ ControlPickerMenu::ControlPickerMenu(QWidget* pParent)
             }
 
             // Effect parameter buttons
-            const int numButtonParameterSlots = static_cast<int>(ControlObject::get(
-                    ConfigKey(effectSlotGroup, "num_button_parameterslots")));
+            const int numButtonParameterSlots = static_cast<int>(PollingControlProxy(
+                    effectSlotGroup, "num_button_parameterslots")
+                                                                         .get());
             for (int iParameterSlotNumber = 1; iParameterSlotNumber <= numButtonParameterSlots;
                     ++iParameterSlotNumber) {
                 // The parameter slot group is the same as the effect slot
@@ -1386,10 +1393,10 @@ void ControlPickerMenu::addPlayerControl(const QString& control,
         bool previewdeckControls,
         bool addReset) {
     const int iNumSamplers = static_cast<int>(
-            ControlObject::get(ConfigKey("[Master]", "num_samplers")));
-    const int iNumDecks = static_cast<int>(ControlObject::get(ConfigKey("[Master]", "num_decks")));
+            PollingControlProxy("[Master]", "num_samplers").get());
+    const int iNumDecks = static_cast<int>(PollingControlProxy("[Master]", "num_decks").get());
     const int iNumPreviewDecks = static_cast<int>(
-            ControlObject::get(ConfigKey("[Master]", "num_preview_decks")));
+            PollingControlProxy("[Master]", "num_preview_decks").get());
 
     parented_ptr<QMenu> controlMenu = make_parented<QMenu>(controlTitle, pMenu);
     pMenu->addMenu(controlMenu);
@@ -1512,7 +1519,7 @@ void ControlPickerMenu::addMicrophoneAndAuxControl(const QString& control,
 
     if (microphoneControls) {
         const int kNumMicrophones = static_cast<int>(
-                ControlObject::get(ConfigKey("[Master]", "num_microphones")));
+                PollingControlProxy("[Master]", "num_microphones").get());
         for (int i = 1; i <= kNumMicrophones; ++i) {
             QString prefix = m_microphoneStr.arg(i);
             QString group = PlayerManager::groupForMicrophone(i - 1);
@@ -1539,7 +1546,7 @@ void ControlPickerMenu::addMicrophoneAndAuxControl(const QString& control,
     }
 
     const int kNumAuxiliaries = static_cast<int>(
-            ControlObject::get(ConfigKey("[Master]", "num_auxiliaries")));
+            PollingControlProxy("[Master]", "num_auxiliaries").get());
     if (auxControls) {
         for (int i = 1; i <= kNumAuxiliaries; ++i) {
             QString prefix = m_auxStr.arg(i);

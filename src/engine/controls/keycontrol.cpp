@@ -7,6 +7,7 @@
 #include "control/controlpotmeter.h"
 #include "control/controlproxy.h"
 #include "control/controlpushbutton.h"
+#include "control/pollingcontrolproxy.h"
 #include "engine/enginebuffer.h"
 #include "moc_keycontrol.cpp"
 #include "track/keyutils.h"
@@ -452,11 +453,12 @@ bool KeyControl::syncKey(EngineBuffer* pOtherEngineBuffer) {
             KeyUtils::keyFromNumericValue(m_pFileKey->get());
 
     // Get the sync target's effective key, since that is what we aim to match.
-    double dKey = ControlObject::get(ConfigKey(pOtherEngineBuffer->getGroup(), "key"));
+    double dKey = PollingControlProxy(pOtherEngineBuffer->getGroup(), "key").get();
     mixxx::track::io::key::ChromaticKey otherKey =
             KeyUtils::keyFromNumericValue(dKey);
-    double otherDistance = ControlObject::get(
-            ConfigKey(pOtherEngineBuffer->getGroup(), "visual_key_distance"));
+    double otherDistance = PollingControlProxy(
+            pOtherEngineBuffer->getGroup(), "visual_key_distance")
+                                   .get();
 
     if (thisFileKey == mixxx::track::io::key::INVALID ||
         otherKey == mixxx::track::io::key::INVALID) {

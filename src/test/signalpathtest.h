@@ -111,7 +111,7 @@ class BaseSignalPathTest : public MixxxTest, SoundSourceProviderRegistration {
                 m_pEffectsManager,
                 EngineChannel::CENTER,
                 m_pEngineMaster->registerChannelGroup(m_sPreviewGroup));
-        ControlObject::set(ConfigKey(m_sPreviewGroup, "file_bpm"), 2.0);
+        PollingControlProxy(m_sPreviewGroup, "file_bpm").set(2.0);
 
         // TODO(owilliams) Tests fail with this turned on because EngineSync is syncing
         // to this sampler.  FIX IT!
@@ -125,7 +125,7 @@ class BaseSignalPathTest : public MixxxTest, SoundSourceProviderRegistration {
         addDeck(m_pChannel3);
 
         m_pEngineSync = m_pEngineMaster->getEngineSync();
-        ControlObject::set(ConfigKey(m_sMasterGroup, "enabled"), 1.0);
+        PollingControlProxy(m_sMasterGroup, "enabled").set(1.0);
 
         PlayerInfo::create();
     }
@@ -148,9 +148,9 @@ class BaseSignalPathTest : public MixxxTest, SoundSourceProviderRegistration {
     }
 
     void addDeck(EngineDeck* pDeck) {
-        ControlObject::set(ConfigKey(pDeck->getGroup(), "master"), 1.0);
-        ControlObject::set(ConfigKey(pDeck->getGroup(), "rate_dir"), kDefaultRateDir);
-        ControlObject::set(ConfigKey(pDeck->getGroup(), "rateRange"), kDefaultRateRange);
+        PollingControlProxy(pDeck->getGroup(), "master").set(1.0);
+        PollingControlProxy(pDeck->getGroup(), "rate_dir").set(kDefaultRateDir);
+        PollingControlProxy(pDeck->getGroup(), "rateRange").set(kDefaultRateRange);
         m_pNumDecks->set(m_pNumDecks->get() + 1);
     }
 

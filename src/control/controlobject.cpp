@@ -79,12 +79,6 @@ double ControlObject::getMidiParameter() const {
     return m_pControl->getMidiParameter();
 }
 
-// static
-double ControlObject::get(const ConfigKey& key) {
-    QSharedPointer<ControlDoublePrivate> pCop = ControlDoublePrivate::getControl(key);
-    return pCop ? pCop->get() : 0.0;
-}
-
 double ControlObject::getParameter() const {
     return m_pControl->getParameter();
 }
@@ -103,14 +97,6 @@ void ControlObject::setParameter(double v) {
 
 void ControlObject::setParameterFrom(double v, QObject* pSender) {
     m_pControl->setParameter(v, pSender);
-}
-
-// static
-void ControlObject::set(const ConfigKey& key, const double& value) {
-    QSharedPointer<ControlDoublePrivate> pCop = ControlDoublePrivate::getControl(key);
-    if (pCop) {
-        pCop->set(value, nullptr);
-    }
 }
 
 void ControlObject::setReadOnly() {
